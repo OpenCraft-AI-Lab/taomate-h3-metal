@@ -19,9 +19,10 @@ from taomate_h3.streaming.metal_kv import QuantizedCleanAVKVCache
         ((0, 2, 9), [False, False, False, True, False, True, True, False, True]),
     ],
 )
+@pytest.mark.parametrize("row_views", [False, True])
 @torch.no_grad()
 def test_stage_observes_released_copies_and_identical_results(
-    monkeypatch, device, points, mask_values
+    monkeypatch, device, points, mask_values, row_views
 ):
     if device == "mps" and not torch.backends.mps.is_available():
         pytest.skip("Exclusive MPS window required")
@@ -36,7 +37,14 @@ def test_stage_observes_released_copies_and_identical_results(
     tags[indices[0]] = 2
     outputs, states = [], []
     actual_gate = hooks._release_clean_temporaries_enabled
+    row_gate = hooks._row_views_enabled
     for enabled in (False, True):
+        monkeypatch.setenv("TAOMATE_MPS_ATTENTION_ROW_VIEWS", "1" if row_views and enabled else "0")
+        monkeypatch.setattr(
+            hooks,
+            "_row_views_enabled",
+            row_gate if device == "mps" else lambda _: bool(row_views and enabled),
+        )
         refs = []
         cache = QuantizedCleanAVKVCache(
             KVContract(local_heads=1, device_type=device), allocation="packed8"

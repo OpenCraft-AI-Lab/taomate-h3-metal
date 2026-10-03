@@ -105,8 +105,11 @@ def test_full_lora_mlp_owner_and_bitwise(monkeypatch, device, rows):
 
 @pytest.mark.parametrize("device", ["cpu", "mps"])
 @pytest.mark.parametrize("trim_clean", [False, True])
+@pytest.mark.parametrize("row_views", [False, True])
 @torch.no_grad()
-def test_full_lora_attention_owner_output_and_clean_quantized_kv(monkeypatch, device, trim_clean):
+def test_full_lora_attention_owner_output_and_clean_quantized_kv(
+    monkeypatch, device, trim_clean, row_views
+):
     from taomate_h3.streaming import attention_hook as hooks
     from taomate_h3.streaming.attention_hook import H3StreamingAttentionHook, HookMode
     from taomate_h3.streaming.cache import KVContract
@@ -128,6 +131,7 @@ def test_full_lora_attention_owner_output_and_clean_quantized_kv(monkeypatch, de
     rope = (torch.linspace(-0.7, 0.9, 14 * 128).reshape(14, 128).bfloat16().to(device), positions)
     original = activation.can_release_projection
     clean_gate = hooks._release_clean_temporaries_enabled
+    row_gate = hooks._row_views_enabled
     refs = []
 
     def predicate(projected, inputs, *consumers):
@@ -137,6 +141,12 @@ def test_full_lora_attention_owner_output_and_clean_quantized_kv(monkeypatch, de
 
     outputs, pairs = [], []
     for release in (False, True):
+        monkeypatch.setenv("TAOMATE_MPS_ATTENTION_ROW_VIEWS", "1" if row_views and release else "0")
+        monkeypatch.setattr(
+            hooks,
+            "_row_views_enabled",
+            row_gate if device == "mps" else lambda _: bool(row_views and release),
+        )
         monkeypatch.setattr(
             hooks,
             "_release_clean_temporaries_enabled",

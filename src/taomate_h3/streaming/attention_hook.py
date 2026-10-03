@@ -23,6 +23,34 @@ def _release_clean_temporaries_enabled(query, key, value) -> bool:
     )
 
 
+def _row_views_enabled(tensor: torch.Tensor) -> bool:
+    return (
+        os.environ.get("TAOMATE_MPS_ATTENTION_ROW_VIEWS") == "1"
+        and tensor.device.type == "mps"
+        and not torch.is_grad_enabled()
+        and not tensor.requires_grad
+    )
+
+
+def _contiguous_span(indices: torch.Tensor) -> tuple[int, int] | None:
+    if indices.numel() == 0:
+        return None
+    start = int(indices[0].item())
+    stop = int(indices[-1].item()) + 1
+    if stop - start != indices.numel():
+        return None
+    expected = torch.arange(start, stop, dtype=indices.dtype, device=indices.device)
+    return (start, stop) if torch.equal(indices, expected) else None
+
+
+def _select_attention_rows(tensor, indices, span):
+    # SDPA sees the same shape/stride as the original contiguous gather. Inputs
+    # remain immutable; arbitrary masks and strided tensors keep index_select.
+    if _row_views_enabled(tensor) and tensor.is_contiguous() and span is not None:
+        return tensor[span[0] : span[1]]
+    return tensor.index_select(0, indices)
+
+
 class HookMode(str, Enum):
     IDLE = "idle"
     NOISY = "noisy"
@@ -50,7 +78,10 @@ class H3StreamingAttentionHook:
     """Condition current media on text, persistent clean AV KV, and current KV."""
 
     def __init__(
-        self, cache: CleanAVKVCache, *, backend: str = "flash_attn_3",
+        self,
+        cache: CleanAVKVCache,
+        *,
+        backend: str = "flash_attn_3",
         query_chunk_size: int | None = None,
     ) -> None:
         if backend not in ("flash_attn_3", "torch_sdpa"):
@@ -73,6 +104,7 @@ class H3StreamingAttentionHook:
         self.mode = HookMode.IDLE
         self._live_documents: tuple[int, ...] | None = None
         self._live_document_rows: dict[int, tuple[torch.Tensor, torch.Tensor]] = {}
+        self._live_document_spans = {}
 
     def receipt(self) -> dict[str, object]:
         return {
@@ -107,7 +139,11 @@ class H3StreamingAttentionHook:
             from ..inference.metal_attention import query_chunked_sdpa
 
             output = query_chunked_sdpa(
-                query, key, value, scale=scale, query_chunk_size=self.query_chunk_size,
+                query,
+                key,
+                value,
+                scale=scale,
+                query_chunk_size=self.query_chunk_size,
             ).unsqueeze(0)
         elif self.backend == "torch_sdpa":
             from torch.nn.functional import scaled_dot_product_attention
@@ -138,7 +174,8 @@ class H3StreamingAttentionHook:
             output = output[0]
         self.kernel_calls += (
             (int(query.shape[0]) + self.query_chunk_size - 1) // self.query_chunk_size
-            if self.query_chunk_size is not None else 1
+            if self.query_chunk_size is not None
+            else 1
         )
         self.query_tokens += int(query.shape[0])
         self.key_tokens += int(key.shape[0])
@@ -156,11 +193,13 @@ class H3StreamingAttentionHook:
         self.mode = mode
         self._live_documents = None
         self._live_document_rows.clear()
+        self._live_document_spans.clear()
 
     def deactivate(self) -> None:
         self.mode = HookMode.IDLE
         self._live_documents = None
         self._live_document_rows.clear()
+        self._live_document_spans.clear()
 
     def __call__(
         self,
@@ -236,13 +275,20 @@ class H3StreamingAttentionHook:
                 rows = (condition_indices, media_indices)
                 self._live_document_rows[document_index] = rows
             condition_indices, media_indices = rows
+            if document_index not in self._live_document_spans:
+                self._live_document_spans[document_index] = (
+                    tuple(_contiguous_span(index) for index in rows)
+                    if _row_views_enabled(query)
+                    else (None, None)
+                )
+            condition_span, media_span = self._live_document_spans[document_index]
             if condition_indices.numel() == 0 or media_indices.numel() == 0:
                 raise RuntimeError("live streaming document must contain condition and media rows")
 
-            condition_key = k_document.index_select(0, condition_indices)
-            condition_value = v_document.index_select(0, condition_indices)
+            condition_key = _select_attention_rows(k_document, condition_indices, condition_span)
+            condition_value = _select_attention_rows(v_document, condition_indices, condition_span)
             condition_output = self._attention(
-                q_document.index_select(0, condition_indices),
+                _select_attention_rows(q_document, condition_indices, condition_span),
                 (_KVPart(condition_key, condition_value),),
                 scale=scale,
             )
@@ -252,22 +298,29 @@ class H3StreamingAttentionHook:
                 media_parts.append(_KVPart(persistent.key, persistent.value))
             media_parts.append(
                 _KVPart(
-                    k_document.index_select(0, media_indices),
-                    v_document.index_select(0, media_indices),
+                    _select_attention_rows(k_document, media_indices, media_span),
+                    _select_attention_rows(v_document, media_indices, media_span),
                 )
             )
-            media_query = q_document.index_select(0, media_indices)
+            media_query = _select_attention_rows(q_document, media_indices, media_span)
             if callable(quantized_attention):
                 chunk = self.query_chunk_size or 128
                 media_output = quantized_attention(
-                    layer_name, media_query, AVKV(condition_key, condition_value),
-                    AVKV(media_parts[-1].key, media_parts[-1].value), scale=scale,
-                    query_chunk_size=chunk, max_joined_bytes=self.cache.max_joined_bytes,
+                    layer_name,
+                    media_query,
+                    AVKV(condition_key, condition_value),
+                    AVKV(media_parts[-1].key, media_parts[-1].value),
+                    scale=scale,
+                    query_chunk_size=chunk,
+                    max_joined_bytes=self.cache.max_joined_bytes,
                 )
                 self.kernel_calls += (int(media_query.shape[0]) + chunk - 1) // chunk
                 self.query_tokens += int(media_query.shape[0])
-                self.key_tokens += (int(condition_key.shape[0]) + self.cache.history_tokens
-                                    + int(media_parts[-1].key.shape[0]))
+                self.key_tokens += (
+                    int(condition_key.shape[0])
+                    + self.cache.history_tokens
+                    + int(media_parts[-1].key.shape[0])
+                )
             else:
                 media_output = self._attention(media_query, media_parts, scale=scale)
 

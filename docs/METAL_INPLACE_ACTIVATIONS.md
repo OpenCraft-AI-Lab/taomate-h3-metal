@@ -70,3 +70,21 @@ and compare final attention output plus INT8 K/V and F32 scales, including full
 tiny official LoRA attention. MPS variants await an exclusive test window.
 These released buffers overlap other lifetime optimizations; theoretical byte
 counts must not be added together as a measured peak saving.
+
+## Contiguous attention row views (separate opt-in)
+
+`TAOMATE_MPS_ATTENTION_ROW_VIEWS=1` permits MPS/no-grad hook selections to use a
+slice only when cached selected indices are verified to equal an ascending
+contiguous range and the source tensor is contiguous. This preserves the
+original gather's shape, strides, dtype and values. Noncontiguous masks, reordered
+indices, strided inputs, default/CUDA and gradients retain `index_select`.
+Condition/media visibility, the original full-key softmax, KV quantization and
+retention are unchanged. Views share immutable caller storage; no consumer may
+mutate them. Activation-lifetime cleanup still drops temporary views before
+clean staging. The process receipt records the actual option in its environment.
+
+This candidate follows the native ten-second failure that persisted after pure
+lifetime releases; its aim is removing three current-media gather copies during
+attention. Savings are not yet an established end-to-end process-peak reduction.
+Tests cover storage sharing, exact output/stride, all fallback paths, arbitrary
+masks and padding documents, complete LoRA attention and staged INT8 K/V/scales.
