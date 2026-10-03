@@ -1,0 +1,62 @@
+{
+  "note": "Lossy expanded-coverage candidate versus original90 INT8 weights; same first prompt/seed/original teacher. Publication prefix only; whole-sequence VAE and retiming prevent MP4 prefix equality assumptions.",
+  "source_files_verified": 53,
+  "source_changes": [
+    "src/taomate_h3/runtime/mps_memory.py",
+    "src/taomate_h3/runtime/mps.py",
+    "src/taomate_h3/streaming/attention_hook.py",
+    "src/taomate_h3/streaming/metal_kv.py",
+    "src/taomate_h3/model/pipeline.py",
+    "src/taomate_h3/model/layers.py",
+    "src/taomate_h3/model/dit.py",
+    "src/taomate_h3/inference/metal_loader.py",
+    "src/taomate_h3/inference/lora_checkpoint.py",
+    "src/taomate_h3/inference/metal_activations.py"
+  ],
+  "latents": {
+    "audio": {
+      "prefix_shape": [
+        2,
+        32,
+        207
+      ],
+      "full_candidate_shape": [
+        2,
+        32,
+        405
+      ],
+      "exact": true,
+      "relative_l2": 0.0,
+      "cosine": 1.0,
+      "rms_error": 0.0,
+      "reference_rms": 0.549544830594878,
+      "candidate_rms": 0.549544830594878,
+      "mean_absolute_error": 0.0,
+      "max_absolute_error": 0.0
+    },
+    "video": {
+      "prefix_shape": [
+        1,
+        24,
+        37,
+        120,
+        68
+      ],
+      "full_candidate_shape": [
+        1,
+        24,
+        72,
+        120,
+        68
+      ],
+      "exact": false,
+      "relative_l2": 0.2833878201226624,
+      "cosine": 0.9600045147802037,
+      "rms_error": 0.2944648049176416,
+      "reference_rms": 1.0390877236367626,
+      "candidate_rms": 1.0430277203938303,
+      "mean_absolute_error": 0.18220720573146026,
+      "max_absolute_error": 5.260842800140381
+    }
+  }
+}

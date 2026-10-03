@@ -1,0 +1,61 @@
+{
+  "strict_full_decode": true,
+  "video": {
+    "codec_name": "h264",
+    "width": 1088,
+    "height": 1920,
+    "pix_fmt": "yuv420p",
+    "r_frame_rate": "24/1",
+    "nb_frames": "240",
+    "duration": "10.000000"
+  },
+  "audio": {
+    "codec_name": "aac",
+    "sample_rate": "32000",
+    "channels": 2,
+    "duration": "10.000000",
+    "duration_ts": 320000
+  },
+  "audio_finite": true,
+  "audio_decoded_samples_per_channel": 320512,
+  "audio_rms": [
+    0.17425037837753013,
+    0.17406215144035453
+  ],
+  "audio_abs_peak": 0.9932110905647278,
+  "aac_padding_note": "decoded samples may include padding; stream presentation duration is authoritative",
+  "latents": {
+    "audio": {
+      "shape": [
+        2,
+        32,
+        405
+      ],
+      "finite": true,
+      "minimum": -2.2126030921936035,
+      "maximum": 2.387132406234741
+    },
+    "video": {
+      "shape": [
+        1,
+        24,
+        72,
+        120,
+        68
+      ],
+      "finite": true,
+      "minimum": -4.485444068908691,
+      "maximum": 4.4907965660095215
+    }
+  },
+  "contact_frames": [
+    0,
+    60,
+    118,
+    121,
+    123,
+    125,
+    128,
+    239
+  ]
+}
