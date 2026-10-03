@@ -19,6 +19,7 @@ from typing import Iterator
 import torch
 
 from taomate_h3.inference.metal_attention import query_chunked_sdpa
+from taomate_h3.runtime.mps_memory import memory_trace_enabled, trace_mps_memory
 from taomate_h3.streaming.cache import (
     AUDIO_TOKEN_TAG,
     AVKV,
@@ -246,6 +247,17 @@ class QuantizedCleanAVKVCache(CleanAVKVCache):
             self._sync()
         return quantized, scales
 
+    def _trace_memory(self, point: str, layer_name: str, device_type: str, **fields: int) -> None:
+        if memory_trace_enabled(device_type):
+            trace_mps_memory(
+                point,
+                layer=layer_name,
+                committed_blocks=self.committed_blocks,
+                staged_layers=len(self._staged),
+                **self.receipt(),
+                **fields,
+            )
+
     @torch.no_grad()
     def stage(
         self,
@@ -284,6 +296,13 @@ class QuantizedCleanAVKVCache(CleanAVKVCache):
             if self._metadata is not None and metadata != self._metadata:
                 raise ValueError("packed metadata differs between layers")
             self._metadata, self._tags = metadata, tags
+            self._trace_memory(
+                "before_clean_stage",
+                layer_name,
+                key.device.type,
+                current_rows=len(key),
+                commit_rows=len(tags),
+            )
             indices = torch.nonzero(commit_mask, as_tuple=False).flatten()
             if self.allocation == "packed8":
                 qk, qv, sk, sv = self._packed_destination(layer_name, len(indices), key.device)
@@ -295,6 +314,13 @@ class QuantizedCleanAVKVCache(CleanAVKVCache):
             pair = _QuantizedPair(qk, qv, sk, sv)
             self._sync()
             self._staged[layer_name] = pair
+            self._trace_memory(
+                "after_clean_stage",
+                layer_name,
+                key.device.type,
+                current_rows=len(key),
+                commit_rows=len(tags),
+            )
             self._metadata, self._tags = metadata, tags
 
     def commit(self) -> None:
@@ -408,12 +434,35 @@ class QuantizedCleanAVKVCache(CleanAVKVCache):
                 raise MemoryError("joined BF16 KV exceeds explicit budget or is empty")
             joined_key = joined_value = out = restored = indices = None
             try:
+                self._trace_memory(
+                    "before_joined_key",
+                    layer_name,
+                    query.device.type,
+                    query_rows=len(query),
+                    joined_rows=count,
+                    requested_buffer_bytes=count * self.contract.local_heads * 128 * 2,
+                )
                 joined_key = torch.empty(
                     (count, self.contract.local_heads, 128),
                     dtype=torch.bfloat16,
                     device=query.device,
                 )
+                self._trace_memory(
+                    "after_joined_key",
+                    layer_name,
+                    query.device.type,
+                    query_rows=len(query),
+                    joined_rows=count,
+                    requested_buffer_bytes=joined_key.nbytes,
+                )
                 joined_value = torch.empty_like(joined_key)
+                self._trace_memory(
+                    "after_joined_value",
+                    layer_name,
+                    query.device.type,
+                    query_rows=len(query),
+                    joined_rows=count,
+                )
                 for which, out in enumerate((joined_key, joined_value)):
                     prefix = condition.key if which == 0 else condition.value
                     suffix = current.key if which == 0 else current.value

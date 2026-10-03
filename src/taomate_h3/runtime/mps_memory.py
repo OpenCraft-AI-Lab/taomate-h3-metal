@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import os
 from collections.abc import Mapping
 from numbers import Integral
 
@@ -59,3 +60,27 @@ def reset_mps_peak_memory() -> bool:
     except (AttributeError, RuntimeError, NotImplementedError, TypeError, ValueError):
         return False
     return True
+
+
+def memory_trace_enabled(device_type: str) -> bool:
+    """Strict opt-in diagnostic, never active on CPU/CUDA."""
+    return device_type == "mps" and os.environ.get("TAOMATE_MPS_MEMORY_TRACE") == "1"
+
+
+def trace_mps_memory(point: str, **fields: int | str | bool | None) -> None:
+    """Emit only scalar metadata, after synchronization, without tensor/frame retention.
+
+    Callers gate by the actual tensor device. This diagnostic intentionally adds
+    synchronization and must not be described as an uninstrumented timing run.
+    Neither GC nor empty_cache is invoked, so live storage ownership is unchanged.
+    """
+    if not memory_trace_enabled("mps"):
+        return
+    if any(type(value) not in (int, str, bool, type(None)) for value in fields.values()):
+        raise TypeError("memory trace accepts scalar metadata only")
+    from .backend import progress
+
+    torch.mps.synchronize()
+    progress(
+        "mps_allocation_boundary", point=point, synchronized=True, **mps_memory_receipt(), **fields
+    )

@@ -194,10 +194,30 @@ def apply_h3_lora_checkpoint(
                 return output
             output = self.base(inputs)
             compute_dtype = output.dtype
+            from ..runtime.mps_memory import memory_trace_enabled, trace_mps_memory
+
+            traced = memory_trace_enabled(inputs.device.type)
+            if traced:
+                trace_mps_memory(
+                    "before_lora_update",
+                    layer=self._metal_trace_target,
+                    rows=inputs.numel() // inputs.shape[-1],
+                    output_columns=output.shape[-1],
+                    requested_update_bytes=output.nbytes,
+                    rank=self.lora_a.shape[0],
+                )
             update = torch.nn.functional.linear(
                 torch.nn.functional.linear(inputs.to(compute_dtype), self.lora_a),
                 self.lora_b,
             )
+            if traced:
+                trace_mps_memory(
+                    "after_lora_update",
+                    layer=self._metal_trace_target,
+                    rows=inputs.numel() // inputs.shape[-1],
+                    output_columns=output.shape[-1],
+                    update_bytes=update.nbytes,
+                )
             if self.kind == "row" and int(self.base.tp_size) > 1:
                 update = collectives.tp_all_reduce(update, context=self.base.parallel_context)
             if tuple(update.shape) != tuple(output.shape):
@@ -240,6 +260,7 @@ def apply_h3_lora_checkpoint(
         ):
             raise H3LoRACheckpointError(f"H3 inference LoRA local shape differs: {target}")
         replacement = H3InferenceParallelLinearLoRA(module, kind=kind, a=local_a, b=local_b).eval()
+        replacement._metal_trace_target = target
         replacements.append((target, module, replacement))
         local_numel += int(local_a.numel() + local_b.numel())
 
