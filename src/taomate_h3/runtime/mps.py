@@ -18,6 +18,7 @@ import torch
 
 from .backend import empty_cache, progress, require_mps, synchronize
 from .direct import H3Runtime, _distribution_version
+from .mps_memory import mps_memory_receipt, reset_mps_peak_memory
 
 
 class MPSRuntime(H3Runtime):
@@ -169,16 +170,18 @@ class MPSRuntime(H3Runtime):
 
     def reset_dit_peak_memory(self) -> None:
         self._synchronize()
+        self._dit_peak_reset_succeeded = reset_mps_peak_memory()
 
     def dit_peak_memory_receipt(self) -> dict[str, Any]:
         self._synchronize()
         return {
             "backend": "mps",
-            "peak_allocated_bytes": None,
-            "peak_reserved_bytes": None,
-            "current_allocated_bytes": torch.mps.current_allocated_memory(),
-            "driver_allocated_bytes": torch.mps.driver_allocated_memory(),
-            "note": "MPS API exposes current allocations, not a lifetime peak",
+            **mps_memory_receipt(),
+            "peak_reset_succeeded": getattr(self, "_dit_peak_reset_succeeded", None),
+            "peak_scope": (
+                "since_dit_reset" if getattr(self, "_dit_peak_reset_succeeded", False)
+                else "allocator_since_external_reset_or_initialization"
+            ),
         }
 
     def release_transformer(self) -> None:
