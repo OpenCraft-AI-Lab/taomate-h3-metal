@@ -1,11 +1,14 @@
 {
-  "passed": 137,
+  "passed": 161,
   "skipped": 0,
-  "seconds": 28.53,
-  "source_commit": "9ec5153",
+  "seconds": 18.2,
+  "source_commit": "3b7fc88",
   "new_integrated_test_files": [
     "tests/test_metal_loader.py",
-    "tests/test_metal_memory.py"
+    "tests/test_metal_memory.py",
+    "tests/test_memory_guard.py",
+    "tests/test_metal_vae_lifetimes.py",
+    "tests/test_metal_activations.py"
   ],
   "command": "PYTORCH_ENABLE_MPS_FALLBACK=0 .venv/bin/python -B -m pytest -q -p no:cacheprovider tests",
   "execution": "real CPU and MPS",

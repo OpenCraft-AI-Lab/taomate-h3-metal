@@ -1,0 +1,15 @@
+{
+  "role": "decoder_only_fixed_saved_inputs_no_teacher_or_dit",
+  "source_commit": "b6179b7",
+  "source_sha256_verified_unchanged_at_completion": true,
+  "source_files_verified": 51,
+  "wall_seconds": 193.1235850835219,
+  "kernel_peak_footprint_gib": 23.45801266282797,
+  "returncode": 0,
+  "guard_reason": null,
+  "minimum_available_estimate_gib": 79.37022399902344,
+  "maximum_system_swap_growth_gib": 0.0,
+  "postflight_sample_ok": true,
+  "exact_delivered_mp4": true,
+  "full_telemetry_path": "/Users/supreme-paca/Projects/taomate-h3-metal/outputs/memory-experiments/vae-lifetimes-fixed-10s-v2/memory.jsonl"
+}

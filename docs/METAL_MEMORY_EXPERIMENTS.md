@@ -263,3 +263,26 @@ postflight watchdog sampling (`a9c569f`) and MPS VAE window-view release plus
 model disposal before encoding (`b6179b7`). Their 147 CPU/real-MPS tests pass.
 A fixed-latent full decoder comparison and opt-in activation-lifetime work
 follow; completed native video outcomes will be documented separately.
+
+
+### Exact decoder lifecycle validation
+
+The complete saved ten-second BF16 decoder inputs were re-published on
+`b6179b7` without teacher or DiT execution. This decoder-only verification
+completed in 193.124 s with a main-worker physical peak of 23.46 GiB, valid
+postflight telemetry and no guard trigger. Its entire delivered MP4 SHA,
+all 240 RGB frames, decoded audio samples and saved latents exactly match the
+original baseline. SHA remains
+`dba747b56066230fde93cc526c197e4cdd654b826fcd8b44ad72d3a71439d613`.
+This validates the lifecycle changes at 480×864; it is not a new generation
+or a measured native-1080 decoder peak.
+
+`3b7fc88` adds `TAOMATE_MPS_INPLACE_ACTIVATIONS=1`. On detached MPS BF16
+inference with the original single-device linears, a scale-exactly-one LoRA
+update reuses its fresh base output, eliminating the separate unit-multiply
+and sum outputs. SwiGLU preserves separate BF16 SiLU and multiplication
+rounding and contiguous FC2 input. Inputs, adapter GEMMs and nonunit scales
+retain their original behavior; grad-enabled, aliased, hooked/custom and
+default CUDA paths do not use this optimization. Six new real-MPS cases
+exercise bitwise outputs and storage safety; the full CPU/MPS suite passes
+161 tests. Whole-model memory savings remain to be measured.
