@@ -1,0 +1,8 @@
+{
+  "returncode": 1,
+  "wall_seconds": 2881.9944523749873,
+  "physical_peak_gib": 98.54053018242121,
+  "swap_delta_bytes": -83886080,
+  "failure": "request1 phase2 FC1 LoRA update projection: reserved95.80GiB +1.12GiB under cap96.77GiB",
+  "source53_verified": true
+}
