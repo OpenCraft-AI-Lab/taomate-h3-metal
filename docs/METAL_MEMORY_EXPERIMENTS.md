@@ -18,6 +18,8 @@ Startup failures and interruptions also clean up descendants. The launch
 receipt records source hashes, command, environment, limits and measurements.
 Free + inactive is a conservative heuristic, and swap is system-wide.
 Current tensor payload, driver allocations and process peak are distinct.
+The macOS sampler covers the main Python worker PID; it does not aggregate
+FFmpeg child-process memory. The reserve and swap checks are system-wide.
 Some early receipts have an unavailable postflight sample (`TimeoutExpired`);
 reported swap changes refer to the last valid in-run sample, not a verified
 post-exit reading. The guard remained active throughout those runs.
@@ -237,3 +239,27 @@ completion and validation.
 Receipts, sampled telemetry, benchmark logs, comparisons and contact sheets
 are in `verification/memory-experiments/`. Full raw telemetry and generated
 media remain under ignored `outputs/memory-experiments/`.
+
+
+### First native video attempt
+
+On frozen source `9ec5153`, the 1088×1920 five-second attempt completed two
+of four Stage3 phases, then failed during a noisy MLP LoRA merge in phase 2.
+MPS refused an additional 1.12 GiB shared-pool allocation: its reported
+allocated memory was 96.15 GiB against the enforced 96.77 GiB watermark.
+The main Python process lifetime physical peak was 99.42 GiB, below the
+105 GiB process watchdog limit. The command exited with code 1 after
+1151.987 s, without a guard trigger or observed system swap growth. No
+completed video was produced. Neither limit was increased to force progress.
+
+After phase 0, current MPS allocation/driver readings were 45.05/64.58 GiB;
+after phase 1 they were 59.60/90.81 GiB. The gap requires separate allocator
+and driver diagnostics; it cannot be assigned to attention, graph storage or
+fragmentation solely from these two readings. The failure also identifies
+large LoRA merge temporaries as a concrete optimization target.
+
+Two exact lifecycle fixes have since been committed: bounded, reliable
+postflight watchdog sampling (`a9c569f`) and MPS VAE window-view release plus
+model disposal before encoding (`b6179b7`). Their 147 CPU/real-MPS tests pass.
+A fixed-latent full decoder comparison and opt-in activation-lifetime work
+follow; completed native video outcomes will be documented separately.

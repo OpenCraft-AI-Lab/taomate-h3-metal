@@ -1,0 +1,76 @@
+{"event": "text_load_start", "device": "mps"}
+{"event": "text_load_complete", "seconds": 14.490633541718125}
+{"event": "text_encode_start", "device": "mps"}
+{"event": "text_released", "device": "mps"}
+{"event": "dit_load_start", "device": "mps", "w8a8": null}
+{"event": "dit_load_complete", "seconds": 39.12185212504119}
+[adapter-load] H3 LoRA tensors loaded=416
+{"event": "stage3_phase_start", "request": 0, "phase": 0, "device": "mps:0"}
+{"event": "adaln_precomputed_and_released", "mode": "exact_original_bf16_projection_cache_then_release", "projection_count": 51, "timestep_rows": [[0.0], [0.03883492946624756, 0.13913047313690186], [0.14666670560836792, 0.40740740299224854], [1.0]], "released_parameter_bytes": 26078739456, "cached_output_bytes": 58189824, "precompute_seconds": 2.996437542140484, "unknown_timestep": "fail_closed", "mps_allocated_before": 29703802624, "mps_allocated_after": 29762891520, "mps_driver_after": 31493652480}
+{"event": "stage3_phase_memory", "request": 0, "phase": 0, "history_tokens": 24610, "allocated_bytes": 48371979520, "driver_bytes": 69342003200}
+{"event": "stage3_phase_start", "request": 0, "phase": 1, "device": "mps:0"}
+{"event": "stage3_phase_memory", "request": 0, "phase": 1, "history_tokens": 45124, "allocated_bytes": 63989468416, "driver_bytes": 97502560256}
+{"event": "stage3_phase_start", "request": 0, "phase": 2, "device": "mps:0"}
+Traceback (most recent call last):
+  File "/Users/supreme-paca/Projects/taomate-h3-metal/scripts/run_cached_guidance.py", line 35, in <module>
+    main()
+  File "/Users/supreme-paca/Projects/taomate-h3-metal/scripts/run_cached_guidance.py", line 31, in main
+    run_direct(config, audio_guidance_dir=args.guidance)
+  File "/Users/supreme-paca/Projects/taomate-h3-metal/src/taomate_h3/runner.py", line 319, in run_direct
+    video_latents, audio_latents = runtime.generate_latents(
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/supreme-paca/Projects/taomate-h3-metal/src/taomate_h3/runtime/direct.py", line 284, in generate_latents
+    result = self.pipeline.generate(
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/supreme-paca/Projects/taomate-h3-metal/.venv/lib/python3.11/site-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/supreme-paca/Projects/taomate-h3-metal/src/taomate_h3/model/pipeline.py", line 445, in generate
+    video_rows, audio_rows = denoise_loop(
+                             ^^^^^^^^^^^^^
+  File "/Users/supreme-paca/Projects/taomate-h3-metal/src/taomate_h3/streaming/runtime.py", line 704, in run
+    generated_video, generated_audio = minimax_h3_denoise_loop(
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/supreme-paca/Projects/taomate-h3-metal/src/taomate_h3/model/denoise.py", line 331, in minimax_h3_denoise_loop
+    velocity_video, velocity_audio = model_forward(model, forward_kwargs, step)
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/supreme-paca/Projects/taomate-h3-metal/src/taomate_h3/streaming/runtime.py", line 692, in noisy_forward
+    result = active_model(**call_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/supreme-paca/Projects/taomate-h3-metal/.venv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1783, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/supreme-paca/Projects/taomate-h3-metal/.venv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1794, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/supreme-paca/Projects/taomate-h3-metal/src/taomate_h3/model/dit.py", line 428, in forward
+    hidden = block(
+             ^^^^^^
+  File "/Users/supreme-paca/Projects/taomate-h3-metal/.venv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1783, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/supreme-paca/Projects/taomate-h3-metal/.venv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1794, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/supreme-paca/Projects/taomate-h3-metal/src/taomate_h3/model/layers.py", line 679, in forward
+    self.mlp(hidden),
+    ^^^^^^^^^^^^^^^^
+  File "/Users/supreme-paca/Projects/taomate-h3-metal/.venv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1783, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/supreme-paca/Projects/taomate-h3-metal/.venv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1794, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/supreme-paca/Projects/taomate-h3-metal/src/taomate_h3/model/layers.py", line 471, in forward
+    projected = self.fc1(value)
+                ^^^^^^^^^^^^^^^
+  File "/Users/supreme-paca/Projects/taomate-h3-metal/.venv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1783, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/supreme-paca/Projects/taomate-h3-metal/.venv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1794, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/supreme-paca/Projects/taomate-h3-metal/src/taomate_h3/inference/lora_checkpoint.py", line 205, in forward
+    return output + update * self.scale
+           ~~~~~~~^~~~~~~~~~~~~~~~~~~~~
+RuntimeError: MPS backend out of memory (MPS allocated: 96.15 GiB, other allocations: 1.69 MiB, max allowed: 96.77 GiB). Tried to allocate 1.12 GiB on shared pool. Use PYTORCH_MPS_HIGH_WATERMARK_RATIO=0.0 to disable upper limit for memory allocations (may cause system failure).

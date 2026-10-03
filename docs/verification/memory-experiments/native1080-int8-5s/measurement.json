@@ -1,0 +1,20 @@
+{
+  "run": "native1080-int8-5s",
+  "source_commit": "9ec5153",
+  "source_files_verified": 51,
+  "source_sha256_verified_unchanged_at_completion": true,
+  "whole_command_excludes_reused_teacher": true,
+  "returncode": 1,
+  "guard_reason": null,
+  "wall_seconds": 1151.9865164998919,
+  "kernel_peak_footprint_gib": 99.4208858832717,
+  "minimum_available_estimate_gib": 35.30607604980469,
+  "maximum_system_swap_growth_gib": 0.0,
+  "last_system_swap_growth_gib": 0.0,
+  "video_completed": false,
+  "completed_stage3_phases": 2,
+  "failure_request_index": 0,
+  "failure_phase_index": 2,
+  "failure": "MPS allocator refused 1.12 GiB shared-pool LoRA output allocation: allocated 96.15 GiB, maximum 96.77 GiB. No system swap growth observed. No memory limits raised.",
+  "full_telemetry_path": "/Users/supreme-paca/Projects/taomate-h3-metal/outputs/memory-experiments/native1080-int8-5s/memory.jsonl"
+}
