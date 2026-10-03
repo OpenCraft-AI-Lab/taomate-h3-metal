@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/private/tmp/taomate-metal-memory-diagnostics/diagnose_quantized_cache.py", line 247, in <module>
+    main()
+  File "/private/tmp/taomate-metal-memory-diagnostics/diagnose_quantized_cache.py", line 208, in main
+    rec.memory(torch,'interleaved_linear_output_live',phase=phase,layer=layer)
+  File "/private/tmp/taomate-metal-memory-diagnostics/diag_common.py", line 141, in memory
+    raise RuntimeError(f'Diagnostic driver allocation exceeded {self.driver_limit_bytes/GIB:g} GiB; external footprint guard remains active.')
+RuntimeError: Diagnostic driver allocation exceeded 73 GiB; external footprint guard remains active.

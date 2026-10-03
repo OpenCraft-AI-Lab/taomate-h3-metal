@@ -28,3 +28,13 @@ publication and owner lifetime. Matching small MPS tests subsequently passed in 
 window, as part of all 198 CPU/real-MPS tests on `8e6b1dd` (29.37 s). These
 tests establish arithmetic/ownership behavior at small shapes; native-shape
 allocator and whole-model measurements are still required.
+
+
+A subsequent same-source native-shape allocator control on `ffa5c0b` completed
+two phases with 28 GiB resident tensors and real FC1 after every clean layer:
+65.716 GiB process peak. Per-layer allocation stopped at the same 75 GiB guard
+partway through phase2. At matched phase1/layer44, reserved memory falls from
+73.121 to 62.594 GiB; active memory increases from 60.417 to 61.285 GiB due to
+unfilled packed slices. This establishes a measured benefit for this synthetic
+native geometry, not a guaranteed benefit at other geometries or a completed
+full-model video. See the experiment report and diagnostic evidence.

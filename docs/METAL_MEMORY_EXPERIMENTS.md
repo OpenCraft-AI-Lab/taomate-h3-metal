@@ -366,3 +366,40 @@ whole-model packed8 measurements remain to be established separately.
 
 See `verification/memory-experiments/int8-inplace-low03-10s/` for the source
 hashes, full-output comparison, runtime receipt and sampled physical memory.
+
+
+### Matched packed8 allocation and full-output SDPA diagnostics
+
+Four more guarded serial controls use byte-identical `ffa5c0b` source (all
+53 tracked Python files audited again at completion), LOW=0.3 and HIGH=0.9.
+The native-shape two-phase cache/resident28/FC1 experiment completes with
+packed8 at 65.716 GiB process peak, versus a same-source per-layer guard stop
+at 75.118 GiB after second-phase layer 44. At that matched live-FC1 point,
+packed8 active/reserved are 61.285/62.594 GiB, versus 60.417/73.121 GiB:
+reserved falls by 10.527 GiB, while active rises by 0.868 GiB because a packed
+owner includes not-yet-filled layer slices. The completed first-phase cache
+and FC1 samples match, and packed8 passes its independent CPU quantization
+samples in both phases. This is an allocator control, not a whole DiT/video.
+
+Two production SDPA controls compare chunks 64/128/256/512, three trials
+each, at BF16 NHD/56 heads/D128. Every byte of all 24 outputs matches its
+geometry's first chunk64 result; all are finite, with relative L2 and maximum
+absolute distance zero. The production full-key softmax and synchronization
+per query chunk remain unchanged.
+
+| SDPA Q/K tokens | Warm median64 | 128 | 256 | 512 | Whole-PID peak | Allocator R peak |
+| --- | --- | --- | --- | --- | --- | --- |
+| 24610 / 24610 | 1.0363 s | 0.6036 s | 0.4790 s | 0.4000 s | 3.653 GiB | 2.008 GiB |
+| 20514 / 86392 | 2.8024 s | 1.6774 s | 1.3440 s | 1.2431 s | 8.204 GiB | 3.320 GiB |
+
+Chunk512 is 2.59×/2.25× faster than64 and 1.20×/1.08× faster than256 in
+these operator controls. Reserved peaks are unchanged across chunks in each
+process. Fixed chunk order and only three trials limit performance inference;
+K=86392 is an approximate later-history size, not an exact count for every
+prompt. No full-model speedup or CUDA equality is claimed. All four jobs have
+no observed swap growth; the per-layer process guard slightly overshoots its
+75 GiB diagnostic budget before termination. Production limits stay unchanged.
+
+Full receipts, per-step counters, script snapshots, artifact hashes and the
+source audit are under `verification/memory-experiments/packed-kv-sdpa-diagnostics/`.
+Whole-model packed8 and native video outcomes are measured separately.

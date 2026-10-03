@@ -1,0 +1,80 @@
+Four controlled MPS diagnostics, source ffa5c0b — 2026-10-03
+
+All four runs pinned ffa5c0b800d4777782e82b2d892f175524f696c5.
+Completion audit checked all 53 tracked Python source files: diagnostic receipt,
+guard receipt, pinned Git contents and current working files all have identical
+SHA256 values. HEAD at completion check was docs-only 1236a21. Torch 2.14.1,
+git 5c4886908584029761b579af026dcfb627c84070. Jobs were serial under the standard
+heavy-gpu.lock; HIGH=.9, LOW=.3, CPU fallback disabled. GPU window released.
+
+Case                            Status              Guard   PID peak    A peak    R peak    Wall
+packed8 B, two phases            complete            75 GiB  65.716 GiB  62.156    63.227    28.798 s
+per_layer B, same source         guard stop p1/l44   75 GiB  75.118 GiB  60.726    73.121    27.811 s
+SDPA Q=K=24610                   complete            12 GiB   3.653 GiB   1.351     2.008    17.583 s
+SDPA Q=20514, K=86392            complete            12 GiB   8.204 GiB   2.882     3.320    35.336 s
+
+A/R = allocator buffer/heap counters. D is sampled driver allocation. PID peak
+is the independent kernel footprint high-water mark, including CPU tensors.
+Every sampled D−R was <=.703125 MiB. System swap did not grow: first SDPA changed
+by −8 MiB and the other three changed by zero; these are system-wide deltas.
+The per_layer stop slightly overshot its fixed cap before watchdog termination;
+the guard was not raised and that process group was reaped.
+
+Matched cache comparison (phase and layer zero-based; FC1 output still live):
+                     packed8 A/R/D GiB                per_layer A/R/D GiB
+p0/l49               47.73062 / 48.82031 / 48.82098     47.74051 / 55.60156 / 55.60223
+p1/l44               61.28530 / 62.59375 / 62.59442     60.41738 / 73.12109 / 73.12177
+
+At p1/l44 packed8 lowers R by 10.52734 GiB and R−A from 12.70371 to 1.30845 GiB.
+Its A is .86792 GiB higher at this point because the packed group physically owns
+some not-yet-filled layer slices. Receipts distinguish logical staged payload,
+actual staged backing and deduplicated physical history. This is a matched
+source/seed/shape/workload comparison; packed8 completes more total work, so the
+whole-job peak difference alone is not a matched-workload estimate.
+
+Both B jobs use two first-request 1088x1920 phases, 50 logical layers, 28 GiB
+uniform touched resident control, real FC1 after each stage, 64 MiB weight tiles
+and KV tile1024. Each phase uses one synthetic K/V pair reused across layers.
+This is an allocator experiment, not the full transformer or a video test.
+
+B numerical checks:
+- The matched completed first phase has identical sampled INT8 keys, F32 scales
+  and first/last-layer 64-row FC1 byte SHA across the two allocation policies.
+- FC1 SHA: 175ff4e0da7c65e5e41dba14fe4893ff0b2320bdd0ac7f97fac769afd2d2c34e
+- Packed8 passes CPU-oracle key/scale samples and within-phase FC1 sample checks
+  in both phases. Production stage() checks every input value for finiteness.
+- No full B-layer value equivalence is claimed from these samples. The guarded
+  per_layer job has no completed second-phase numeric receipt.
+
+SDPA operator times, median of trials 2 and 3; each cell is seconds:
+                     query64     query128    query256    query512
+Q=K=24610            1.036264    .603639     .479005     .400002
+Q20514/K86392        2.802351   1.677430    1.344030    1.243091
+
+Measured 64/512 ratios: 2.59065x and 2.25434x. Measured 256/512 ratios: 1.19751x
+and 1.08120x. These are operator timings, not predicted full-model speedups.
+All 24 trials match their own geometry's first query64 output over every byte
+and element: relative L2=0, max absolute difference=0, finite=true.
+Elements per output: 176,404,480 for first geometry; 147,044,352 for history.
+Query/key/value remain BF16 NHD; transpose/unsqueeze are original views. No extra
+K/V contiguous conversion, key splitting, mask, dropout, or sync-policy change
+was introduced. Every query block retains all keys in one softmax and the
+production function synchronizes each query block. The script calls that exact
+production function and times only it. CPU RNG/copies/hash/comparison are excluded.
+
+Three trials per chunk run in fixed order 64/128/256/512, one process per geometry;
+there is no between-trial empty_cache. This is a small controlled measurement,
+not a randomized performance study or CUDA oracle. K=86392 is an explicit
+approximate later-history size; actual prompt-dependent counts can differ.
+
+Detailed evidence:
+/private/tmp/taomate-metal-diagnostic-runs/followup-ffa5c0b-summary.json
+contains source hashes, all matched B step counters, cache receipts and all SDPA
+trial timings/distances. Four directories:
+  B-phase2-packed8-fc1-resident28-low03
+  B-phase2-per-layer-paired-fc1-resident28-low03
+  C-SDPA-first-low03
+  C-SDPA-history-low03
+Each contains run.log, memory.jsonl, process-receipt.json and diagnostic/receipt.json
+plus diagnostic/steps.jsonl. Scripts are preserved in the diagnostics directory.
+No production source was edited by this diagnostic task.
