@@ -221,3 +221,69 @@ def test_successful_run_records_valid_postflight_under_cleanup_signal_mask(tmp_p
     result = json.loads(receipt.read_text())
     assert result["preflight"]["sample_ok"] and result["postflight"]["sample_ok"]
     assert result["postflight"]["system_swap_bytes"] == 0
+
+
+@pytest.mark.parametrize("value", [float("nan"), float("inf"), float("-inf"), 0, -0.1, 0.80001, 1])
+def test_low_watermark_rejects_before_any_launch_or_file_write(tmp_path, value):
+    with pytest.raises(ValueError, match="low watermark"):
+        guard.run(
+            [],
+            repository=tmp_path,
+            watcher=tmp_path / "missing",
+            lock_path=tmp_path / "lock",
+            log_path=tmp_path / "log",
+            memory_path=tmp_path / "memory",
+            receipt_path=tmp_path / "receipt",
+            mps_low_watermark=value,
+        )
+    assert not list(tmp_path.iterdir())
+
+
+@pytest.mark.parametrize("value", ["nan", "inf", "-inf", "0", "-0.1", "0.81"])
+def test_cli_rejects_invalid_low_watermark(monkeypatch, tmp_path, value):
+    arguments = [str(SCRIPT)]
+    for name in ("watcher", "lock", "log", "memory", "receipt"):
+        arguments += ["--" + name, str(tmp_path / name)]
+    arguments += ["--mps-low-watermark=" + value, "--", sys.executable, "-c", "pass"]
+    monkeypatch.setattr(sys, "argv", arguments)
+    with pytest.raises(SystemExit) as exc:
+        guard.main()
+    assert exc.value.code == 2 and not list(tmp_path.iterdir())
+
+
+@pytest.mark.parametrize("ratio", [None, 0.3, 0.8])
+def test_actual_child_env_and_receipt_keep_high_cap(monkeypatch, tmp_path, ratio):
+    monkeypatch.setenv("PYTORCH_MPS_HIGH_WATERMARK_RATIO", "2.0")
+    monkeypatch.setenv("PYTORCH_MPS_LOW_WATERMARK_RATIO", "1.5")
+    watcher = _fake_watcher(
+        tmp_path,
+        "import json,time\n"
+        'sample={"sample_ok":True,"kernel_peak_footprint_bytes":1,"available_estimate_bytes":100000000000,"system_swap_bytes":0}\n'
+        "while True:\n print(json.dumps(sample),flush=True);time.sleep(.05)\n",
+    )
+    receipt = tmp_path / "receipt.json"
+    options = {} if ratio is None else {"mps_low_watermark": ratio}
+    code = (
+        'import os,json;print(json.dumps({k:v for k,v in os.environ.items() '
+        'if k.startswith("PYTORCH_MPS_")}))'
+    )
+    assert (
+        guard.run(
+            [sys.executable, "-c", code],
+            repository=tmp_path,
+            watcher=watcher,
+            lock_path=tmp_path / "lock",
+            log_path=tmp_path / "log",
+            memory_path=tmp_path / "memory",
+            receipt_path=receipt,
+            **options,
+        )
+        == 0
+    )
+    actual = json.loads((tmp_path / "log").read_text())
+    recorded = json.loads(receipt.read_text())
+    expected = str(0.8 if ratio is None else ratio)
+    for values in (actual, recorded["environment"]):
+        assert values["PYTORCH_MPS_LOW_WATERMARK_RATIO"] == expected
+        assert values["PYTORCH_MPS_HIGH_WATERMARK_RATIO"] == "0.9"
+    assert recorded["limits"] == vars(guard.Limits())

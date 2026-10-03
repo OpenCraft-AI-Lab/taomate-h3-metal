@@ -5,6 +5,7 @@ import argparse
 import fcntl
 import hashlib
 import json
+import math
 import os
 import selectors
 import signal
@@ -96,8 +97,15 @@ def first_sample(watcher: Path, *, timeout: float = 3.0) -> dict:
     return sample
 
 
+def _validate_mps_low_watermark(value: float) -> float:
+    if not isinstance(value, (int, float)) or not math.isfinite(value) or not 0 < value <= 0.8:
+        raise ValueError("MPS low watermark must be finite and in (0, 0.8]")
+    return float(value)
+
+
 def run(command, *, repository, watcher, lock_path, log_path, memory_path, receipt_path,
-        limits=Limits(), preflight_available_bytes=20 * GIB):
+        limits=Limits(), preflight_available_bytes=20 * GIB, mps_low_watermark=0.8):
+    mps_low_watermark = _validate_mps_low_watermark(mps_low_watermark)
     for path in (log_path, memory_path, receipt_path):
         if path.exists():
             raise FileExistsError(path)
@@ -110,7 +118,7 @@ def run(command, *, repository, watcher, lock_path, log_path, memory_path, recei
     environment = dict(os.environ)
     environment["PYTORCH_ENABLE_MPS_FALLBACK"] = "0"
     environment["PYTORCH_MPS_HIGH_WATERMARK_RATIO"] = "0.9"
-    environment["PYTORCH_MPS_LOW_WATERMARK_RATIO"] = "0.8"
+    environment["PYTORCH_MPS_LOW_WATERMARK_RATIO"] = str(mps_low_watermark)
     env_receipt = {k: v for k, v in environment.items()
                    if k.startswith(("TAOMATE_MPS_", "PYTORCH_MPS_"))
                    or k == "PYTORCH_ENABLE_MPS_FALLBACK"}
@@ -244,8 +252,14 @@ def main():
     parser.add_argument("--reserve-gib", type=float, default=6)
     parser.add_argument("--swap-growth-gib", type=float, default=2)
     parser.add_argument("--max-wall-seconds", type=float, default=7200)
+    parser.add_argument("--mps-low-watermark", type=float, default=0.8,
+                        help="MPS adaptive allocation threshold in (0, 0.8]; high cap stays 0.9")
     parser.add_argument("command", nargs=argparse.REMAINDER)
     args = parser.parse_args()
+    try:
+        _validate_mps_low_watermark(args.mps_low_watermark)
+    except ValueError as error:
+        parser.error(str(error))
     command = args.command[1:] if args.command[:1] == ["--"] else args.command
     if not command:
         parser.error("a command is required")
@@ -258,6 +272,7 @@ def main():
         command, repository=Path(__file__).resolve().parents[1],
         watcher=args.watcher.resolve(strict=True), lock_path=args.lock,
         log_path=args.log, memory_path=args.memory, receipt_path=args.receipt, limits=limits,
+        mps_low_watermark=args.mps_low_watermark,
     )
 
 
