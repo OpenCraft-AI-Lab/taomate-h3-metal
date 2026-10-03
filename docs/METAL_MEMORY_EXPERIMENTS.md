@@ -353,7 +353,7 @@ E5's quantified difference from the BF16 baseline still applies. E5 and E6
 change several lifecycle/allocator settings together, so their 61.083 versus
 59.111 GiB process peaks cannot isolate one setting's contribution.
 
-The new counters measure DiT allocator peaks of 41.053 GiB active and
+The new counters measure DiT allocator peaks of 41.054 GiB active and
 58.625 GiB reserved; final DiT active/reserved are 35.552/56.055 GiB.
 A substantial reserve-minus-active gap remains. These allocator readings
 are not the independently measured process physical peak.
@@ -383,7 +383,7 @@ samples in both phases. This is an allocator control, not a whole DiT/video.
 
 Two production SDPA controls compare chunks 64/128/256/512, three trials
 each, at BF16 NHD/56 heads/D128. Every byte of all 24 outputs matches its
-geometry's first chunk64 result; all are finite, with relative L2 and maximum
+geometry's first chunk 64 result; all are finite, with relative L2 and maximum
 absolute distance zero. The production full-key softmax and synchronization
 per query chunk remain unchanged.
 
@@ -392,7 +392,7 @@ per query chunk remain unchanged.
 | 24610 / 24610 | 1.0363 s | 0.6036 s | 0.4790 s | 0.4000 s | 3.653 GiB | 2.008 GiB |
 | 20514 / 86392 | 2.8024 s | 1.6774 s | 1.3440 s | 1.2431 s | 8.204 GiB | 3.320 GiB |
 
-Chunk512 is 2.59×/2.25× faster than64 and 1.20×/1.08× faster than256 in
+Chunk 512 is 2.59×/2.25× faster than 64 and 1.20×/1.08× faster than 256 in
 these operator controls. Reserved peaks are unchanged across chunks in each
 process. Fixed chunk order and only three trials limit performance inference;
 K=86392 is an approximate later-history size, not an exact count for every
@@ -414,20 +414,20 @@ Stage3 takes 300.431 s and video decode 211.218 s, excluding the same reused
 unmodified official teacher. Postflight is valid, no guard triggers and
 system swap does not grow.
 
-DiT allocator reserved peak falls from E6's 58.625 to 47.452 GiB, while
+DiT allocator reserved peak falls from E6's 58.625 to 47.453 GiB, while
 active peaks stay near 41.05 GiB. Independently, the main-process physical
 peak rises from 59.111 to 64.585 GiB this run. Its high-water mark first
 appears at 93.494 s, with sampled current footprint 63.085 GiB and RSS
-25.784 GiB; RSS later falls to roughly 2.47 GiB by125 s. At similar94 s E6
-has footprint50.514/RSS9.733 GiB, and by110 s RSS0.527 GiB. The identical
-AdaLN receipts report release of24.288 GiB CPU parameters. A read-only
+25.784 GiB; RSS later falls to roughly 2.47 GiB by 125 s. At similar 94 s E6
+has footprint 50.514/RSS 9.733 GiB, and by 110 s RSS 0.527 GiB. The identical
+AdaLN receipts report release of 24.288 GiB CPU parameters. A read-only
 review finds no obvious large packed host copy or retained AdaLN parameter
 in the normal returned receipts, but does not distinguish live CPU tensors
 from deferred allocator/VM page release. Sparse end-of-phase D/R samples
 cannot rule out transient allocations. No universal process-peak reduction
 is claimed from the allocator improvement alone; guards remain authoritative.
 
-This complete regression establishes exact delivered values at480p. Native
-1088×1920 tests now use packed8, 64 MiB weight tiles and query512 based on the
+This complete regression establishes exact delivered values at 480p. Native
+1088×1920 tests now use packed8, 64 MiB weight tiles and query 512 based on the
 separate controlled measurements; their results must be measured separately.
 See `verification/memory-experiments/int8-packed8-10s/` for complete evidence.
