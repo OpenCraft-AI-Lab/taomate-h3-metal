@@ -1,0 +1,1110 @@
+{
+  "source": "Read-only safetensors header inventory; no model execution or GPU allocation",
+  "checkpoint_root": "/Users/supreme-paca/Projects/h3-metal/MiniMax-H3/FL2VA/transformer",
+  "index_sha256": "fb457a26ffa6294660e249b0ddd03a337f2e5393f770b5c34c8b8f90a29a7efb",
+  "protected_block_indices": [
+    0,
+    1,
+    47,
+    48,
+    49
+  ],
+  "candidate_blocks": "2..46, zero-based",
+  "quantization": "symmetric INT8 with FP32 per-output-row scale, BF16 computation",
+  "scope": "Persistent tensor payload only; excludes temporary buffers, allocator heaps and runtime workspaces. No inference quality claim.",
+  "families": {
+    "attn.out_proj.weight": {
+      "projection_count": 45,
+      "net_storage_saving_bytes": 1733114880,
+      "net_storage_saving_gib": 1.614089012145996
+    },
+    "mlp.fc2.weight": {
+      "projection_count": 45,
+      "net_storage_saving_bytes": 3467197440,
+      "net_storage_saving_gib": 3.229079246520996
+    }
+  },
+  "combined_net_storage_saving_gib": 4.843168258666992,
+  "entries": {
+    "blocks.10.attn.out_proj.weight": {
+      "shard": "model-00004-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.10.mlp.fc2.weight": {
+      "shard": "model-00003-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    },
+    "blocks.11.attn.out_proj.weight": {
+      "shard": "model-00004-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.11.mlp.fc2.weight": {
+      "shard": "model-00004-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    },
+    "blocks.12.attn.out_proj.weight": {
+      "shard": "model-00004-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.12.mlp.fc2.weight": {
+      "shard": "model-00004-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    },
+    "blocks.13.attn.out_proj.weight": {
+      "shard": "model-00004-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.13.mlp.fc2.weight": {
+      "shard": "model-00004-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    },
+    "blocks.14.attn.out_proj.weight": {
+      "shard": "model-00005-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.14.mlp.fc2.weight": {
+      "shard": "model-00004-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    },
+    "blocks.15.attn.out_proj.weight": {
+      "shard": "model-00005-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.15.mlp.fc2.weight": {
+      "shard": "model-00005-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    },
+    "blocks.16.attn.out_proj.weight": {
+      "shard": "model-00005-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.16.mlp.fc2.weight": {
+      "shard": "model-00005-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    },
+    "blocks.17.attn.out_proj.weight": {
+      "shard": "model-00005-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.17.mlp.fc2.weight": {
+      "shard": "model-00005-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    },
+    "blocks.18.attn.out_proj.weight": {
+      "shard": "model-00006-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.18.mlp.fc2.weight": {
+      "shard": "model-00005-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    },
+    "blocks.19.attn.out_proj.weight": {
+      "shard": "model-00006-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.19.mlp.fc2.weight": {
+      "shard": "model-00006-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    },
+    "blocks.2.attn.out_proj.weight": {
+      "shard": "model-00002-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.2.mlp.fc2.weight": {
+      "shard": "model-00001-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    },
+    "blocks.20.attn.out_proj.weight": {
+      "shard": "model-00006-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.20.mlp.fc2.weight": {
+      "shard": "model-00006-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    },
+    "blocks.21.attn.out_proj.weight": {
+      "shard": "model-00006-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.21.mlp.fc2.weight": {
+      "shard": "model-00006-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    },
+    "blocks.22.attn.out_proj.weight": {
+      "shard": "model-00007-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.22.mlp.fc2.weight": {
+      "shard": "model-00006-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    },
+    "blocks.23.attn.out_proj.weight": {
+      "shard": "model-00007-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.23.mlp.fc2.weight": {
+      "shard": "model-00007-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    },
+    "blocks.24.attn.out_proj.weight": {
+      "shard": "model-00007-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.24.mlp.fc2.weight": {
+      "shard": "model-00007-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    },
+    "blocks.25.attn.out_proj.weight": {
+      "shard": "model-00007-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.25.mlp.fc2.weight": {
+      "shard": "model-00007-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    },
+    "blocks.26.attn.out_proj.weight": {
+      "shard": "model-00008-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.26.mlp.fc2.weight": {
+      "shard": "model-00007-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    },
+    "blocks.27.attn.out_proj.weight": {
+      "shard": "model-00008-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.27.mlp.fc2.weight": {
+      "shard": "model-00008-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    },
+    "blocks.28.attn.out_proj.weight": {
+      "shard": "model-00008-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.28.mlp.fc2.weight": {
+      "shard": "model-00008-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    },
+    "blocks.29.attn.out_proj.weight": {
+      "shard": "model-00008-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.29.mlp.fc2.weight": {
+      "shard": "model-00008-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    },
+    "blocks.3.attn.out_proj.weight": {
+      "shard": "model-00002-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.3.mlp.fc2.weight": {
+      "shard": "model-00002-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    },
+    "blocks.30.attn.out_proj.weight": {
+      "shard": "model-00009-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.30.mlp.fc2.weight": {
+      "shard": "model-00008-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    },
+    "blocks.31.attn.out_proj.weight": {
+      "shard": "model-00009-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.31.mlp.fc2.weight": {
+      "shard": "model-00009-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    },
+    "blocks.32.attn.out_proj.weight": {
+      "shard": "model-00009-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.32.mlp.fc2.weight": {
+      "shard": "model-00009-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    },
+    "blocks.33.attn.out_proj.weight": {
+      "shard": "model-00009-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.33.mlp.fc2.weight": {
+      "shard": "model-00009-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    },
+    "blocks.34.attn.out_proj.weight": {
+      "shard": "model-00010-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.34.mlp.fc2.weight": {
+      "shard": "model-00009-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    },
+    "blocks.35.attn.out_proj.weight": {
+      "shard": "model-00010-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.35.mlp.fc2.weight": {
+      "shard": "model-00010-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    },
+    "blocks.36.attn.out_proj.weight": {
+      "shard": "model-00010-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.36.mlp.fc2.weight": {
+      "shard": "model-00010-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    },
+    "blocks.37.attn.out_proj.weight": {
+      "shard": "model-00010-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.37.mlp.fc2.weight": {
+      "shard": "model-00010-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    },
+    "blocks.38.attn.out_proj.weight": {
+      "shard": "model-00011-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.38.mlp.fc2.weight": {
+      "shard": "model-00010-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    },
+    "blocks.39.attn.out_proj.weight": {
+      "shard": "model-00011-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.39.mlp.fc2.weight": {
+      "shard": "model-00011-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    },
+    "blocks.4.attn.out_proj.weight": {
+      "shard": "model-00002-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.4.mlp.fc2.weight": {
+      "shard": "model-00002-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    },
+    "blocks.40.attn.out_proj.weight": {
+      "shard": "model-00011-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.40.mlp.fc2.weight": {
+      "shard": "model-00011-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    },
+    "blocks.41.attn.out_proj.weight": {
+      "shard": "model-00011-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.41.mlp.fc2.weight": {
+      "shard": "model-00011-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    },
+    "blocks.42.attn.out_proj.weight": {
+      "shard": "model-00012-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.42.mlp.fc2.weight": {
+      "shard": "model-00011-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    },
+    "blocks.43.attn.out_proj.weight": {
+      "shard": "model-00012-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.43.mlp.fc2.weight": {
+      "shard": "model-00012-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    },
+    "blocks.44.attn.out_proj.weight": {
+      "shard": "model-00012-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.44.mlp.fc2.weight": {
+      "shard": "model-00012-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    },
+    "blocks.45.attn.out_proj.weight": {
+      "shard": "model-00012-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.45.mlp.fc2.weight": {
+      "shard": "model-00012-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    },
+    "blocks.46.attn.out_proj.weight": {
+      "shard": "model-00013-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.46.mlp.fc2.weight": {
+      "shard": "model-00012-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    },
+    "blocks.5.attn.out_proj.weight": {
+      "shard": "model-00002-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.5.mlp.fc2.weight": {
+      "shard": "model-00002-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    },
+    "blocks.6.attn.out_proj.weight": {
+      "shard": "model-00003-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.6.mlp.fc2.weight": {
+      "shard": "model-00002-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    },
+    "blocks.7.attn.out_proj.weight": {
+      "shard": "model-00003-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.7.mlp.fc2.weight": {
+      "shard": "model-00003-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    },
+    "blocks.8.attn.out_proj.weight": {
+      "shard": "model-00003-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.8.mlp.fc2.weight": {
+      "shard": "model-00003-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    },
+    "blocks.9.attn.out_proj.weight": {
+      "shard": "model-00003-of-00013.safetensors",
+      "shape": [
+        5376,
+        7168
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 77070336,
+      "int8_payload_bytes": 38535168,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 38513664
+    },
+    "blocks.9.mlp.fc2.weight": {
+      "shard": "model-00003-of-00013.safetensors",
+      "shape": [
+        5376,
+        14336
+      ],
+      "original_dtype": "BF16",
+      "bf16_payload_bytes": 154140672,
+      "int8_payload_bytes": 77070336,
+      "fp32_scale_bytes": 21504,
+      "net_storage_saving_bytes": 77048832
+    }
+  }
+}

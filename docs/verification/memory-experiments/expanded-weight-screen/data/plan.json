@@ -1,0 +1,11 @@
+{
+  "source_ref": "64afed77ec66b08bdaa50441d8c577cc6fa783a6",
+  "rows": 257,
+  "targets": "blocks2..46 attn.out_proj and mlp.fc2",
+  "inputs": "fixed CPU torch.Generator; Gaussian and BF16 SiLU-gated synthetic activations",
+  "reference": "original BF16 base F.linear; trained BF16 LoRA A/B rank128 alpha128 scale1; original mul/add boundaries",
+  "candidate": "W8A16 per-row INT8 + F32 scales + bounded64MiB BF16 dequantized weight tiles",
+  "base_revision": "42ed227ee7df40d41602854ae760620d6eb651fe",
+  "adapter_revision": "7d7a51f3e63972138882ec2f0e4d1d47728110cf",
+  "scope": "Candidate screening only: real weights with synthetic activations, not actual generation hidden states, CUDA parity or perceptual impact."
+}

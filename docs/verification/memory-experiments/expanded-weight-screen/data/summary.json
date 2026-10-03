@@ -1,0 +1,94 @@
+{
+  "elapsed_seconds": 28.127739834599197,
+  "layer_count": 90,
+  "groups": {
+    "attn.out_proj": {
+      "layer_count": 45,
+      "saved_bytes": 1733114880,
+      "min_relative_l2": 0.010436338741715952,
+      "mean_relative_l2": 0.011728829255760919,
+      "max_relative_l2": 0.014118917821412112,
+      "worst_layers": [
+        {
+          "layer": "blocks.2.attn.out_proj",
+          "max_relative_l2": 0.014118917821412112
+        },
+        {
+          "layer": "blocks.5.attn.out_proj",
+          "max_relative_l2": 0.013712129372346242
+        },
+        {
+          "layer": "blocks.3.attn.out_proj",
+          "max_relative_l2": 0.013486175715089428
+        },
+        {
+          "layer": "blocks.27.attn.out_proj",
+          "max_relative_l2": 0.012859750222265305
+        },
+        {
+          "layer": "blocks.7.attn.out_proj",
+          "max_relative_l2": 0.012806147382148476
+        },
+        {
+          "layer": "blocks.6.attn.out_proj",
+          "max_relative_l2": 0.012792045304660665
+        },
+        {
+          "layer": "blocks.4.attn.out_proj",
+          "max_relative_l2": 0.012613315543548161
+        },
+        {
+          "layer": "blocks.20.attn.out_proj",
+          "max_relative_l2": 0.012489805914224097
+        }
+      ]
+    },
+    "mlp.fc2": {
+      "layer_count": 45,
+      "saved_bytes": 3467197440,
+      "min_relative_l2": 0.011996548814723128,
+      "mean_relative_l2": 0.013637129228522157,
+      "max_relative_l2": 0.015380312375244122,
+      "worst_layers": [
+        {
+          "layer": "blocks.43.mlp.fc2",
+          "max_relative_l2": 0.015380312375244122
+        },
+        {
+          "layer": "blocks.44.mlp.fc2",
+          "max_relative_l2": 0.015308652364254214
+        },
+        {
+          "layer": "blocks.45.mlp.fc2",
+          "max_relative_l2": 0.015097932394864691
+        },
+        {
+          "layer": "blocks.46.mlp.fc2",
+          "max_relative_l2": 0.015052404014212163
+        },
+        {
+          "layer": "blocks.38.mlp.fc2",
+          "max_relative_l2": 0.015029364874173102
+        },
+        {
+          "layer": "blocks.39.mlp.fc2",
+          "max_relative_l2": 0.014908960995722231
+        },
+        {
+          "layer": "blocks.42.mlp.fc2",
+          "max_relative_l2": 0.014843026996443177
+        },
+        {
+          "layer": "blocks.34.mlp.fc2",
+          "max_relative_l2": 0.014824311990516207
+        }
+      ]
+    }
+  },
+  "combined": {
+    "layer_count": 90,
+    "saved_bytes": 5200312320,
+    "joint_model_error": null,
+    "note": "Joint generation error cannot be inferred by adding isolated layer errors; requires full generation comparison."
+  }
+}
