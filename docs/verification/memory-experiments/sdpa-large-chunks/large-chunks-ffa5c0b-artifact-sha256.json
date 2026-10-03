@@ -1,0 +1,17 @@
+{
+  "/private/tmp/taomate-metal-diagnostic-runs/C-SDPA-largechunks-first-low03/diagnostic/receipt.json": "81df29195053adb6468a5209dd812e568d803b163ad3789266bc7969a47bcd81",
+  "/private/tmp/taomate-metal-diagnostic-runs/C-SDPA-largechunks-first-low03/diagnostic/steps.jsonl": "6703f5b8ddda8d23d482f6b3b2f6f77c0a60705246c971591adf3c235c2ea863",
+  "/private/tmp/taomate-metal-diagnostic-runs/C-SDPA-largechunks-first-low03/memory.jsonl": "da60441824f484d65cf40c7366bc3ccff441f48d1c6891ec9045a59b919d38ac",
+  "/private/tmp/taomate-metal-diagnostic-runs/C-SDPA-largechunks-first-low03/process-receipt.json": "19e4af1181ea7fe65ee6878e4246192bbcc6daf2194c353fbbdc8123845ab9da",
+  "/private/tmp/taomate-metal-diagnostic-runs/C-SDPA-largechunks-first-low03/run.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "/private/tmp/taomate-metal-diagnostic-runs/C-SDPA-largechunks-history-low03/diagnostic/receipt.json": "d75bd057a4b5abda8ec6fdc059a0140a9deb005f1c1a7f63907483bf39f68721",
+  "/private/tmp/taomate-metal-diagnostic-runs/C-SDPA-largechunks-history-low03/diagnostic/steps.jsonl": "4e0df09d251b20a2a9d0b70459081956e0ff3cbef13e1e61f0bd225f546e0131",
+  "/private/tmp/taomate-metal-diagnostic-runs/C-SDPA-largechunks-history-low03/memory.jsonl": "022eda726a6df9d24eaa65d6d1bd1896846e83fefbad5871735483ad40f726c8",
+  "/private/tmp/taomate-metal-diagnostic-runs/C-SDPA-largechunks-history-low03/process-receipt.json": "0a04b3e131f3d8d81830d7936541ff1c8c1357a43de2601598312df9c779a3f4",
+  "/private/tmp/taomate-metal-diagnostic-runs/C-SDPA-largechunks-history-low03/run.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "/private/tmp/taomate-metal-diagnostic-runs/build_large_chunks_summary.py": "a151e2d0921cc5e9b8f1ba45357fd083c83a39e0ad1d913981f44980a2b5958a",
+  "/private/tmp/taomate-metal-diagnostic-runs/large-chunks-ffa5c0b-summary.json": "aa0eff501fc65d7596ffd036f9c4ff140b50ad7a2657527c3457449502a2e6dc",
+  "/private/tmp/taomate-metal-memory-diagnostics/diagnose_sdpa_chunks.py": "b3af129a88bb8eb910a335d291b060646496ae1444ae1e46082c14ef778fcf72",
+  "/private/tmp/taomate-metal-memory-diagnostics/large-chunks-prepared-commands.json": "d3c3a06dad7e4e18560e4e0ea6602ad6dd0b2499aea3f0628b835d9e59b95d9b",
+  "/private/tmp/taomate-metal-diagnostic-runs/large-chunks-ffa5c0b-results.txt": "affefb1dff9e4017db21e06dc9355a08404f28fb6565aeaf1f3ac72e9a358570"
+}

@@ -1,0 +1,515 @@
+{
+  "complete": true,
+  "plan": {
+    "case": "C_SDPA_query_chunks",
+    "shape_case": "history",
+    "query_shape": [
+      20514,
+      56,
+      128
+    ],
+    "key_value_shape": [
+      86392,
+      56,
+      128
+    ],
+    "dtype": "BF16",
+    "input_layout": "contiguous NHD",
+    "attention_layout": "production transpose/unsqueeze views into BHND; no pre-contiguous K/V copies",
+    "input_payload_bytes": 2771120128,
+    "output_payload_bytes": 294088704,
+    "query_chunks": [
+      64,
+      512,
+      1024,
+      2048,
+      4096
+    ],
+    "dispatch_counts": [
+      321,
+      41,
+      21,
+      11,
+      6
+    ],
+    "seed": 20261003,
+    "repeats": 3,
+    "scale": 0.08838834764831843,
+    "softmax": "Every query block sees the entire unchanged key axis; noncausal, dropout=0",
+    "reference": "First chunk64 production output; compare all output elements and CPU-byte SHA256",
+    "expected_previous_reference_cpu_sha256": "8ab33ed4241649569d306eb9c5e300d27151ead56db47199a89136a87f17dcd8",
+    "require_bitwise": true,
+    "timing_scope": "Unmodified production function only, including its per-query synchronize. Excludes CPU RNG, H2D, memory snapshots, output D2H, hashing/comparison.",
+    "warmth": "First trial per chunk reported separately; median of subsequent trials. Same process/inputs, ascending chunk order; no empty_cache between trials/chunks.",
+    "outer_footprint_limit_gib": 12,
+    "internal_sampled_driver_limit_gib": 10,
+    "limitations": [
+      "Synthetic operator inputs; no teacher/model/LoRA/VAE/KV allocation interleaving.",
+      "history K=86392 is an explicit approximate late-history count, not a claim of exact prompt-dependent full-model key count.",
+      "first uses Q=K=24610 as requested; production condition tokens may add keys.",
+      "Chunk64 numerical reference is not an independent CUDA/FP32 oracle.",
+      "A/R peaks are exact allocator counters; D only sampled at operation boundaries. Outer guard records whole-PID kernel peak."
+    ]
+  },
+  "argv": [
+    "/private/tmp/taomate-metal-memory-diagnostics/diagnose_sdpa_chunks.py",
+    "--guarded",
+    "--source-ref",
+    "ffa5c0b800d4777782e82b2d892f175524f696c5",
+    "--output-dir",
+    "/private/tmp/taomate-metal-diagnostic-runs/C-SDPA-largechunks-history-low03/diagnostic",
+    "--case",
+    "history",
+    "--query-chunks",
+    "64,512,1024,2048,4096",
+    "--repeats",
+    "3",
+    "--seed",
+    "20261003",
+    "--expected-reference-sha256",
+    "8ab33ed4241649569d306eb9c5e300d27151ead56db47199a89136a87f17dcd8",
+    "--require-bitwise"
+  ],
+  "command": [
+    "/Users/supreme-paca/Projects/taomate-h3-metal/.venv/bin/python",
+    "/private/tmp/taomate-metal-memory-diagnostics/diagnose_sdpa_chunks.py",
+    "--guarded",
+    "--source-ref",
+    "ffa5c0b800d4777782e82b2d892f175524f696c5",
+    "--output-dir",
+    "/private/tmp/taomate-metal-diagnostic-runs/C-SDPA-largechunks-history-low03/diagnostic",
+    "--case",
+    "history",
+    "--query-chunks",
+    "64,512,1024,2048,4096",
+    "--repeats",
+    "3",
+    "--seed",
+    "20261003",
+    "--expected-reference-sha256",
+    "8ab33ed4241649569d306eb9c5e300d27151ead56db47199a89136a87f17dcd8",
+    "--require-bitwise"
+  ],
+  "pid": 29099,
+  "platform": "macOS-26.5-arm64-arm-64bit",
+  "internal_sampled_driver_limit_bytes": 10737418240,
+  "arguments": {
+    "repository": "/Users/supreme-paca/Projects/taomate-h3-metal",
+    "source_ref": "ffa5c0b800d4777782e82b2d892f175524f696c5",
+    "weights": "/Users/supreme-paca/Projects/h3-metal/MiniMax-H3/FL2VA/transformer",
+    "output_dir": "/private/tmp/taomate-metal-diagnostic-runs/C-SDPA-largechunks-history-low03/diagnostic",
+    "seed": 20261003,
+    "resident_gib": 0,
+    "guarded": true,
+    "lock": "/Users/supreme-paca/Projects/h3-metal/outputs/original-baseline-20261002/heavy-gpu.lock",
+    "plan": false,
+    "case": "history",
+    "query_chunks": "64,512,1024,2048,4096",
+    "repeats": 3,
+    "expected_reference_sha256": "8ab33ed4241649569d306eb9c5e300d27151ead56db47199a89136a87f17dcd8",
+    "require_bitwise": true
+  },
+  "environment": {
+    "PYTORCH_ENABLE_MPS_FALLBACK": "0",
+    "PYTORCH_MPS_HIGH_WATERMARK_RATIO": "0.9",
+    "PYTORCH_MPS_LOW_WATERMARK_RATIO": "0.3"
+  },
+  "memory_meanings": {
+    "A": "active PyTorch allocator buffers",
+    "R": "all PyTorch MTL heaps",
+    "D": "all Metal driver allocations",
+    "R-A": "unused space in PyTorch heaps; not alone proof of fragmentation",
+    "D-R": "outside PyTorch heap inventory; not alone proof of MPSGraph",
+    "peaks": "A/R exact allocator high-water marks; D sampled only; whole-PID kernel peak is outer guard process-receipt.json"
+  },
+  "source_ref": "ffa5c0b800d4777782e82b2d892f175524f696c5",
+  "head": "eac3594402e2feb870e510cc43eea96fe94dc8c9",
+  "src_sha256": {
+    "src/taomate_h3/__init__.py": "5653c4a4434490cd57f1b1002210ef563b489ab54360c81f61b1568c3b34e792",
+    "src/taomate_h3/__main__.py": "402ec4c5c4ec076c0e2f9b912781efd73bd46396674e7091115e8d9ecd00c5b0",
+    "src/taomate_h3/cli.py": "d8365b303d6c2032ebfec976a107db723f69517ed7283a8b98d203087e02150c",
+    "src/taomate_h3/config.py": "5b82109f236a6141f6fde8ea0fbb6856451e1f436d4edc9418c5fab69e03b1ac",
+    "src/taomate_h3/denoise_schedule.py": "987b5fe292636f7126f6ed48f54bf40a9b28045f7d9c55cd060eb9712c1bc583",
+    "src/taomate_h3/distributed/__init__.py": "273ed29a0a75fd30df12e7ae37a18f100e58cfd6f2e221103666b791d9aa69fa",
+    "src/taomate_h3/distributed/collectives.py": "737680f9fbad2863d6f600aa91beb7c47343359fac576184a0634162a23cc596",
+    "src/taomate_h3/distributed/linear.py": "7e7ffd2645f4b500c3872004cce0356cacccb48be2f5bcbe425d5b166028394c",
+    "src/taomate_h3/distributed/parallel.py": "fd70d10538901df4aa60a362a40c7b7f2ab33c8dbee94fe057f998c0a183581e",
+    "src/taomate_h3/distributed/ulysses.py": "9aabf77e43f6587757bf87c5f31c68e2f296761a5f3bb06fee4303cb7319a2e3",
+    "src/taomate_h3/inference/__init__.py": "7424ba78899fccc9e5610a25c4920014e6657f0cfce9a1a0f2b1fcf4e4729cd8",
+    "src/taomate_h3/inference/acceleration.py": "737e34c3085c9633207c9b8579f2ed6e268a8ff5c8700b6a28c23dda18d1743c",
+    "src/taomate_h3/inference/base10_teacher.py": "4ea93d5a0f43ce12c3c9eae4feb639180f1372b5aabe26c68079722e696635a7",
+    "src/taomate_h3/inference/fused_kernels.py": "2eac75e915f48054a4072903686499b51fefa67c06c9fea538de4f9216f09d11",
+    "src/taomate_h3/inference/lora_checkpoint.py": "109369dcbea18ac69f330709f60bbccd84ac626bc3adf2e5933976255eab460c",
+    "src/taomate_h3/inference/media_timing.py": "fa8a349c78c6ef99d5448a80fd1d8bbb9cbb175c4db5bc2846a612e8df9aca62",
+    "src/taomate_h3/inference/metal_activations.py": "6db4cd415af9f53e427de8f65fb3b47efc73c0791ace4c157d6c664e912d50fb",
+    "src/taomate_h3/inference/metal_attention.py": "6409f85ca243fc97838c884c4e7d05af0957ffb6ca747f7854371f7f57591bfd",
+    "src/taomate_h3/inference/metal_loader.py": "dd36210dafa3bc8f773dd45c23e6e6f559edf9357b2b947ef1b8271c389ebe90",
+    "src/taomate_h3/inference/metal_memory.py": "4252eb8f640c15536421d717307049003048cf64c346536af75e25d4163d3786",
+    "src/taomate_h3/inference/metal_publication.py": "70e43953c3962109bec252fc8fedcbcfc75a3c6c9329104522ae64e143f08dd4",
+    "src/taomate_h3/inference/metal_quantization.py": "e017eccb812dab2376dc258567179e4b26f29cb0e538a152fbdd40bdefd1163e",
+    "src/taomate_h3/inference/video_vae_exact_fusions.py": "b349269b0dc837dde2970fac7a0deac63dabb569ff2c021305fcefe861be05f7",
+    "src/taomate_h3/inference/w8a8.py": "b36ed8dcd11dd2e15ce6417b4f154be93079e1e22ceb61746d027c0cc058e1c8",
+    "src/taomate_h3/model/__init__.py": "8bd1f97d071d386e20c2782e54cc32359186cdaf09363552467eb06fc509f77f",
+    "src/taomate_h3/model/architecture.py": "41813d8d5e8b7cf56dec951ca63c6ddbf730dadeabb3bbc15064dbc5a946f359",
+    "src/taomate_h3/model/components.py": "1213c87629b265796e8198c01b4bb7159e642dac3f7080306fd8c04567c766a3",
+    "src/taomate_h3/model/denoise.py": "311225f243119a53f393ec911a44a07acb3ece5bceac3a8b23e64adf7676cf00",
+    "src/taomate_h3/model/dit.py": "a7b32ecd75b030cd07138fea297de59e2e23befbc9b6edbd94f77c0c591300ce",
+    "src/taomate_h3/model/geometry.py": "053b46fc7914a10b0d2ae7d8e63b3f4a2ecd6659212e69c33d275ead73b256ad",
+    "src/taomate_h3/model/layers.py": "e72f0aa6b0cbd4fed99d78588bcee66016d4266483157cc3d9dc969ab2a0e700",
+    "src/taomate_h3/model/output.py": "83d9ff48f704f2c81b2719c152bca9496d9fde64f4c8d2347228a2441d558c4e",
+    "src/taomate_h3/model/packed_sequence.py": "23ef18db9df1f382c1e9ddb0fedc3789a3e49d331568572667082f3d660d8921",
+    "src/taomate_h3/model/packed_tokens.py": "71e45b1d80e184ae3737b2fd551f5123692b42ff6b746c7171ac1041ed313329",
+    "src/taomate_h3/model/pipeline.py": "de60dc34cd983bc65f19f75a5d0e730ad9aa022ef2aa0177a229dcb3e58101fa",
+    "src/taomate_h3/model/presentation.py": "9b7091617594ebd3296ae9a63c376cb8ab058fcc42966259a32f796512e874bc",
+    "src/taomate_h3/model/text_encoder.py": "fe838c929641e8b9dcfe91b071d4567dec91d5e0271411a19484591e159b9f47",
+    "src/taomate_h3/model/weight_loading.py": "ac574930ac54ead2aeb0c9167392f390ce183dc2ff8bba8b949dffdc2bd3bb1f",
+    "src/taomate_h3/runner.py": "48557f82e97f58125c28e3bd6f40666e15fe1fb5d4c6d180c24ccbc32b991599",
+    "src/taomate_h3/runtime/__init__.py": "1a16a6898019b28d6b02ccf9f01d59248626a4050308fb21cdbdb56c231bc323",
+    "src/taomate_h3/runtime/backend.py": "7e8d51f3558bb8315b2db8d08345a8cf4a220eb40d24d8049ca6ffbe49f26731",
+    "src/taomate_h3/runtime/direct.py": "0421303ad2a8fd427f120cfea3db67817ee7e15a5257605999a63f7af129ee1d",
+    "src/taomate_h3/runtime/mps.py": "ad663b8c3ab8c54900b032dbd096442d01223b4fa5430085a95710527f594b8e",
+    "src/taomate_h3/runtime/mps_memory.py": "4813014a052a1e10825565c522963d9798ba5b638a6953f021b5355713494f20",
+    "src/taomate_h3/streaming/__init__.py": "7f66dcb0cfd5c0fc5aca9a320477ae62e2d55dbeb73d86b90a0ef12a89c78297",
+    "src/taomate_h3/streaming/attention_hook.py": "b997b479f2150caf158865b033370a667a89776a4b2a50a1fcc0c587afa0770f",
+    "src/taomate_h3/streaming/cache.py": "c4918fb26d2a2254edb31dc0e42f37ef1c2f919c984e6f00838e18ea58b149a3",
+    "src/taomate_h3/streaming/geometry.py": "c27ea8b26e20a93ba4436938f733d3a5896163e32028843773283b0ec4c023d5",
+    "src/taomate_h3/streaming/metal_kv.py": "350979cac3d42be1d04d5221ea284c5fe8f5e1729f24eed3fb85ba63a2962918",
+    "src/taomate_h3/streaming/runtime.py": "88677972d1bd3d2d241ad3324755f293246e47498ede6d1758806927b3fa3df3",
+    "src/taomate_h3/streaming/session.py": "d97387b7e47beff9f481a760f519e42f81e5f7e751fb24fae30074032d7f8f72",
+    "src/taomate_h3/teacher.py": "c739093e57eba8f6b3b95e0424c2e93de6ef4f438cd96078b48c9ea0ea49cfa7",
+    "src/taomate_h3/worker.py": "65dd9c1a7f43d3e2ebe3f25a2de3cf4c3d8fe6a43e610452f1e13ae4e71627d1"
+  },
+  "diagnostic_sha256": {
+    "diagnose_quantized_cache.py": "8da920e887cdafcde78e4bdc23efa11184a50811aecfb50153064e2c94dc60cd",
+    "diag_common.py": "6fd072f672b5d76f989604c7235ef3a5c5ce5b94bc68b2c872301b6c5cbc8d9f",
+    "diagnose_weight_layout.py": "f59e75b693c0fb459c6494d08e4cf92da7c7ddc59db74039d61865307ec26f04",
+    "summarize_runs.py": "e06c3adf31624ac02888cf1d7a971710b7b52e99b51738ce1c93e71342a05a56",
+    "diagnose_sdpa_chunks.py": "b3af129a88bb8eb910a335d291b060646496ae1444ae1e46082c14ef778fcf72"
+  },
+  "torch_version": "2.14.1",
+  "torch_git_version": "5c4886908584029761b579af026dcfb627c84070",
+  "sampled_maxima_bytes": {
+    "allocated_bytes": 3087007744,
+    "reserved_bytes": 3565158400,
+    "driver_bytes": 3565879296
+  },
+  "latest_memory": {
+    "allocated_bytes": 0,
+    "allocated_peak_bytes": 3145728000,
+    "reserved_bytes": 0,
+    "reserved_peak_bytes": 3565158400,
+    "driver_bytes": 720896,
+    "mps_current_allocated_bytes": 0,
+    "reserved_minus_allocated_bytes": 0,
+    "driver_minus_reserved_bytes": 720896
+  },
+  "chunk_results": [
+    {
+      "query_chunk": 64,
+      "trials": [
+        {
+          "repeat": 0,
+          "operator_seconds": 2.820925500243902,
+          "output_cpu_sha256": "8ab33ed4241649569d306eb9c5e300d27151ead56db47199a89136a87f17dcd8",
+          "vs_chunk64_reference": {
+            "finite": true,
+            "max_abs": 0.0,
+            "rel_l2": 0.0,
+            "exact": true,
+            "unequal_elements": 0,
+            "compared_elements": 147044352,
+            "bitwise_equal": true
+          },
+          "matches_previous_reference": true,
+          "allocated_peak_bytes": 3087925248,
+          "reserved_peak_bytes": 3565158400,
+          "driver_bytes_at_output": 3565879296
+        },
+        {
+          "repeat": 1,
+          "operator_seconds": 2.7677751667797565,
+          "output_cpu_sha256": "8ab33ed4241649569d306eb9c5e300d27151ead56db47199a89136a87f17dcd8",
+          "vs_chunk64_reference": {
+            "finite": true,
+            "max_abs": 0.0,
+            "rel_l2": 0.0,
+            "exact": true,
+            "unequal_elements": 0,
+            "compared_elements": 147044352,
+            "bitwise_equal": true
+          },
+          "matches_previous_reference": true,
+          "allocated_peak_bytes": 3087925248,
+          "reserved_peak_bytes": 3565158400,
+          "driver_bytes_at_output": 3565879296
+        },
+        {
+          "repeat": 2,
+          "operator_seconds": 2.763356958515942,
+          "output_cpu_sha256": "8ab33ed4241649569d306eb9c5e300d27151ead56db47199a89136a87f17dcd8",
+          "vs_chunk64_reference": {
+            "finite": true,
+            "max_abs": 0.0,
+            "rel_l2": 0.0,
+            "exact": true,
+            "unequal_elements": 0,
+            "compared_elements": 147044352,
+            "bitwise_equal": true
+          },
+          "matches_previous_reference": true,
+          "allocated_peak_bytes": 3087925248,
+          "reserved_peak_bytes": 3565158400,
+          "driver_bytes_at_output": 3565879296
+        }
+      ],
+      "cold_or_first_operator_seconds": 2.820925500243902,
+      "later_operator_median_seconds": 2.7655660626478493
+    },
+    {
+      "query_chunk": 512,
+      "trials": [
+        {
+          "repeat": 0,
+          "operator_seconds": 1.1764782099053264,
+          "output_cpu_sha256": "8ab33ed4241649569d306eb9c5e300d27151ead56db47199a89136a87f17dcd8",
+          "vs_chunk64_reference": {
+            "finite": true,
+            "max_abs": 0.0,
+            "rel_l2": 0.0,
+            "exact": true,
+            "unequal_elements": 0,
+            "compared_elements": 147044352,
+            "bitwise_equal": true
+          },
+          "matches_previous_reference": true,
+          "allocated_peak_bytes": 3094347776,
+          "reserved_peak_bytes": 3565158400,
+          "driver_bytes_at_output": 3565879296
+        },
+        {
+          "repeat": 1,
+          "operator_seconds": 1.1780343754217029,
+          "output_cpu_sha256": "8ab33ed4241649569d306eb9c5e300d27151ead56db47199a89136a87f17dcd8",
+          "vs_chunk64_reference": {
+            "finite": true,
+            "max_abs": 0.0,
+            "rel_l2": 0.0,
+            "exact": true,
+            "unequal_elements": 0,
+            "compared_elements": 147044352,
+            "bitwise_equal": true
+          },
+          "matches_previous_reference": true,
+          "allocated_peak_bytes": 3094347776,
+          "reserved_peak_bytes": 3565158400,
+          "driver_bytes_at_output": 3565879296
+        },
+        {
+          "repeat": 2,
+          "operator_seconds": 1.1825195830315351,
+          "output_cpu_sha256": "8ab33ed4241649569d306eb9c5e300d27151ead56db47199a89136a87f17dcd8",
+          "vs_chunk64_reference": {
+            "finite": true,
+            "max_abs": 0.0,
+            "rel_l2": 0.0,
+            "exact": true,
+            "unequal_elements": 0,
+            "compared_elements": 147044352,
+            "bitwise_equal": true
+          },
+          "matches_previous_reference": true,
+          "allocated_peak_bytes": 3094347776,
+          "reserved_peak_bytes": 3565158400,
+          "driver_bytes_at_output": 3565879296
+        }
+      ],
+      "cold_or_first_operator_seconds": 1.1764782099053264,
+      "later_operator_median_seconds": 1.180276979226619
+    },
+    {
+      "query_chunk": 1024,
+      "trials": [
+        {
+          "repeat": 0,
+          "operator_seconds": 1.2958357501775026,
+          "output_cpu_sha256": "8ab33ed4241649569d306eb9c5e300d27151ead56db47199a89136a87f17dcd8",
+          "vs_chunk64_reference": {
+            "finite": true,
+            "max_abs": 0.0,
+            "rel_l2": 0.0,
+            "exact": true,
+            "unequal_elements": 0,
+            "compared_elements": 147044352,
+            "bitwise_equal": true
+          },
+          "matches_previous_reference": true,
+          "allocated_peak_bytes": 3101687808,
+          "reserved_peak_bytes": 3565158400,
+          "driver_bytes_at_output": 3565879296
+        },
+        {
+          "repeat": 1,
+          "operator_seconds": 1.3099502082914114,
+          "output_cpu_sha256": "8ab33ed4241649569d306eb9c5e300d27151ead56db47199a89136a87f17dcd8",
+          "vs_chunk64_reference": {
+            "finite": true,
+            "max_abs": 0.0,
+            "rel_l2": 0.0,
+            "exact": true,
+            "unequal_elements": 0,
+            "compared_elements": 147044352,
+            "bitwise_equal": true
+          },
+          "matches_previous_reference": true,
+          "allocated_peak_bytes": 3101687808,
+          "reserved_peak_bytes": 3565158400,
+          "driver_bytes_at_output": 3565879296
+        },
+        {
+          "repeat": 2,
+          "operator_seconds": 1.25553366728127,
+          "output_cpu_sha256": "8ab33ed4241649569d306eb9c5e300d27151ead56db47199a89136a87f17dcd8",
+          "vs_chunk64_reference": {
+            "finite": true,
+            "max_abs": 0.0,
+            "rel_l2": 0.0,
+            "exact": true,
+            "unequal_elements": 0,
+            "compared_elements": 147044352,
+            "bitwise_equal": true
+          },
+          "matches_previous_reference": true,
+          "allocated_peak_bytes": 3101687808,
+          "reserved_peak_bytes": 3565158400,
+          "driver_bytes_at_output": 3565879296
+        }
+      ],
+      "cold_or_first_operator_seconds": 1.2958357501775026,
+      "later_operator_median_seconds": 1.2827419377863407
+    },
+    {
+      "query_chunk": 2048,
+      "trials": [
+        {
+          "repeat": 0,
+          "operator_seconds": 1.2939084991812706,
+          "output_cpu_sha256": "8ab33ed4241649569d306eb9c5e300d27151ead56db47199a89136a87f17dcd8",
+          "vs_chunk64_reference": {
+            "finite": true,
+            "max_abs": 0.0,
+            "rel_l2": 0.0,
+            "exact": true,
+            "unequal_elements": 0,
+            "compared_elements": 147044352,
+            "bitwise_equal": true
+          },
+          "matches_previous_reference": true,
+          "allocated_peak_bytes": 3116367872,
+          "reserved_peak_bytes": 3565158400,
+          "driver_bytes_at_output": 3565879296
+        },
+        {
+          "repeat": 1,
+          "operator_seconds": 1.308272167108953,
+          "output_cpu_sha256": "8ab33ed4241649569d306eb9c5e300d27151ead56db47199a89136a87f17dcd8",
+          "vs_chunk64_reference": {
+            "finite": true,
+            "max_abs": 0.0,
+            "rel_l2": 0.0,
+            "exact": true,
+            "unequal_elements": 0,
+            "compared_elements": 147044352,
+            "bitwise_equal": true
+          },
+          "matches_previous_reference": true,
+          "allocated_peak_bytes": 3116367872,
+          "reserved_peak_bytes": 3565158400,
+          "driver_bytes_at_output": 3565879296
+        },
+        {
+          "repeat": 2,
+          "operator_seconds": 1.329549583606422,
+          "output_cpu_sha256": "8ab33ed4241649569d306eb9c5e300d27151ead56db47199a89136a87f17dcd8",
+          "vs_chunk64_reference": {
+            "finite": true,
+            "max_abs": 0.0,
+            "rel_l2": 0.0,
+            "exact": true,
+            "unequal_elements": 0,
+            "compared_elements": 147044352,
+            "bitwise_equal": true
+          },
+          "matches_previous_reference": true,
+          "allocated_peak_bytes": 3116367872,
+          "reserved_peak_bytes": 3565158400,
+          "driver_bytes_at_output": 3565879296
+        }
+      ],
+      "cold_or_first_operator_seconds": 1.2939084991812706,
+      "later_operator_median_seconds": 1.3189108753576875
+    },
+    {
+      "query_chunk": 4096,
+      "trials": [
+        {
+          "repeat": 0,
+          "operator_seconds": 1.3684994578361511,
+          "output_cpu_sha256": "8ab33ed4241649569d306eb9c5e300d27151ead56db47199a89136a87f17dcd8",
+          "vs_chunk64_reference": {
+            "finite": true,
+            "max_abs": 0.0,
+            "rel_l2": 0.0,
+            "exact": true,
+            "unequal_elements": 0,
+            "compared_elements": 147044352,
+            "bitwise_equal": true
+          },
+          "matches_previous_reference": true,
+          "allocated_peak_bytes": 3145728000,
+          "reserved_peak_bytes": 3565158400,
+          "driver_bytes_at_output": 3565879296
+        },
+        {
+          "repeat": 1,
+          "operator_seconds": 1.3939811252057552,
+          "output_cpu_sha256": "8ab33ed4241649569d306eb9c5e300d27151ead56db47199a89136a87f17dcd8",
+          "vs_chunk64_reference": {
+            "finite": true,
+            "max_abs": 0.0,
+            "rel_l2": 0.0,
+            "exact": true,
+            "unequal_elements": 0,
+            "compared_elements": 147044352,
+            "bitwise_equal": true
+          },
+          "matches_previous_reference": true,
+          "allocated_peak_bytes": 3145728000,
+          "reserved_peak_bytes": 3565158400,
+          "driver_bytes_at_output": 3565879296
+        },
+        {
+          "repeat": 2,
+          "operator_seconds": 1.4133237088099122,
+          "output_cpu_sha256": "8ab33ed4241649569d306eb9c5e300d27151ead56db47199a89136a87f17dcd8",
+          "vs_chunk64_reference": {
+            "finite": true,
+            "max_abs": 0.0,
+            "rel_l2": 0.0,
+            "exact": true,
+            "unequal_elements": 0,
+            "compared_elements": 147044352,
+            "bitwise_equal": true
+          },
+          "matches_previous_reference": true,
+          "allocated_peak_bytes": 3145728000,
+          "reserved_peak_bytes": 3565158400,
+          "driver_bytes_at_output": 3565879296
+        }
+      ],
+      "cold_or_first_operator_seconds": 1.3684994578361511,
+      "later_operator_median_seconds": 1.4036524170078337
+    }
+  ],
+  "elapsed_seconds": 38.89612416643649,
+  "chunk64_reference_cpu_sha256": "8ab33ed4241649569d306eb9c5e300d27151ead56db47199a89136a87f17dcd8"
+}

@@ -1,0 +1,63 @@
+Large-query SDPA controls: recommend retaining query512 for 10s/65s runs.
+
+Both native-size synthetic BF16 NHD cases completed, serial under heavy-gpu.lock.
+Source ffa5c0b800d4777782e82b2d892f175524f696c5: all 53 source hashes matched the
+pinned commit, launch receipts, and completion-time working files.
+Benchmark script SHA256:
+b3af129a88bb8eb910a335d291b060646496ae1444ae1e46082c14ef778fcf72
+Torch 2.14.1 / git 5c4886908584029761b579af026dcfb627c84070.
+No production source changes. GPU window has been released.
+
+Guard in both cases: independent 12 GiB whole-PID footprint cap, sampled D>10 GiB
+child stop, HIGH=.9 / LOW=.3, 6 GiB system reserve, 2 GiB swap-growth cap,
+CPU fallback disabled. Both rc0, guard_reason=null, measured swap delta=0.
+
+Median seconds of trials 2 and 3 (three total per query chunk):
+Chunk       Q=K24610         Q20514/K86392       Additional A peak vs512
+64          1.032953         2.765566           -6.125 MiB
+512          .405958         1.180277            0
+1024         .389204         1.282742           +7 MiB
+2048         .390860         1.318911           +21 MiB
+4096         .395924         1.403652           +49 MiB
+
+1024 is 4.13% faster than 512 in the short-key case, but 8.68% slower in the
+measured long-history case. 2048/4096 are 11.75%/18.93% slower than 512 there.
+No consistent larger-chunk advantage was demonstrated, so retain 512. This is
+a small fixed-order operator study, not a randomized or full-model benchmark;
+the data do not justify projecting an exact 10s/65s generation speedup.
+
+First case: all-run wall 19.133463 s; whole-PID kernel peak 3.651400 GiB.
+R peak was 2.0078125 GiB for every chunk; A peaks at chunks 64..4096 were
+1.3446045 / 1.3505859 / 1.3574219 / 1.3710938 / 1.3984375 GiB.
+
+History case: all-run wall 39.047916 s; whole-PID kernel peak 8.203892 GiB.
+R peak was 3.3203125 GiB for every chunk; A peaks at chunks 64..4096 were
+2.8758545 / 2.8818359 / 2.8886719 / 2.9023438 / 2.9296875 GiB.
+
+A/R peaks are exact allocator counters. D is sampled at call boundaries. The
+whole-PID peak includes CPU input generation and full-output checking outside
+the operator timing. Those memory/time scopes must remain distinct.
+
+All 30 complete output tensors are finite and match both their case's query64
+output and the original smaller-chunk experiment's fixed SHA256 byte for byte.
+Full-element relative L2 and max absolute difference are zero in every trial.
+First: 176,404,480 BF16 output elements each trial, SHA256
+754054dde1c8fc14de931a3fa08ecfe205c85d94e15d4049ce186d539ca87048
+History: 147,044,352 BF16 output elements each trial, SHA256
+8ab33ed4241649569d306eb9c5e300d27151ead56db47199a89136a87f17dcd8
+
+Calls use the unchanged production query_chunked_sdpa: original BHND transpose
+views of NHD, all keys in each softmax, and synchronize after every query block.
+No additional contiguous K/V copy or altered synchronization policy was used.
+The output reference is the production query64 result, not a CUDA/FP32 oracle.
+
+Detailed summary, including exact peaks, every trial, limits, source hashes and
+the earlier-reference receipt paths:
+/private/tmp/taomate-metal-diagnostic-runs/large-chunks-ffa5c0b-summary.json
+
+Run directories:
+/private/tmp/taomate-metal-diagnostic-runs/C-SDPA-largechunks-first-low03
+/private/tmp/taomate-metal-diagnostic-runs/C-SDPA-largechunks-history-low03
+Each retains process-receipt.json, memory.jsonl, run.log, diagnostic/receipt.json
+and diagnostic/steps.jsonl. Exact scripts preserved under:
+/private/tmp/taomate-metal-memory-diagnostics/v4-used-large-chunks/

@@ -1,0 +1,61 @@
+{
+  "gpu_executed": false,
+  "scope": "tiny CPU smoke of unchanged helper with extended query chunk arguments; not a performance/MPS result",
+  "checks": {
+    "64": {
+      "distance": {
+        "finite": true,
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "exact": true,
+        "unequal_elements": 0,
+        "compared_elements": 33536
+      },
+      "bitwise": true
+    },
+    "512": {
+      "distance": {
+        "finite": true,
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "exact": true,
+        "unequal_elements": 0,
+        "compared_elements": 33536
+      },
+      "bitwise": true
+    },
+    "1024": {
+      "distance": {
+        "finite": true,
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "exact": true,
+        "unequal_elements": 0,
+        "compared_elements": 33536
+      },
+      "bitwise": true
+    },
+    "2048": {
+      "distance": {
+        "finite": true,
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "exact": true,
+        "unequal_elements": 0,
+        "compared_elements": 33536
+      },
+      "bitwise": true
+    },
+    "4096": {
+      "distance": {
+        "finite": true,
+        "max_abs": 0.0,
+        "rel_l2": 0.0,
+        "exact": true,
+        "unequal_elements": 0,
+        "compared_elements": 33536
+      },
+      "bitwise": true
+    }
+  }
+}

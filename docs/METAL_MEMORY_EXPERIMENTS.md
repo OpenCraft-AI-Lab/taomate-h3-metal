@@ -466,3 +466,42 @@ the request13 audio reset. Ten-second and 65-second outcomes will be recorded
 only after their own guarded execution and validation. Full receipts, source
 verification, finite checks and contact sheet are under
 `verification/memory-experiments/native1080-packed8-5s/`.
+
+
+### Larger query chunks and allocator-pressure source check
+
+An additional two serial guarded SDPA processes on byte-matched `ffa5c0b`
+compare 64/512/1024/2048/4096, three trials each. All 30 full outputs also
+match the fixed SHA from the previous chunk64 controls, not merely a newly
+generated reference. Both complete within the 12 GiB process/10 GiB sampled
+driver budgets without swap growth.
+
+| Query chunk | Q=K24610 warm median | Q20514/K86392 warm median |
+| --- | --- | --- |
+| 64 | 1.0330 s | 2.7656 s |
+| 512 | 0.4060 s | 1.1803 s |
+| 1024 | 0.3892 s | 1.2827 s |
+| 2048 | 0.3909 s | 1.3189 s |
+| 4096 | 0.3959 s | 1.4037 s |
+
+Only the first geometry slightly favors 1024; long history is fastest at 512.
+Larger chunks add 7–49 MiB active workspace, while reserved peaks remain
+2.008/3.320 GiB. Therefore native continuation retains 512. These are
+fixed-order operator controls, not full-model speedup predictions. Whole-PID
+peaks are 3.651/8.204 GiB; wall times 19.133/39.048 s. Evidence, script versions,
+source hashes and full-output checks are in
+`verification/memory-experiments/sdpa-large-chunks/`.
+
+A read-only check of Torch's exact installed commit
+[5c488690 MPSAllocator.mm](https://github.com/pytorch/pytorch/blob/5c4886908584029761b579af026dcfb627c84070/aten/src/ATen/mps/MPSAllocator.mm#L415)
+clarifies that adaptive pressure uses driver `currentAllocatedSize`, not A.
+For a non-small pool it tests `(LOW limit − D)` in MiB, truncated and clamped;
+allocation attempts reuse free blocks before creating a heap. With LOW 0.3
+and D already above 32.256 GiB, newly created 10–512 MiB heaps use the 2 MiB
+rounded OVERSIZE path. Thus a size in that interval does not by itself prove
+a new 1 GiB heap late in this experiment. Such an owner may instead reuse an
+existing early heap; this requires per-heap evidence. Permanent weights were
+allocated before reaching the low threshold, and `empty_cache` can release
+whole empty heaps but cannot compact active weights. R−A alone cannot locate
+the pinned owner, and non-simultaneous A/R peaks must not be subtracted as a
+measured instantaneous fragmentation peak. Production source remains unchanged.
