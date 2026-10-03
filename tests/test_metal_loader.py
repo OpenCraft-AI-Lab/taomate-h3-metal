@@ -249,3 +249,60 @@ def test_mps_integrated_safetensors_loader_and_official_lora(model, tmp_path, ba
     gc.collect()
     torch.mps.synchronize()
     torch.mps.empty_cache()
+
+
+@pytest.mark.parametrize("device", ["cpu", "mps"])
+@torch.no_grad()
+def test_boundary_cache_purge_real_quantized_lora_dispatch(model, monkeypatch, capsys, device):
+    import json
+
+    from taomate_h3.inference import lora_checkpoint as lora
+
+    if device == "mps" and not torch.backends.mps.is_available():
+        pytest.skip("native MPS unavailable")
+    allocate_metal_storage_(model, device, quantization_backend="dequantize", temporary_bytes=768)
+    owner = model.blocks[2].mlp.fc1
+    source = torch.linspace(-1, 1, owner.weight.numel()).reshape(owner.weight.shape).bfloat16()
+    load_metal_stream_weight_(owner, source, maximum_temporary_bytes=768)
+    target = "blocks.2.mlp.fc1"
+    g = torch.Generator().manual_seed(813)
+    state = {
+        target + ".lora_a": torch.randn(128, owner.input_size, generator=g) * 0.01,
+        target + ".lora_b": torch.randn(owner.output_size, 128, generator=g) * 0.01,
+    }
+    monkeypatch.setattr(lora, "canonical_h3_lora_targets", lambda: (target,))
+    monkeypatch.setattr(
+        lora, "load_h3_lora_checkpoint", lambda _: lora.LoadedH3LoRA(128, 128, state, 2)
+    )
+    lora.apply_h3_lora_checkpoint(model, "synthetic")
+    lora.materialize_h3_lora_bf16_buffers_(model)
+    projection = model.blocks[2].mlp.fc1
+    inputs = (
+        torch.linspace(-1, 1, owner.input_size * 26)
+        .reshape(26, owner.input_size)
+        .bfloat16()
+        .to(device)[::2]
+    )
+    before = inputs.clone()
+    monkeypatch.setenv("TAOMATE_MPS_INPLACE_ACTIVATIONS", "1")
+    monkeypatch.delenv("TAOMATE_MPS_MEMORY_TRACE", raising=False)
+    baseline = projection(inputs)
+    monkeypatch.setenv("TAOMATE_MPS_MEMORY_TRACE", "1")
+    monkeypatch.setenv("TAOMATE_MPS_EMPTY_CACHE_BOUNDARIES", "1")
+    candidate = projection(inputs)
+    assert torch.equal(baseline.view(torch.int16), candidate.view(torch.int16))
+    assert torch.equal(before, inputs)
+    events = [json.loads(line) for line in capsys.readouterr().err.splitlines()]
+    if device == "cpu":
+        assert events == []
+    else:
+        assert [e["point"] for e in events] == [
+            "before_weight_linear_output",
+            "before_lora_update",
+            "after_lora_update",
+        ]
+        assert [e["cache_purge_applied"] for e in events] == [True, True, False]
+        assert events[0]["requested_output_bytes"] == 13 * owner.output_size * 2
+        for event in events[:2]:
+            assert event["pre_purge_current_allocated_bytes"] == event["current_allocated_bytes"]
+            assert event["current_reserved_bytes"] <= event["pre_purge_current_reserved_bytes"]

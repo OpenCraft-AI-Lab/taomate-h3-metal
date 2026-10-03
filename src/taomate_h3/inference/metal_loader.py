@@ -136,6 +136,7 @@ def allocate_metal_storage_(
         module._metal_stream_load_pending = True
         module._metal_stream_loaded = False
         module._metal_quantization_backend = quantization_backend
+        module._metal_trace_target = name
         module._metal_temporary_bytes = temporary_bytes
     if tuple(model_meta.state_dict()) != original_keys:
         raise RuntimeError("Metal allocation changed checkpoint keys")
@@ -218,6 +219,17 @@ def metal_linear(inputs: torch.Tensor, module: nn.Module) -> torch.Tensor:
             raise ValueError("native INT8pack requires MPS and BF16 scales")
         result = torch.ops.aten._weight_int8pack_mm(flat, module.weight, module._metal_native_scale)
     elif module._metal_quantization_backend == "dequantize":
+        from ..runtime.mps_memory import memory_trace_enabled, trace_mps_memory
+
+        if memory_trace_enabled(inputs.device.type):
+            trace_mps_memory(
+                "before_weight_linear_output",
+                layer=getattr(module, "_metal_trace_target", "unknown"),
+                rows=len(flat),
+                input_columns=module.weight.shape[1],
+                output_columns=module.weight.shape[0],
+                requested_output_bytes=len(flat) * module.weight.shape[0] * inputs.element_size(),
+            )
         result = inputs.new_empty((len(flat), module.weight.shape[0]))
         rows = module._metal_temporary_bytes // (module.weight.shape[1] * 2)
         for start in range(0, module.weight.shape[0], rows):

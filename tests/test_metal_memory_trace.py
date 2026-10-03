@@ -148,3 +148,80 @@ def test_real_lora_trace_preserves_outputs_inputs_and_keys(monkeypatch, device):
     assert samples[0][1] == dict(
         layer="projection", rows=7, output_columns=256, requested_update_bytes=7 * 256 * 2, rank=128
     )
+
+
+def test_purge_requires_trace_and_only_before_points(monkeypatch, capsys):
+    calls = []
+    monkeypatch.setenv("TAOMATE_MPS_EMPTY_CACHE_BOUNDARIES", "1")
+    monkeypatch.delenv("TAOMATE_MPS_MEMORY_TRACE", raising=False)
+    monkeypatch.setattr(torch.mps, "synchronize", lambda: calls.append("sync"))
+    monkeypatch.setattr(torch.mps, "empty_cache", lambda: calls.append("empty"))
+    monkeypatch.setattr(
+        memory,
+        "mps_memory_receipt",
+        lambda: {
+            "current_allocated_bytes": 11,
+            "current_reserved_bytes": 17 if "empty" in calls else 37,
+            "driver_allocated_bytes": 19 if "empty" in calls else 39,
+        },
+    )
+    memory.trace_mps_memory("before_test")
+    assert calls == []
+    monkeypatch.setenv("TAOMATE_MPS_MEMORY_TRACE", "1")
+    memory.trace_mps_memory("before_test")
+    result = json.loads(capsys.readouterr().err)
+    assert calls == ["sync", "empty"]
+    assert result["cache_purge_applied"]
+    assert result["pre_purge_current_allocated_bytes"] == result["current_allocated_bytes"] == 11
+    assert (result["pre_purge_current_reserved_bytes"], result["current_reserved_bytes"]) == (
+        37,
+        17,
+    )
+    memory.trace_mps_memory("after_test")
+    assert calls == ["sync", "empty", "sync"]
+    assert not json.loads(capsys.readouterr().err)["cache_purge_applied"]
+
+
+@torch.no_grad()
+def test_mps_purge_keeps_complete_cache_and_attention_bits(monkeypatch, capsys):
+    if not torch.backends.mps.is_available():
+        pytest.skip("native MPS unavailable")
+    x = torch.arange(7 * 128).reshape(7, 1, 128).remainder(17).bfloat16().to("mps")
+    tags = torch.tensor([1, 2, 2, 0, 0, 0, 3], device="mps")
+    mask = torch.tensor([False, True, True, True, True, True, False], device="mps")
+    baseline = None
+    for enabled in (False, True):
+        monkeypatch.setenv("TAOMATE_MPS_MEMORY_TRACE", "1" if enabled else "0")
+        monkeypatch.setenv("TAOMATE_MPS_EMPTY_CACHE_BOUNDARIES", "1" if enabled else "0")
+        cache = metal_kv.QuantizedCleanAVKVCache(
+            KVContract(local_heads=1, device_type="mps"), allocation="packed8"
+        )
+        cache.begin_clean_commit(0)
+        for name in MAIN_LAYER_NAMES:
+            cache.stage(name, x, -x, tags, mask)
+        cache.commit()
+        output = cache.attention_with_history(
+            MAIN_LAYER_NAMES[0],
+            x[1:6],
+            AVKV(x[:1], -x[:1]),
+            AVKV(x[1:6], -x[1:6]),
+            scale=128**-0.5,
+            query_chunk_size=3,
+            max_joined_bytes=100000,
+        )
+        values = [output.cpu()]
+        for pair in cache._segments[0].layers.values():
+            values.extend(t.cpu() for t in (pair.key, pair.value, pair.key_scale, pair.value_scale))
+        if baseline is None:
+            baseline = values
+        else:
+            assert all(torch.equal(a, b) for a, b in zip(values, baseline))
+        cache.clear()
+    events = [json.loads(line) for line in capsys.readouterr().err.splitlines()]
+    assert len(events) == 103
+    assert sum(e["cache_purge_applied"] for e in events) == 51
+    assert all(
+        e["current_allocated_bytes"] == e["pre_purge_current_allocated_bytes"]
+        for e in events
+        if e["cache_purge_applied"]
+    )

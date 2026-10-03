@@ -72,7 +72,9 @@ def trace_mps_memory(point: str, **fields: int | str | bool | None) -> None:
 
     Callers gate by the actual tensor device. This diagnostic intentionally adds
     synchronization and must not be described as an uninstrumented timing run.
-    Neither GC nor empty_cache is invoked, so live storage ownership is unchanged.
+    A second, explicit TAOMATE_MPS_EMPTY_CACHE_BOUNDARIES=1 control empties
+    reusable allocator caches at before_* points. It requires this trace mode,
+    records both counter sets, and never changes live tensor ownership or limits.
     """
     if not memory_trace_enabled("mps"):
         return
@@ -81,6 +83,28 @@ def trace_mps_memory(point: str, **fields: int | str | bool | None) -> None:
     from .backend import progress
 
     torch.mps.synchronize()
+    counters = mps_memory_receipt()
+    purge = (
+        point.startswith("before_") and os.environ.get("TAOMATE_MPS_EMPTY_CACHE_BOUNDARIES") == "1"
+    )
+    previous = {}
+    if purge:
+        previous = {
+            "pre_purge_" + name: counters[name]
+            for name in (
+                "current_allocated_bytes",
+                "current_reserved_bytes",
+                "driver_allocated_bytes",
+            )
+        }
+        torch.mps.empty_cache()
+        counters = mps_memory_receipt()
     progress(
-        "mps_allocation_boundary", point=point, synchronized=True, **mps_memory_receipt(), **fields
+        "mps_allocation_boundary",
+        point=point,
+        synchronized=True,
+        cache_purge_applied=purge,
+        **previous,
+        **counters,
+        **fields,
     )
