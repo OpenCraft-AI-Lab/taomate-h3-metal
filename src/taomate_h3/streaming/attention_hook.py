@@ -40,14 +40,15 @@ class H3StreamingAttentionHook:
     """Condition current media on text, persistent clean AV KV, and current KV."""
 
     def __init__(self, cache: CleanAVKVCache, *, backend: str = "flash_attn_3") -> None:
-        if backend != "flash_attn_3":
-            raise ValueError("the accelerated direct runtime requires FlashAttention-3")
-        try:
-            from flash_attn_interface import flash_attn_func
-        except ImportError as exc:
-            raise RuntimeError("FlashAttention-3 kernels are required") from exc
+        if backend not in ("flash_attn_3", "torch_sdpa"):
+            raise ValueError("unknown streaming attention backend")
+        self.backend = backend
         self.cache = cache
-        self._flash_attention = flash_attn_func
+        self._flash_attention = None
+        if backend == "flash_attn_3":
+            from flash_attn_interface import flash_attn_func
+
+            self._flash_attention = flash_attn_func
         self.kernel_calls = 0
         self.query_tokens = 0
         self.key_tokens = 0
@@ -57,7 +58,7 @@ class H3StreamingAttentionHook:
 
     def receipt(self) -> dict[str, object]:
         return {
-            "backend": "flash_attn_3_dense",
+            "backend": self.backend,
             "tensor_layout": "NHD",
             "is_causal": False,
             "kernel_calls": self.kernel_calls,
@@ -82,14 +83,31 @@ class H3StreamingAttentionHook:
             if len(parts) == 1
             else torch.cat(tuple(part.value for part in parts), dim=0)
         )
-        output = self._flash_attention(
-            query.unsqueeze(0),
-            key.unsqueeze(0),
-            value.unsqueeze(0),
-            softmax_scale=scale,
-            causal=False,
-            num_splits=1,
-        )
+        if self.backend == "torch_sdpa":
+            from torch.nn.functional import scaled_dot_product_attention
+
+            output = (
+                scaled_dot_product_attention(
+                    query.transpose(0, 1).unsqueeze(0),
+                    key.transpose(0, 1).unsqueeze(0),
+                    value.transpose(0, 1).unsqueeze(0),
+                    dropout_p=0.0,
+                    is_causal=False,
+                    scale=scale,
+                )
+                .squeeze(0)
+                .transpose(0, 1)
+                .unsqueeze(0)
+            )
+        else:
+            output = self._flash_attention(
+                query.unsqueeze(0),
+                key.unsqueeze(0),
+                value.unsqueeze(0),
+                softmax_scale=scale,
+                causal=False,
+                num_splits=1,
+            )
         if isinstance(output, tuple):
             output = output[0]
         self.kernel_calls += 1

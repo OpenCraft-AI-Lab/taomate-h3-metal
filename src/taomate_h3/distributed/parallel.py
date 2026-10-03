@@ -27,7 +27,9 @@ class ParallelContext:
             rank = getattr(self, f"{name}_rank")
             if size <= 0 or not 0 <= rank < size:
                 raise ValueError(f"invalid {name} topology: world_size={size}, rank={rank}")
-        if self.tp_group is None or self.ulysses_group is None:
+        if (self.tp_world_size > 1 and self.tp_group is None) or (
+            self.ulysses_world_size > 1 and self.ulysses_group is None
+        ):
             raise ValueError("TP and Ulysses process groups are required")
 
 

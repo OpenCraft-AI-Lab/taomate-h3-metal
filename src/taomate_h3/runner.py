@@ -23,7 +23,6 @@ from .runtime import H3Runtime
 from .streaming import direct_5s_plan
 from .streaming.runtime import H3StreamingRuntime
 
-
 _VIDEO_NOISE_REQUEST_STRIDE = 1_000_003
 
 
@@ -284,7 +283,13 @@ def run_direct(
             "video_latent_w": geometry.video_latent_w,
         },
     )
-    runtime = H3Runtime(
+    if config.backend == "mps":
+        from .runtime.mps import MPSRuntime
+
+        runtime_class = MPSRuntime
+    else:
+        runtime_class = H3Runtime
+    runtime = runtime_class(
         model_root=config.model_root,
         adapter_root=config.adapter,
         output_root=config.output_dir,
@@ -299,9 +304,7 @@ def run_direct(
     for request_index, (text_features, request_seed) in enumerate(
         zip(precomputed, config.request_seeds, strict=True)
     ):
-        video_noise_seed = (
-            request_seed + request_index * _VIDEO_NOISE_REQUEST_STRIDE
-        ) % (2**63)
+        video_noise_seed = (request_seed + request_index * _VIDEO_NOISE_REQUEST_STRIDE) % (2**63)
         audio_noise_seed = teacher.audio_noise_seed(request_index)
         video_latents, audio_latents = runtime.generate_latents(
             video_noise_seed=video_noise_seed,
@@ -324,6 +327,8 @@ def run_direct(
     dit_timing = streaming.dit_timing_receipt()
     dit_memory = runtime.dit_peak_memory_receipt()
     streaming.release_retained_state()
+    if config.backend == "mps":
+        runtime.release_transformer()
     publication_started = time.perf_counter()
     publication = _publish(
         runtime=runtime,
@@ -338,7 +343,9 @@ def run_direct(
     )
     performance = runtime.performance_receipt()
     dit_timing["frames_per_second"] = (
-        config.duration_seconds * 24 / float(dit_timing["cuda_seconds"])
+        config.duration_seconds
+        * 24
+        / float(dit_timing.get("device_seconds", dit_timing["cuda_seconds"]))
     )
     performance["dit"] = {**dit_timing, **dit_memory}
     performance["run_direct_wall_seconds"] = time.perf_counter() - started
@@ -346,8 +353,13 @@ def run_direct(
     performance["real_time_factor"] = (
         config.duration_seconds / performance["worker_cold_e2e_seconds"]
     )
+    actual_policy = DIRECT_POLICY.to_dict()
+    if config.backend == "mps":
+        actual_policy.update(
+            precision="bf16_reference_with_fp32_patch_time_final", attention_backend="torch_sdpa"
+        )
     streaming_receipt = {
-        "policy": DIRECT_POLICY.to_dict(),
+        "policy": actual_policy,
         "stream_plan": stream_plan.to_dict(),
         "request_count": config.request_count,
         "executions": [execution.to_dict() for execution in streaming.executions],

@@ -1,0 +1,20 @@
+{
+  "video_sha256": "842906693eca5cbf7d8281dbd5ada14da12da63592fa42ae759bbd43d3c2d1bc",
+  "strict_decode_passed": true,
+  "duration_seconds": 60.0,
+  "video_frames": 1440,
+  "audio_decoded_values": 3840000,
+  "audio_finite": true,
+  "audio_peak": 1.018117070198059,
+  "audio_rms": 0.211284801363945,
+  "kernel_peak_footprint_bytes": 106974874048,
+  "source_snapshot_verified": true,
+  "source_files_verified": 45,
+  "visual_inspection": "Twenty-four evenly sampled frames show a consistent presenter, backpack and studio, with hand/mouth movements and a temporary backpack rotation. Pairs of frames around all eleven request boundaries were also inspected; no obvious scene or identity discontinuity was visible in those samples. This is sampled visual inspection, not a full motion-quality, speech-transcription or lip-synchronization assessment.",
+  "limits": [
+    "No official CUDA tensor comparison",
+    "No speech transcription or lip-synchronization evaluation",
+    "The thirteenth-request audio reset is covered by CPU/MPS cache fixtures, not by this twelve-request run"
+  ],
+  "boundary_pairs_inspected": 11
+}

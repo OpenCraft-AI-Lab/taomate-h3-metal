@@ -1,0 +1,101 @@
+[
+  {
+    "request": 1,
+    "native_frame": 124,
+    "published_frame": 125,
+    "frames": [
+      124,
+      126
+    ]
+  },
+  {
+    "request": 2,
+    "native_frame": 243,
+    "published_frame": 244,
+    "frames": [
+      243,
+      245
+    ]
+  },
+  {
+    "request": 3,
+    "native_frame": 362,
+    "published_frame": 364,
+    "frames": [
+      363,
+      365
+    ]
+  },
+  {
+    "request": 4,
+    "native_frame": 481,
+    "published_frame": 483,
+    "frames": [
+      482,
+      484
+    ]
+  },
+  {
+    "request": 5,
+    "native_frame": 600,
+    "published_frame": 603,
+    "frames": [
+      602,
+      604
+    ]
+  },
+  {
+    "request": 6,
+    "native_frame": 719,
+    "published_frame": 723,
+    "frames": [
+      722,
+      724
+    ]
+  },
+  {
+    "request": 7,
+    "native_frame": 838,
+    "published_frame": 842,
+    "frames": [
+      841,
+      843
+    ]
+  },
+  {
+    "request": 8,
+    "native_frame": 957,
+    "published_frame": 962,
+    "frames": [
+      961,
+      963
+    ]
+  },
+  {
+    "request": 9,
+    "native_frame": 1076,
+    "published_frame": 1081,
+    "frames": [
+      1080,
+      1082
+    ]
+  },
+  {
+    "request": 10,
+    "native_frame": 1195,
+    "published_frame": 1201,
+    "frames": [
+      1200,
+      1202
+    ]
+  },
+  {
+    "request": 11,
+    "native_frame": 1314,
+    "published_frame": 1320,
+    "frames": [
+      1319,
+      1321
+    ]
+  }
+]

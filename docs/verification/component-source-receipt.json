@@ -1,0 +1,150 @@
+{
+  "repo": "MiniMaxAI/MiniMax-H3",
+  "revision": "42ed227ee7df40d41602854ae760620d6eb651fe",
+  "files": [
+    {
+      "path": "FL2VA/audio_vae/dac_activations.py",
+      "bytes": 2189,
+      "sha256": "74ca8bb9e8039f1ff362ca4219eee5240a7df9502f3dbdc3161d4e86fbd6dc04",
+      "git_blob": "234a4223d1fc7340f0dc450b7c7e286555c5065d"
+    },
+    {
+      "path": "FL2VA/audio_vae/dac_alias_free_act.py",
+      "bytes": 835,
+      "sha256": "db8761e66c0eaf9fce2dcccb59162d52b22ca0de9f699cf7d21ec7cd507e86fd",
+      "git_blob": "d39ca2802eec1bd98e31cb2065c088ac6b57c2b0"
+    },
+    {
+      "path": "FL2VA/audio_vae/dac_alias_free_filter.py",
+      "bytes": 3300,
+      "sha256": "a369523cd7f14f4f299d8e2e47f3c473da76ed1910e6e9134fd7a9fce02537e8",
+      "git_blob": "ad025952f5ada1c57be051f8e6dc999267b58d36"
+    },
+    {
+      "path": "FL2VA/audio_vae/dac_alias_free_resample.py",
+      "bytes": 1740,
+      "sha256": "fe35055893833c563e42adc5e5882cbe7628c82d48d33c300fcf0a9576997910",
+      "git_blob": "af4b2b44891ac10d5f4a544a73a0d1a5d3342637"
+    },
+    {
+      "path": "FL2VA/audio_vae/dac_attn_proj.py",
+      "bytes": 3317,
+      "sha256": "0e04556fa5fd38d4a71e62fcf4d3242fd9a2464fd72ed62baef2ec0980d910c6",
+      "git_blob": "d3b9b1fcba4e8e2ab4ce323577a1f7321a9f7ab1"
+    },
+    {
+      "path": "FL2VA/audio_vae/dac_audio_vae.py",
+      "bytes": 7266,
+      "sha256": "ec04939602d4710d039e83f558a7572547669652f7fa967e3de0a3b6c48cfd48",
+      "git_blob": "b8b8c8b3ce0f2144b46663ea560bd1904b654925"
+    },
+    {
+      "path": "FL2VA/audio_vae/dac_bigvgan.py",
+      "bytes": 7102,
+      "sha256": "f5df4e6f633e74da479549ef7a6d2684964e4b65ac42c6765be42f9c7fcb7bd2",
+      "git_blob": "00d639800dbe91e91f1cef39f2642848622e47ff"
+    },
+    {
+      "path": "FL2VA/audio_vae/dac_utils.py",
+      "bytes": 362,
+      "sha256": "74ef0ba2c2a11ca35a7c0cc166fe88e564de01230000a0bcc8429103312ad9f0",
+      "git_blob": "b1d30c34fa506c62c338a9bb7e10816e3bbc32cb"
+    },
+    {
+      "path": "FL2VA/audio_vae/minimax_h3_audio_vae.py",
+      "bytes": 3532,
+      "sha256": "63bc0dab6def69480cfd77ea820f9a9a84fc4bd6e56868e4f45ec1e1e200578f",
+      "git_blob": "b03f1e5027888da226701e20c097053068e3e310"
+    },
+    {
+      "path": "FL2VA/video_vae/attention.py",
+      "bytes": 5785,
+      "sha256": "c9db8465c57f0bfb40c0194227be6e34b2c1ff7c5b5d63abca9964eed6283767",
+      "git_blob": "0443bd31cefe7bd5022aa7f36fbc6aced9fdd84f"
+    },
+    {
+      "path": "FL2VA/video_vae/base_module.py",
+      "bytes": 9520,
+      "sha256": "0e7ddf5086179a306298693ac461ffcbc27ccb28dbc786b1a05060de7a3357c0",
+      "git_blob": "b13137b8d163afea25c235beef1476039d7f6c0e"
+    },
+    {
+      "path": "FL2VA/video_vae/conv.py",
+      "bytes": 4487,
+      "sha256": "b3adee35f27e5d372543242aa86ce5e0138f13b794b6c81f919001e3e2346723",
+      "git_blob": "f10f5002b13bfa46c8eb9a9b4ba8d88bc891a517"
+    },
+    {
+      "path": "FL2VA/video_vae/flash.py",
+      "bytes": 5763,
+      "sha256": "c1918463d303a16f278a670bb4f33d3f8d6f7653b0d473313ff5835699b86d04",
+      "git_blob": "40b7cac47cabc3755c8c06dc620c689418cb769d"
+    },
+    {
+      "path": "FL2VA/video_vae/func.py",
+      "bytes": 5840,
+      "sha256": "0612c26a65f095699cc7acd51937cd153584fa5a0476956e46a4679aa575c22d",
+      "git_blob": "f142c48a932430b67d77164a6bfba3f61102ac3d"
+    },
+    {
+      "path": "FL2VA/video_vae/klvae.py",
+      "bytes": 48594,
+      "sha256": "d05a22b4918ad303f147d6b0d0ae9038bd1af1f810a5553b04f3542ab9bcff96",
+      "git_blob": "3e66f174c2c82600b6bc924ede9fb3fb068d1f3e"
+    },
+    {
+      "path": "FL2VA/video_vae/minimax_h3_video_vae.py",
+      "bytes": 5123,
+      "sha256": "77fdea69a48485b5434f65d08096657b5d78b78b7cdf24e1241038f237720138",
+      "git_blob": "231d9c77a7a3dc74de007c29332cfe92e3782f7d"
+    },
+    {
+      "path": "FL2VA/video_vae/norm.py",
+      "bytes": 10686,
+      "sha256": "258b120ca8d9a16366d7b811fe93eebf98fe1564db0995e8b7747229c651919a",
+      "git_blob": "00a96b83c6ee3f78cf75873e46d96be5d50879a6"
+    },
+    {
+      "path": "FL2VA/video_vae/normalize.py",
+      "bytes": 1200,
+      "sha256": "8db651acb9eb551c906a2850bbca8e9d851f00d07b30ccf66ceb6057da687a13",
+      "git_blob": "fd4038037c22d9c7b2e375e455e975ef4c56db7b"
+    },
+    {
+      "path": "FL2VA/video_vae/parallel.py",
+      "bytes": 12997,
+      "sha256": "7193522beafd65bc3dbe40b9843e360ab8da3a0bb211e9bfb67bb0d5d0e66919",
+      "git_blob": "e63b13c9b20738d4a2835e8fde4504a8145e121f"
+    },
+    {
+      "path": "FL2VA/video_vae/utils.py",
+      "bytes": 764,
+      "sha256": "309e45e9d9e33cd5516a10eac2d207eb9f940079a6d9bbe0ee80aaaf7eb42dcd",
+      "git_blob": "89c13d28758834b1fa8a1cd69018ec00807402f6"
+    },
+    {
+      "path": "FL2VA/video_vae/vae_cnn.py",
+      "bytes": 8836,
+      "sha256": "3949b701e6893bd2ea070cd5b18ed8135a7c21d884290df449b1997212d65b11",
+      "git_blob": "40a7917a1144162372f53328753f00e2f4c40a20"
+    },
+    {
+      "path": "FL2VA/video_vae/vae_module.py",
+      "bytes": 1884,
+      "sha256": "9558fb302e10a619f198e12e04701c68988e897d0b627f958f33d27fd2a30d94",
+      "git_blob": "6f2bf8d091c35eba2c4b6e92ee0038c0bfc9f137"
+    },
+    {
+      "path": "FL2VA/video_vae/vae_processor.py",
+      "bytes": 8369,
+      "sha256": "32870580a1802d9163104a4d68170e35a4772106867181e1bd343dff11f87d2e",
+      "git_blob": "0f2611987b6b0a0bfde2a3192121eede32dc9d8d"
+    },
+    {
+      "path": "FL2VA/video_vae/vae_vit.py",
+      "bytes": 13490,
+      "sha256": "a372c28441b56ec2dbc6041dbd6ce2766c64c0e61b2c69a16594a97a11da3f58",
+      "git_blob": "9021bcdd1dd2120ef5d0f7e0d0521199dbc1d3f9"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "torch": "2.14.1",
+  "before_mps_autocast": false,
+  "outer_mps_autocast": true,
+  "inside_cuda_disabled_mps_autocast": true,
+  "inside_cuda_disabled_cuda_autocast": false,
+  "scope": "Autocast context flags only; no tensors/GPU operations/model loading"
+}

@@ -28,10 +28,14 @@ classifiers = [
   "Development Status :: 3 - Alpha",
   "Environment :: GPU :: NVIDIA CUDA",
   "Operating System :: POSIX :: Linux",
+  "Operating System :: MacOS :: MacOS X",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Topic :: Multimedia :: Video",
 ]
+
+[project.optional-dependencies]
+test = ["pytest>=8", "ruff>=0.9"]
 
 [tool.setuptools]
 license-files = ["LICENSE", "NOTICE"]

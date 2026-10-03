@@ -1,0 +1,18 @@
+{
+  "python": "3.11.15 (main, Mar  3 2026, 00:52:57) [Clang 21.0.0 (clang-2100.0.123.102)]",
+  "platform": "macOS-26.5-arm64-arm-64bit",
+  "dependencies": {
+    "torch": "2.14.1",
+    "torchvision": "0.29.1",
+    "diffusers": "0.35.2",
+    "transformers": "4.57.6",
+    "tokenizers": "0.22.1",
+    "safetensors": "0.8.0",
+    "numpy": "2.4.6",
+    "einops": "0.8.2",
+    "huggingface-hub": "0.36.2",
+    "pytest": "9.1.1"
+  },
+  "upstream": "https://github.com/TaoLiveAIGC/TaoMate-H3",
+  "upstream_revision": "6b2f9984acf681e2f387188f5d1f3b26e504315b"
+}

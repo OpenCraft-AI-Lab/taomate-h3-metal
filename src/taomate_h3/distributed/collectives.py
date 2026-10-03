@@ -42,6 +42,8 @@ def all_gather_concat(
     group: Any,
     world_size: int,
 ) -> torch.Tensor:
+    if world_size == 1:
+        return value
     _require_distributed(group, "all-gather")
     gathered = [torch.empty_like(value) for _ in range(world_size)]
     torch.distributed.all_gather(gathered, value.contiguous(), group=group)
@@ -49,6 +51,8 @@ def all_gather_concat(
 
 
 def tp_all_reduce(value: torch.Tensor, *, context: ParallelContext) -> torch.Tensor:
+    if context.tp_world_size == 1:
+        return value
     return all_reduce_sum(
         value,
         group=context.tp_group,
@@ -56,6 +60,8 @@ def tp_all_reduce(value: torch.Tensor, *, context: ParallelContext) -> torch.Ten
 
 
 def tp_all_reduce_inplace_(value: torch.Tensor, *, context: ParallelContext) -> torch.Tensor:
+    if context.tp_world_size == 1:
+        return value
     return all_reduce_sum_inplace_(value, group=context.tp_group)
 
 

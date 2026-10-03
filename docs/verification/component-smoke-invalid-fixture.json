@@ -1,0 +1,25 @@
+{
+  "kind": "official_weight_component_smoke",
+  "device": "mps",
+  "torch": "2.14.1",
+  "video_precision": "float32_reference",
+  "implicit_cpu_fallback": false,
+  "phases": [
+    {
+      "phase": "loading_bundled_vaes",
+      "elapsed_seconds": 0.01113549992442131,
+      "allocated_bytes": 0,
+      "driver_allocated_bytes": 458752
+    },
+    {
+      "phase": "loaded_bundled_vaes",
+      "elapsed_seconds": 12.655565707944334,
+      "allocated_bytes": 0,
+      "driver_allocated_bytes": 458752
+    }
+  ],
+  "passed": false,
+  "error": "ValueError: decode_temporal streaming planned non-positive output_frames=0 total_frames=0 pad_frames=0",
+  "wall_seconds": 13.762540750205517,
+  "max_rss_bytes": 21200470016
+}

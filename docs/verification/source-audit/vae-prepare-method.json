@@ -1,0 +1,16 @@
+{
+  "source_root": "/Users/supreme-paca/Projects/h3-metal/MiniMax-H3/FL2VA/video_vae",
+  "wrapper_class_has_prepare": false,
+  "source_class_has_prepare": false,
+  "source_mro": [
+    "AutoencoderKLLegacy",
+    "AutoencoderKL",
+    "ModelMixin",
+    "Module",
+    "PushToHubMixin",
+    "ConfigMixin",
+    "FromOriginalModelMixin",
+    "object"
+  ],
+  "scope": "Module imports and class attributes only; no model construction, weight load, or GPU"
+}

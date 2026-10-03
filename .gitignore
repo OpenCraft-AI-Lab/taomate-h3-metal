@@ -41,3 +41,8 @@ latent_streaming.json
 .DS_Store
 .idea/
 .vscode/
+
+# Keep compact verification metadata; model weights and generated videos remain ignored.
+!docs/verification/**/result.json
+!docs/verification/**/run_config.json
+!docs/verification/**/latent_streaming.json

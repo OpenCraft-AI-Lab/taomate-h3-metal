@@ -1,0 +1,573 @@
+{
+  "scope": "Only safetensors 8-byte prefix and JSON header read. No tensor data loaded. Memory arithmetic is a lower-bound estimate, not observed resident/peak usage.",
+  "transformer": {
+    "tensor_count": 535,
+    "tensor_bytes": 66280430144,
+    "tensor_gib": 61.72846084833145,
+    "by_dtype": {
+      "F32": {
+        "tensors": 13,
+        "elements": 17222160,
+        "bytes": 68888640
+      },
+      "BF16": {
+        "tensors": 522,
+        "elements": 33105770752,
+        "bytes": 66211541504
+      }
+    },
+    "header_bytes_read": 55792,
+    "largest": [
+      {
+        "name": "blocks.0.adaln_proj.linear.weight",
+        "shape": [
+          96768,
+          2688
+        ],
+        "dtype": "BF16",
+        "bytes": 520224768
+      },
+      {
+        "name": "blocks.1.adaln_proj.linear.weight",
+        "shape": [
+          96768,
+          2688
+        ],
+        "dtype": "BF16",
+        "bytes": 520224768
+      },
+      {
+        "name": "blocks.2.adaln_proj.linear.weight",
+        "shape": [
+          96768,
+          2688
+        ],
+        "dtype": "BF16",
+        "bytes": 520224768
+      },
+      {
+        "name": "blocks.3.adaln_proj.linear.weight",
+        "shape": [
+          96768,
+          2688
+        ],
+        "dtype": "BF16",
+        "bytes": 520224768
+      },
+      {
+        "name": "blocks.4.adaln_proj.linear.weight",
+        "shape": [
+          96768,
+          2688
+        ],
+        "dtype": "BF16",
+        "bytes": 520224768
+      },
+      {
+        "name": "blocks.5.adaln_proj.linear.weight",
+        "shape": [
+          96768,
+          2688
+        ],
+        "dtype": "BF16",
+        "bytes": 520224768
+      },
+      {
+        "name": "blocks.6.adaln_proj.linear.weight",
+        "shape": [
+          96768,
+          2688
+        ],
+        "dtype": "BF16",
+        "bytes": 520224768
+      },
+      {
+        "name": "blocks.10.adaln_proj.linear.weight",
+        "shape": [
+          96768,
+          2688
+        ],
+        "dtype": "BF16",
+        "bytes": 520224768
+      }
+    ]
+  },
+  "text_selected_50_layers": {
+    "tensor_count": 551,
+    "tensor_bytes": 50315658240,
+    "tensor_gib": 46.860108375549316,
+    "by_dtype": {
+      "BF16": {
+        "tensors": 551,
+        "elements": 25157829120,
+        "bytes": 50315658240
+      }
+    },
+    "header_bytes_read": 132744,
+    "largest": [
+      {
+        "name": "model.language_model.embed_tokens.weight",
+        "shape": [
+          151936,
+          5120
+        ],
+        "dtype": "BF16",
+        "bytes": 1555824640
+      },
+      {
+        "name": "model.language_model.layers.0.mlp.down_proj.weight",
+        "shape": [
+          5120,
+          25600
+        ],
+        "dtype": "BF16",
+        "bytes": 262144000
+      },
+      {
+        "name": "model.language_model.layers.0.mlp.gate_proj.weight",
+        "shape": [
+          25600,
+          5120
+        ],
+        "dtype": "BF16",
+        "bytes": 262144000
+      },
+      {
+        "name": "model.language_model.layers.0.mlp.up_proj.weight",
+        "shape": [
+          25600,
+          5120
+        ],
+        "dtype": "BF16",
+        "bytes": 262144000
+      },
+      {
+        "name": "model.language_model.layers.1.mlp.down_proj.weight",
+        "shape": [
+          5120,
+          25600
+        ],
+        "dtype": "BF16",
+        "bytes": 262144000
+      },
+      {
+        "name": "model.language_model.layers.1.mlp.gate_proj.weight",
+        "shape": [
+          25600,
+          5120
+        ],
+        "dtype": "BF16",
+        "bytes": 262144000
+      },
+      {
+        "name": "model.language_model.layers.1.mlp.up_proj.weight",
+        "shape": [
+          25600,
+          5120
+        ],
+        "dtype": "BF16",
+        "bytes": 262144000
+      },
+      {
+        "name": "model.language_model.layers.2.mlp.down_proj.weight",
+        "shape": [
+          5120,
+          25600
+        ],
+        "dtype": "BF16",
+        "bytes": 262144000
+      }
+    ]
+  },
+  "video_vae": {
+    "tensor_count": 560,
+    "tensor_bytes": 10415484128,
+    "tensor_gib": 9.700175493955612,
+    "by_dtype": {
+      "F32": {
+        "tensors": 560,
+        "elements": 2603871032,
+        "bytes": 10415484128
+      }
+    },
+    "header_bytes_read": 64192,
+    "largest": [
+      {
+        "name": "decoder.transformer_blocks.0.ff.w1.weight",
+        "shape": [
+          16384,
+          2048
+        ],
+        "dtype": "F32",
+        "bytes": 134217728
+      },
+      {
+        "name": "decoder.transformer_blocks.1.ff.w1.weight",
+        "shape": [
+          16384,
+          2048
+        ],
+        "dtype": "F32",
+        "bytes": 134217728
+      },
+      {
+        "name": "decoder.transformer_blocks.10.ff.w1.weight",
+        "shape": [
+          16384,
+          2048
+        ],
+        "dtype": "F32",
+        "bytes": 134217728
+      },
+      {
+        "name": "decoder.transformer_blocks.11.ff.w1.weight",
+        "shape": [
+          16384,
+          2048
+        ],
+        "dtype": "F32",
+        "bytes": 134217728
+      },
+      {
+        "name": "decoder.transformer_blocks.12.ff.w1.weight",
+        "shape": [
+          16384,
+          2048
+        ],
+        "dtype": "F32",
+        "bytes": 134217728
+      },
+      {
+        "name": "decoder.transformer_blocks.13.ff.w1.weight",
+        "shape": [
+          16384,
+          2048
+        ],
+        "dtype": "F32",
+        "bytes": 134217728
+      },
+      {
+        "name": "decoder.transformer_blocks.14.ff.w1.weight",
+        "shape": [
+          16384,
+          2048
+        ],
+        "dtype": "F32",
+        "bytes": 134217728
+      },
+      {
+        "name": "decoder.transformer_blocks.15.ff.w1.weight",
+        "shape": [
+          16384,
+          2048
+        ],
+        "dtype": "F32",
+        "bytes": 134217728
+      }
+    ]
+  },
+  "audio_vae": {
+    "tensor_count": 1087,
+    "tensor_bytes": 605306340,
+    "tensor_gib": 0.5637354589998722,
+    "by_dtype": {
+      "F32": {
+        "tensors": 1087,
+        "elements": 151326585,
+        "bytes": 605306340
+      }
+    },
+    "header_bytes_read": 122968,
+    "largest": [
+      {
+        "name": "encoder.block.5.block.4.weight_v",
+        "shape": [
+          2048,
+          1024,
+          10
+        ],
+        "dtype": "F32",
+        "bytes": 83886080
+      },
+      {
+        "name": "decoder.conv_pre.weight_v",
+        "shape": [
+          1024,
+          2048,
+          7
+        ],
+        "dtype": "F32",
+        "bytes": 58720256
+      },
+      {
+        "name": "encoder.block.7.weight_v",
+        "shape": [
+          2048,
+          2048,
+          3
+        ],
+        "dtype": "F32",
+        "bytes": 50331648
+      },
+      {
+        "name": "pre_block.attn.qkv.weight",
+        "shape": [
+          6144,
+          2048
+        ],
+        "dtype": "F32",
+        "bytes": 50331648
+      },
+      {
+        "name": "encoder.block.5.block.0.block.1.weight_v",
+        "shape": [
+          1024,
+          1024,
+          7
+        ],
+        "dtype": "F32",
+        "bytes": 29360128
+      },
+      {
+        "name": "encoder.block.5.block.1.block.1.weight_v",
+        "shape": [
+          1024,
+          1024,
+          7
+        ],
+        "dtype": "F32",
+        "bytes": 29360128
+      },
+      {
+        "name": "encoder.block.5.block.2.block.1.weight_v",
+        "shape": [
+          1024,
+          1024,
+          7
+        ],
+        "dtype": "F32",
+        "bytes": 29360128
+      },
+      {
+        "name": "encoder.block.4.block.4.weight_v",
+        "shape": [
+          1024,
+          512,
+          10
+        ],
+        "dtype": "F32",
+        "bytes": 20971520
+      }
+    ]
+  },
+  "adapter_f32_checkpoint": {
+    "tensor_count": 416,
+    "tensor_bytes": 2480930816,
+    "tensor_gib": 2.310546875,
+    "by_dtype": {
+      "F32": {
+        "tensors": 416,
+        "elements": 620232704,
+        "bytes": 2480930816
+      }
+    },
+    "header_bytes_read": 43264,
+    "largest": [
+      {
+        "name": "blocks.0.mlp.fc1.lora_b",
+        "shape": [
+          28672,
+          128
+        ],
+        "dtype": "F32",
+        "bytes": 14680064
+      },
+      {
+        "name": "blocks.1.mlp.fc1.lora_b",
+        "shape": [
+          28672,
+          128
+        ],
+        "dtype": "F32",
+        "bytes": 14680064
+      },
+      {
+        "name": "blocks.10.mlp.fc1.lora_b",
+        "shape": [
+          28672,
+          128
+        ],
+        "dtype": "F32",
+        "bytes": 14680064
+      },
+      {
+        "name": "blocks.11.mlp.fc1.lora_b",
+        "shape": [
+          28672,
+          128
+        ],
+        "dtype": "F32",
+        "bytes": 14680064
+      },
+      {
+        "name": "blocks.12.mlp.fc1.lora_b",
+        "shape": [
+          28672,
+          128
+        ],
+        "dtype": "F32",
+        "bytes": 14680064
+      },
+      {
+        "name": "blocks.13.mlp.fc1.lora_b",
+        "shape": [
+          28672,
+          128
+        ],
+        "dtype": "F32",
+        "bytes": 14680064
+      },
+      {
+        "name": "blocks.14.mlp.fc1.lora_b",
+        "shape": [
+          28672,
+          128
+        ],
+        "dtype": "F32",
+        "bytes": 14680064
+      },
+      {
+        "name": "blocks.15.mlp.fc1.lora_b",
+        "shape": [
+          28672,
+          128
+        ],
+        "dtype": "F32",
+        "bytes": 14680064
+      }
+    ]
+  },
+  "arithmetic": {
+    "text_plus_transformer_gib": 108.58856922388077,
+    "adapter_bf16_gib": 1.1552734375,
+    "transformer_plus_bf16_adapter_gib": 62.88373428583145,
+    "all_f32_transformer_gib_if_upcast": 123.39276415109634
+  },
+  "transformer_f32_tensors": {
+    "audio_patch_proj.bias": {
+      "dtype": "F32",
+      "shape": [
+        5376
+      ],
+      "bytes": 21504
+    },
+    "audio_patch_proj.weight": {
+      "dtype": "F32",
+      "shape": [
+        5376,
+        32
+      ],
+      "bytes": 688128
+    },
+    "rope.inv_freq": {
+      "dtype": "F32",
+      "shape": [
+        16
+      ],
+      "bytes": 64
+    },
+    "time_embedder.proj_in.bias": {
+      "dtype": "F32",
+      "shape": [
+        5376
+      ],
+      "bytes": 21504
+    },
+    "time_embedder.proj_in.weight": {
+      "dtype": "F32",
+      "shape": [
+        5376,
+        256
+      ],
+      "bytes": 5505024
+    },
+    "time_embedder.proj_out.bias": {
+      "dtype": "F32",
+      "shape": [
+        2688
+      ],
+      "bytes": 10752
+    },
+    "time_embedder.proj_out.weight": {
+      "dtype": "F32",
+      "shape": [
+        2688,
+        5376
+      ],
+      "bytes": 57802752
+    },
+    "video_patch_proj.bias": {
+      "dtype": "F32",
+      "shape": [
+        5376
+      ],
+      "bytes": 21504
+    },
+    "video_patch_proj.weight": {
+      "dtype": "F32",
+      "shape": [
+        5376,
+        96
+      ],
+      "bytes": 2064384
+    },
+    "final_layer.audio_out.bias": {
+      "dtype": "F32",
+      "shape": [
+        32
+      ],
+      "bytes": 128
+    },
+    "final_layer.audio_out.weight": {
+      "dtype": "F32",
+      "shape": [
+        32,
+        5376
+      ],
+      "bytes": 688128
+    },
+    "final_layer.video_out.bias": {
+      "dtype": "F32",
+      "shape": [
+        96
+      ],
+      "bytes": 384
+    },
+    "final_layer.video_out.weight": {
+      "dtype": "F32",
+      "shape": [
+        96,
+        5376
+      ],
+      "bytes": 2064384
+    }
+  },
+  "kv_480p": {
+    "frame_rows": 405,
+    "bytes_per_history_token_all_50_layers": 1433600,
+    "max_retained_gib": 17.607879638671875,
+    "max_pretrim_gib": 23.164749145507812,
+    "max_old_plus_new_trim_gib": 40.77262878417969,
+    "worst_trim": {
+      "request": 1,
+      "phase": 2,
+      "history_before_tokens": 13186,
+      "staged_tokens": 4164,
+      "history_after_commit_tokens": 17350,
+      "history_retained_tokens": 13188,
+      "commit_plus_staging_gib": 23.164749145507812,
+      "trim_old_plus_new_gib": 40.77262878417969
+    },
+    "note": "Derived from official cache.py:273\u2013282 keeping old dict until all retained tensors built; ignores allocator/workspaces and input temporaries."
+  }
+}

@@ -30,7 +30,11 @@ class H3StreamingSession:
         self._block_index_base = self.cache.committed_blocks
         self.hook = H3StreamingAttentionHook(
             self.cache,
-            backend=DIRECT_POLICY.attention_backend,
+            backend=(
+                "torch_sdpa"
+                if cache.contract.device_type == "mps"
+                else DIRECT_POLICY.attention_backend
+            ),
         )
         self._installed = False
         self._noisy_blocks: set[int] = set()

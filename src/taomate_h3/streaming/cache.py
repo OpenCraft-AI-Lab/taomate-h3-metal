@@ -45,6 +45,7 @@ def kv_contract_from_model(model: object) -> KVContract:
     return KVContract(
         local_heads=total_heads // parallel_size,
         head_dim=head_dim,
+        device_type=next(model.parameters()).device.type,
     )
 
 
@@ -83,6 +84,7 @@ class CleanAVKVCache:
 
     def __init__(self, contract: KVContract) -> None:
         self.contract = contract
+        self._poisoned = False
         self._history: dict[str, AVKV] = {}
         self._staged: dict[str, AVKV] = {}
         self._staged_block: int | None = None
@@ -117,10 +119,18 @@ class CleanAVKVCache:
         return self._staged_block is not None
 
     def history(self, layer_name: str) -> AVKV | None:
+        if self._poisoned:
+            raise RuntimeError(
+                "KV allocation failure invalidated the session; create a new runtime"
+            )
         self._validate_layer_name(layer_name)
         return self._history.get(layer_name)
 
     def begin_clean_commit(self, block_index: int) -> None:
+        if self._poisoned:
+            raise RuntimeError(
+                "KV allocation failure invalidated the session; create a new runtime"
+            )
         if self.clean_commit_active:
             raise RuntimeError("a clean KV commit is already active")
         if block_index != self._block_index:
@@ -270,16 +280,39 @@ class CleanAVKVCache:
             self._commit_token_tags.clear()
             return
 
-        next_history: dict[str, AVKV] = {}
-        for layer_name, pair in self._history.items():
-            indices = torch.tensor(selected_rows, dtype=torch.long, device=pair.key.device)
-            retained = AVKV(
-                key=pair.key.index_select(0, indices),
-                value=pair.value.index_select(0, indices),
-            )
-            _validate_av_pair(retained, self.contract, layer_name=layer_name)
-            next_history[layer_name] = retained
-        self._history = next_history
+        if self.contract.device_type == "mps":
+            # Replace one layer at a time. Keeping old+new dictionaries would
+            # duplicate the entire 50-layer history on unified memory.
+            # Failure is fatal to this session: never expose mixed row layouts.
+            try:
+                for layer_name in tuple(self._history):
+                    pair = self._history[layer_name]
+                    indices = torch.tensor(selected_rows, dtype=torch.long, device=pair.key.device)
+                    retained = AVKV(
+                        key=pair.key.index_select(0, indices),
+                        value=pair.value.index_select(0, indices),
+                    )
+                    _validate_av_pair(retained, self.contract, layer_name=layer_name)
+                    # Finish this copy before releasing its source allocation.
+                    torch.mps.synchronize()
+                    self._history[layer_name] = retained
+                    del pair, retained
+            except BaseException:
+                self._history.clear()
+                self._clear_staging()
+                self._poisoned = True
+                raise
+        else:
+            next_history: dict[str, AVKV] = {}
+            for layer_name, pair in self._history.items():
+                indices = torch.tensor(selected_rows, dtype=torch.long, device=pair.key.device)
+                retained = AVKV(
+                    key=pair.key.index_select(0, indices),
+                    value=pair.value.index_select(0, indices),
+                )
+                _validate_av_pair(retained, self.contract, layer_name=layer_name)
+                next_history[layer_name] = retained
+            self._history = next_history
         self._commit_token_counts = selected_counts
         self._commit_token_tags = selected_tags
 

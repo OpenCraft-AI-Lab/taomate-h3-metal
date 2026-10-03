@@ -1,0 +1,10 @@
+{
+  "video_sha256": "f9536aa529f6434e15f4fa3477c7ede13a509e38b7a83331e072a407dd0a5b26",
+  "audio_decoded_values": 321536,
+  "audio_finite": true,
+  "audio_peak": 0.8903959393501282,
+  "audio_rms": 0.09334252029657364,
+  "kernel_peak_footprint_bytes": 104972797920,
+  "visual_inspection": "Five sampled frames show a stable sunrise beach with two people and a thatched umbrella; the prompt did not specify people. This is not a prompt-fidelity or CUDA-parity pass.",
+  "source_note": "runtime/backend.py and runtime/mps.py received formatting/type annotations and a timing-event precondition check while the first launch was in progress. This run is functional evidence; the next continuation run freezes the complete source snapshot."
+}

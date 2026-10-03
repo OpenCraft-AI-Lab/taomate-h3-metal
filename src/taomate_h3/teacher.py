@@ -41,6 +41,7 @@ class TeacherConfig:
     audio_seed_base: int
     gpu_count: int
     ulysses_degree: int
+    backend: str = "cuda"
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -411,12 +412,22 @@ def _run_worker(config: TeacherConfig) -> None:
         raise ValueError(
             f"audio-guidance torchrun world size must be {config.gpu_count}, got {world_size}"
         )
-    torch.cuda.set_device(local_rank)
-    device = torch.device("cuda", local_rank)
-    torch.distributed.init_process_group(
-        backend="nccl", init_method="env://", timeout=timedelta(hours=3)
-    )
-    context = _parallel_context(torch, rank, ulysses_degree=config.ulysses_degree)
+    if config.backend == "mps":
+        from .distributed import ParallelContext
+        from .runtime.backend import require_mps
+
+        require_mps()
+        for key in ("HF_DATASETS_OFFLINE", "HF_HUB_OFFLINE", "TRANSFORMERS_OFFLINE"):
+            os.environ.setdefault(key, "1")
+        device = torch.device("mps")
+        context = ParallelContext(1, 0, 1, 0, None, None)
+    else:
+        torch.cuda.set_device(local_rank)
+        device = torch.device("cuda", local_rank)
+        torch.distributed.init_process_group(
+            backend="nccl", init_method="env://", timeout=timedelta(hours=3)
+        )
+        context = _parallel_context(torch, rank, ulysses_degree=config.ulysses_degree)
     pipeline = MiniMaxH3NativePipeline(
         model_root=config.model_root,
         device=device,
@@ -441,6 +452,9 @@ def _run_worker(config: TeacherConfig) -> None:
     previous_clean = None
     previous_audio_latent_count: int | None = None
     for request_index, features in enumerate(text_features):
+        from .runtime.backend import progress
+
+        progress("teacher_request_start", request=request_index, backend=config.backend)
         milestones, current_clean, active_audio_latents, request_receipt = _generate_request(
             torch,
             pipeline=pipeline,
@@ -451,10 +465,9 @@ def _run_worker(config: TeacherConfig) -> None:
             previous_clean=previous_clean,
             previous_audio_latent_count=previous_audio_latent_count,
         )
+        progress("teacher_request_complete", request=request_index)
         active_counts.append(active_audio_latents)
-        request_receipt["prefix_source_request"] = (
-            None if request_index == 0 else request_index - 1
-        )
+        request_receipt["prefix_source_request"] = None if request_index == 0 else request_index - 1
         request_receipts.append(request_receipt)
         previous_clean = current_clean
         previous_audio_latent_count = active_audio_latents
@@ -470,7 +483,8 @@ def _run_worker(config: TeacherConfig) -> None:
                 },
                 config.output_dir / f"request_{request_index:02d}.pt",
             )
-        torch.distributed.barrier()
+        if config.backend == "cuda":
+            torch.distributed.barrier()
 
     if rank == 0:
         completion = {
@@ -479,7 +493,7 @@ def _run_worker(config: TeacherConfig) -> None:
             "partition": "fl2va",
             "base_precision": "bf16",
             "parallelism": {
-                "tensor_parallel_size": _TP_SIZE,
+                "tensor_parallel_size": 1 if config.backend == "mps" else _TP_SIZE,
                 "ulysses_degree": config.ulysses_degree,
             },
             "request_count": len(config.prompts),
@@ -513,7 +527,15 @@ def _run_worker(config: TeacherConfig) -> None:
             json.dumps(completion, ensure_ascii=False, indent=2) + "\n",
             encoding="utf-8",
         )
-    torch.distributed.barrier()
+    if config.backend == "cuda":
+        torch.distributed.barrier()
+    del pipeline
+    import gc
+
+    gc.collect()
+    from .runtime.backend import empty_cache
+
+    empty_cache(device)
 
 
 def launch_audio_guidance(
@@ -536,9 +558,13 @@ def launch_audio_guidance(
         audio_seed_base=run_config.seed,
         gpu_count=run_config.gpu_count,
         ulysses_degree=run_config.ulysses_degree,
+        backend=run_config.backend,
     )
     _prepare_output(config.output_dir)
-    _launch(config)
+    if config.backend == "mps":
+        _run_worker(config)
+    else:
+        _launch(config)
 
 
 def main(argv: Sequence[str] | None = None) -> int:

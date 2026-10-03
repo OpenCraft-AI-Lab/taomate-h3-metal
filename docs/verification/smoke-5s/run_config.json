@@ -1,0 +1,26 @@
+{
+  "adapter": "/Users/supreme-paca/Models/TaoMate-H3",
+  "backend": "mps",
+  "devices": [
+    "mps"
+  ],
+  "duration_seconds": 5,
+  "gpu_count": 1,
+  "height": 480,
+  "model_root": "/Users/supreme-paca/Projects/h3-metal/MiniMax-H3",
+  "output_dir": "/Users/supreme-paca/Projects/taomate-h3-metal/outputs/metal-smoke-5s-20261002",
+  "parallelism": {
+    "tensor_parallel_size": 1,
+    "ulysses_degree": 1
+  },
+  "prompts": [
+    "A calm ocean at sunrise, gentle waves washing onto a sandy beach."
+  ],
+  "request_seeds": [
+    1
+  ],
+  "resolution": "864x480",
+  "seed": 1,
+  "segment_seconds": 5,
+  "width": 864
+}

@@ -151,6 +151,7 @@ class DirectRunConfig:
     tensor_parallel_size: int = 2
     ulysses_degree: int = 4
     segment_seconds: int = SEGMENT_SECONDS
+    backend: str = "cuda"
 
     def __post_init__(self) -> None:
         expected_width, expected_height, normalized = parse_resolution(self.resolution)
@@ -172,6 +173,17 @@ class DirectRunConfig:
             type(seed) is not int or seed < 0 for seed in self.request_seeds
         ):
             raise ValueError("one non-negative seed is required per request")
+        if self.backend == "mps":
+            if (self.gpu_count, self.tensor_parallel_size, self.ulysses_degree, self.devices) != (
+                1,
+                1,
+                1,
+                ("mps",),
+            ):
+                raise ValueError("MPS requires single-process topology")
+            return
+        if self.backend != "cuda":
+            raise ValueError("unknown backend")
         expected_ulysses = {4: 2, 8: 4}.get(self.gpu_count)
         if (
             self.tensor_parallel_size != 2
@@ -199,6 +211,7 @@ class DirectRunConfig:
             "seed": self.seed,
             "request_seeds": list(self.request_seeds),
             "gpu_count": self.gpu_count,
+            "backend": self.backend,
             "devices": list(self.devices),
             "parallelism": {
                 "tensor_parallel_size": self.tensor_parallel_size,
@@ -228,6 +241,7 @@ class DirectRunConfig:
             seed=int(payload.get("seed")),
             request_seeds=tuple(int(item) for item in payload.get("request_seeds", [])),
             gpu_count=int(payload.get("gpu_count")),
+            backend=str(payload.get("backend", "cuda")),
             devices=tuple(str(item) for item in devices),
             tensor_parallel_size=int(parallelism.get("tensor_parallel_size")),
             ulysses_degree=int(parallelism.get("ulysses_degree")),
@@ -247,6 +261,7 @@ def build_run_config(
     seed: int,
     gpu_count: int,
     devices: str | None,
+    backend: str = "cuda",
 ) -> DirectRunConfig:
     prompts, resolved_duration, supplied_seeds = resolve_prompts(
         prompt=prompt,
@@ -254,7 +269,13 @@ def build_run_config(
         duration_seconds=duration_seconds,
     )
     width, height, normalized_resolution = parse_resolution(resolution)
-    resolved_devices = parse_devices(devices, gpu_count=gpu_count)
+    if backend == "mps":
+        if devices is not None:
+            raise ValueError("--devices is CUDA-only")
+        gpu_count = 1
+        resolved_devices = ("mps",)
+    else:
+        resolved_devices = parse_devices(devices, gpu_count=gpu_count)
     return DirectRunConfig(
         model_root=model_root.expanduser().resolve(),
         adapter=adapter.expanduser().resolve(),
@@ -268,7 +289,9 @@ def build_run_config(
         request_seeds=(supplied_seeds if supplied_seeds is not None else (seed,) * len(prompts)),
         gpu_count=gpu_count,
         devices=resolved_devices,
-        ulysses_degree={4: 2, 8: 4}[gpu_count],
+        ulysses_degree=1 if backend == "mps" else {4: 2, 8: 4}[gpu_count],
+        tensor_parallel_size=1 if backend == "mps" else 2,
+        backend=backend,
     )
 
 

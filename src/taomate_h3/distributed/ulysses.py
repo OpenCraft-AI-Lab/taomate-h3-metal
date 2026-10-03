@@ -62,6 +62,8 @@ def _swap(
     sequence_to_heads: bool,
 ) -> torch.Tensor:
     world_size = context.ulysses_world_size
+    if world_size == 1:
+        return value
     if not torch.distributed.is_available() or not torch.distributed.is_initialized():
         raise RuntimeError("Ulysses all-to-all requires initialized torch.distributed")
     if context.ulysses_group is None:

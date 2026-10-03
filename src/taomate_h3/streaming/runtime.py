@@ -466,10 +466,23 @@ class H3StreamingRuntime:
 
         import torch
 
+        if getattr(self, "_device_type", "cuda") == "mps":
+            from ..runtime.backend import synchronize
+
+            synchronize("mps")
+            seconds = sum(start.elapsed_time(stop) for start, stop in self._dit_cuda_events) / 1000
+            return {
+                "noisy_calls": self._dit_noisy_calls,
+                "clean_kv_calls": self._dit_clean_calls,
+                "total_calls": self._dit_noisy_calls + self._dit_clean_calls,
+                "device_seconds": seconds,
+                "timing_backend": "mps_synchronized_wall",
+                "cuda_seconds": None,
+            }
         torch.cuda.synchronize()
-        local_seconds = sum(
-            float(start.elapsed_time(stop)) for start, stop in self._dit_cuda_events
-        ) / 1000.0
+        local_seconds = (
+            sum(float(start.elapsed_time(stop)) for start, stop in self._dit_cuda_events) / 1000.0
+        )
         maximum = torch.tensor(local_seconds, dtype=torch.float64, device="cuda")
         torch.distributed.all_reduce(maximum, op=torch.distributed.ReduceOp.MAX)
         return {
@@ -484,6 +497,8 @@ class H3StreamingRuntime:
 
         from taomate_h3.model.denoise import minimax_h3_denoise_loop
 
+        if getattr(self, "_failed", False):
+            raise RuntimeError("failed MPS request invalidated the session; create a new runtime")
         if self._running:
             raise RuntimeError("one H3 streaming runtime cannot run concurrent requests")
         self._running = True
@@ -566,7 +581,9 @@ class H3StreamingRuntime:
             device = initial_video.device
             if device.type != "cpu":
                 raise ValueError("official H3 initial noise must enter denoise from CPU")
-            cuda_device = torch.device("cuda")
+            cuda_device = next(model.parameters()).device
+            self._device_type = cuda_device.type
+            from ..runtime.backend import timing_event
 
             sigmas_video = list(kwargs["sigmas_video"])
             sigmas_audio = list(kwargs["sigmas_audio"])
@@ -607,6 +624,14 @@ class H3StreamingRuntime:
                 cache=cache,
             ) as session:
                 for phase in phases:
+                    from ..runtime.backend import progress
+
+                    progress(
+                        "stage3_phase_start",
+                        request=request_index,
+                        phase=phase.index,
+                        device=str(cuda_device),
+                    )
                     branch = _build_phase_branch(
                         positive=positive,
                         phase=phase,
@@ -641,8 +666,8 @@ class H3StreamingRuntime:
                         active_branch: Any = branch,
                     ) -> tuple[Any, Any]:
                         del step_index
-                        cuda_start = torch.cuda.Event(enable_timing=True)
-                        cuda_stop = torch.cuda.Event(enable_timing=True)
+                        cuda_start = timing_event(cuda_device)
+                        cuda_stop = timing_event(cuda_device)
                         with (
                             session.noisy_step(active_phase_index),
                             _native_attention_metadata(active_branch),
@@ -693,8 +718,8 @@ class H3StreamingRuntime:
                         torch.no_grad(),
                     ):
                         clean_kwargs["streaming_cache_only"] = True
-                        cuda_start = torch.cuda.Event(enable_timing=True)
-                        cuda_stop = torch.cuda.Event(enable_timing=True)
+                        cuda_start = timing_event(cuda_device)
+                        cuda_stop = timing_event(cuda_device)
                         cuda_start.record()
                         model(**clean_kwargs)
                         cuda_stop.record()
@@ -830,6 +855,12 @@ class H3StreamingRuntime:
             if list(returned_audio.shape) != [2 * official_audio_latents, 32]:
                 raise RuntimeError("streaming audio output no longer matches official request rows")
             return returned_video, returned_audio
+        except BaseException:
+            if getattr(self, "_device_type", None) == "mps":
+                self._failed = True
+                if self._cache is not None:
+                    self._cache.clear()
+            raise
         finally:
             self._running = False
 

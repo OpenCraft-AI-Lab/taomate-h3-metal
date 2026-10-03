@@ -1,4 +1,7 @@
 # TaoMate-H3
+
+> **Experimental Metal backend:** this checkout adapts the official TaoMate-H3 Python runtime to Apple Silicon. Real 480p runs at 5, 10 and 60 seconds pass on M5 Max 128 GiB, along with 30 CPU/MPS regression tests. Use `--backend mps`; see [setup, measurements and validation limits](docs/METAL_PORT.md). The CUDA instructions below are the upstream reference.
+
 [![Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-Model-yellow)](https://huggingface.co/TaoLiveAIGC/TaoMate-H3)  [![ModelScope](https://img.shields.io/badge/ModelScope-Model-white?labelColor=%23EF3D5D)](https://modelscope.ai/models/TaoLiveAIGC/TaoMate-H3)
 
 ## 🎥 Demo Video
@@ -165,6 +168,7 @@ inference.
 
 | Parameter | Description | Default |
 |---|---|---|
+| `--backend` | Execution backend: `cuda` or single-process Apple `mps` | `cuda` |
 | `--model-root` | MiniMax H3 directory containing `FL2VA/` | Required |
 | `--adapter` | Local LoRA directory; omit to download and reuse the official TaoMate-H3 adapter | `models/TaoMate-H3` |
 | `--prompt` | One prompt reused for every five-second block | — |

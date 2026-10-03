@@ -1,0 +1,16 @@
+{
+  "video_sha256": "dba747b56066230fde93cc526c197e4cdd654b826fcd8b44ad72d3a71439d613",
+  "strict_decode_passed": true,
+  "audio_decoded_values": 641024,
+  "audio_finite": true,
+  "audio_peak": 0.9966422319412231,
+  "audio_rms": 0.1808602660894394,
+  "kernel_peak_footprint_bytes": 105438578776,
+  "source_snapshot_verified": true,
+  "source_files_verified": 45,
+  "visual_inspection": "Ten frames sampled at one-second intervals show the same presenter, backpack, table and studio throughout both requests, with hand and mouth motion. No obvious visual discontinuity in the sampled frames. Speech transcription, lip synchronization and CUDA tensor parity are not independently verified.",
+  "limits": [
+    "No official CUDA tensor comparison",
+    "No completed minute run in this official-source port yet"
+  ]
+}

@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import gc
 import tempfile
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable
@@ -16,6 +17,7 @@ from taomate_h3.config import DIRECT_W8A8_POLICY
 from taomate_h3.distributed import ParallelContext
 
 from ..denoise_schedule import DISTILLED_STATE_INDICES, select_time_shift_sigmas
+from ..runtime.backend import progress
 from .components import partition_root
 from .denoise import MiniMaxH3DenoiseBranch
 from .dit import MiniMaxH3DiT
@@ -64,12 +66,30 @@ class MiniMaxH3NativePipeline:
         self.transformer_load_w8a8_policy = transformer_load_w8a8_policy
         self.tokenizer = self._load_tokenizer()
 
+        self.component_timings = {}
+        started = time.perf_counter()
+        progress("text_load_start", device=str(self.device))
         self.text_encoder = MiniMaxH3TextEncoder.allocate(
             self.partition_root / "text_encoder",
             device=self.device,
             context=self.parallel_context,
         )
         load_minimax_h3_text_weights(self.text_encoder, self.partition_root / "text_encoder")
+        self.text_encoder.eval()
+        self.component_timings["text_load_seconds"] = time.perf_counter() - started
+        progress("text_load_complete", seconds=self.component_timings["text_load_seconds"])
+        self.transformer = None
+        if self.device.type != "mps":
+            self._load_transformer()
+
+        self.output_decoder: H3LatentDecoder | None = None
+        self.last_video_decode_receipt: dict[str, Any] | None = None
+
+    def _load_transformer(self) -> None:
+        if self.transformer is not None:
+            return
+        started = time.perf_counter()
+        progress("dit_load_start", device=str(self.device), w8a8=self.transformer_load_w8a8_policy)
         self.transformer = MiniMaxH3DiT.allocate(
             self.device,
             parallel_context=self.parallel_context,
@@ -79,11 +99,9 @@ class MiniMaxH3NativePipeline:
             self.transformer,
             self.partition_root / "transformer",
         )
-        self.text_encoder.eval()
         self.transformer.eval()
-
-        self.output_decoder: H3LatentDecoder | None = None
-        self.last_video_decode_receipt: dict[str, Any] | None = None
+        self.component_timings["dit_load_seconds"] = time.perf_counter() - started
+        progress("dit_load_complete", seconds=self.component_timings["dit_load_seconds"])
 
     def _load_tokenizer(self) -> Any:
         transformers = __import__("transformers", fromlist=["AutoTokenizer"])
@@ -94,14 +112,23 @@ class MiniMaxH3NativePipeline:
     def _encode_text(self, *, prompt: str) -> tuple[torch.Tensor, torch.Tensor]:
         """Encode one text-only T2VA prompt."""
 
+        progress("text_encode_start", device=str(self.device))
         ids = minimax_h3_text_only_ids(self.tokenizer, prompt)
         tags = torch.ones(int(ids.shape[0]), dtype=torch.long)
         return self.text_encoder.encode_ids(ids), tags
 
     def _offload_text(self) -> None:
-        self.text_encoder.to("cpu")
+        if self.device.type == "mps":
+            # Unified memory: moving to CPU does not release physical weights.
+            self.text_encoder = None
+        else:
+            self.text_encoder.to("cpu")
         gc.collect()
-        torch.cuda.empty_cache()
+        from ..runtime.backend import empty_cache
+
+        empty_cache(self.device)
+        progress("text_released", device=str(self.device))
+        self._load_transformer()
 
     @staticmethod
     def _initial_video_noise(
@@ -179,18 +206,23 @@ class MiniMaxH3NativePipeline:
             self.output_decoder = H3LatentDecoder(
                 video_vae_root=self.partition_root / "video_vae",
                 audio_vae_root=self.partition_root / "audio_vae",
-                video_parallel_group=torch.distributed.group.WORLD,
+                video_parallel_group=None
+                if self.world_size == 1
+                else torch.distributed.group.WORLD,
                 video_parallel_rank=self.rank,
                 video_parallel_world_size=self.world_size,
                 load_audio=self.rank == 0,
             )
             self.output_decoder.enable_video_vae_batched_tiles()
-            self.output_decoder.enable_video_vae_exact_fusions()
-            self.output_decoder.enable_video_vae_temporal_window_dp(
-                microbatch_size=2,
-                gpu_rgb24_output=True,
-            )
-            self.output_decoder.enable_video_vae_keep_on_device_after_decode()
+            if self.device.type != "mps":
+                self.output_decoder.enable_video_vae_exact_fusions()
+            if self.device.type != "mps":
+                self.output_decoder.enable_video_vae_temporal_window_dp(
+                    microbatch_size=2,
+                    gpu_rgb24_output=True,
+                )
+            if self.device.type != "mps":
+                self.output_decoder.enable_video_vae_keep_on_device_after_decode()
             self.output_decoder.enable_video_vae_cpu_temporal_output()
         return self.output_decoder
 

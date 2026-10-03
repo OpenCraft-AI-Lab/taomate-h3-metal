@@ -68,6 +68,7 @@ def build_parser() -> argparse.ArgumentParser:
         type=Path,
         help="local LoRA directory; defaults to downloading TaoLiveAIGC/TaoMate-H3",
     )
+    parser.add_argument("--backend", choices=("cuda", "mps"), default="cuda")
     parser.add_argument("--seed", type=int, default=8301)
     parser.add_argument(
         "--output",
@@ -181,6 +182,11 @@ def launch(
     config_path: Path,
     audio_guidance_dir: Path,
 ) -> None:
+    if config.backend == "mps":
+        from .runner import run_direct
+
+        run_direct(config, audio_guidance_dir=audio_guidance_dir)
+        return
     environment = os.environ.copy()
     environment["CUDA_VISIBLE_DEVICES"] = ",".join(config.devices)
     environment.setdefault("OMP_NUM_THREADS", "1")
@@ -206,9 +212,15 @@ def main(argv: Sequence[str] | None = None) -> int:
             seed=args.seed,
             gpu_count=args.gpus,
             devices=args.devices,
+            backend=args.backend,
         )
         _validate_media_tools()
-        _validate_acceleration_runtime()
+        if config.backend == "cuda":
+            _validate_acceleration_runtime()
+        else:
+            from .runtime.backend import require_mps
+
+            require_mps()
         _validate_output(config.output_dir)
         if args.adapter is None:
             prepare_default_adapter(config.adapter)
@@ -216,7 +228,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     except (OSError, ValueError) as exc:
         parser.error(str(exc))
     print("Powered by MiniMax H3.", flush=True)
-    with TemporaryDirectory(prefix="taomate-h3-audio-", dir="/dev/shm") as temporary:
+    with TemporaryDirectory(
+        prefix="taomate-h3-audio-", dir=None if config.backend == "mps" else "/dev/shm"
+    ) as temporary:
         temporary_root = Path(temporary)
         audio_guidance_dir = temporary_root / "guidance"
         print("Preparing audio guidance...", flush=True)

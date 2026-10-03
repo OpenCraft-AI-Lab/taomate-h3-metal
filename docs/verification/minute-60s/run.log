@@ -1,0 +1,117 @@
+Powered by MiniMax H3.
+Preparing audio guidance...
+{"event": "text_load_start", "device": "mps"}
+{"event": "text_load_complete", "seconds": 13.769038625061512}
+{"event": "text_encode_start", "device": "mps"}
+{"event": "text_encode_start", "device": "mps"}
+{"event": "text_encode_start", "device": "mps"}
+{"event": "text_encode_start", "device": "mps"}
+{"event": "text_encode_start", "device": "mps"}
+{"event": "text_encode_start", "device": "mps"}
+{"event": "text_encode_start", "device": "mps"}
+{"event": "text_encode_start", "device": "mps"}
+{"event": "text_encode_start", "device": "mps"}
+{"event": "text_encode_start", "device": "mps"}
+{"event": "text_encode_start", "device": "mps"}
+{"event": "text_encode_start", "device": "mps"}
+{"event": "text_released", "device": "mps"}
+{"event": "dit_load_start", "device": "mps", "w8a8": null}
+{"event": "dit_load_complete", "seconds": 25.403778082691133}
+{"event": "teacher_request_start", "request": 0, "backend": "mps"}
+{"event": "teacher_request_complete", "request": 0}
+{"event": "teacher_request_start", "request": 1, "backend": "mps"}
+{"event": "teacher_request_complete", "request": 1}
+{"event": "teacher_request_start", "request": 2, "backend": "mps"}
+{"event": "teacher_request_complete", "request": 2}
+{"event": "teacher_request_start", "request": 3, "backend": "mps"}
+{"event": "teacher_request_complete", "request": 3}
+{"event": "teacher_request_start", "request": 4, "backend": "mps"}
+{"event": "teacher_request_complete", "request": 4}
+{"event": "teacher_request_start", "request": 5, "backend": "mps"}
+{"event": "teacher_request_complete", "request": 5}
+{"event": "teacher_request_start", "request": 6, "backend": "mps"}
+{"event": "teacher_request_complete", "request": 6}
+{"event": "teacher_request_start", "request": 7, "backend": "mps"}
+{"event": "teacher_request_complete", "request": 7}
+{"event": "teacher_request_start", "request": 8, "backend": "mps"}
+{"event": "teacher_request_complete", "request": 8}
+{"event": "teacher_request_start", "request": 9, "backend": "mps"}
+{"event": "teacher_request_complete", "request": 9}
+{"event": "teacher_request_start", "request": 10, "backend": "mps"}
+{"event": "teacher_request_complete", "request": 10}
+{"event": "teacher_request_start", "request": 11, "backend": "mps"}
+{"event": "teacher_request_complete", "request": 11}
+Generating audio and video...
+{"event": "text_load_start", "device": "mps"}
+{"event": "text_load_complete", "seconds": 13.980303416959941}
+{"event": "text_encode_start", "device": "mps"}
+{"event": "text_encode_start", "device": "mps"}
+{"event": "text_encode_start", "device": "mps"}
+{"event": "text_encode_start", "device": "mps"}
+{"event": "text_encode_start", "device": "mps"}
+{"event": "text_encode_start", "device": "mps"}
+{"event": "text_encode_start", "device": "mps"}
+{"event": "text_encode_start", "device": "mps"}
+{"event": "text_encode_start", "device": "mps"}
+{"event": "text_encode_start", "device": "mps"}
+{"event": "text_encode_start", "device": "mps"}
+{"event": "text_encode_start", "device": "mps"}
+{"event": "text_released", "device": "mps"}
+{"event": "dit_load_start", "device": "mps", "w8a8": null}
+{"event": "dit_load_complete", "seconds": 25.717843417078257}
+[adapter-load] H3 LoRA tensors loaded=416
+{"event": "stage3_phase_start", "request": 0, "phase": 0, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 0, "phase": 1, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 0, "phase": 2, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 0, "phase": 3, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 1, "phase": 0, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 1, "phase": 1, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 1, "phase": 2, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 1, "phase": 3, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 2, "phase": 0, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 2, "phase": 1, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 2, "phase": 2, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 2, "phase": 3, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 3, "phase": 0, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 3, "phase": 1, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 3, "phase": 2, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 3, "phase": 3, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 4, "phase": 0, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 4, "phase": 1, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 4, "phase": 2, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 4, "phase": 3, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 5, "phase": 0, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 5, "phase": 1, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 5, "phase": 2, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 5, "phase": 3, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 6, "phase": 0, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 6, "phase": 1, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 6, "phase": 2, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 6, "phase": 3, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 7, "phase": 0, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 7, "phase": 1, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 7, "phase": 2, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 7, "phase": 3, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 8, "phase": 0, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 8, "phase": 1, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 8, "phase": 2, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 8, "phase": 3, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 9, "phase": 0, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 9, "phase": 1, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 9, "phase": 2, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 9, "phase": 3, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 10, "phase": 0, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 10, "phase": 1, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 10, "phase": 2, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 10, "phase": 3, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 11, "phase": 0, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 11, "phase": 1, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 11, "phase": 2, "device": "mps:0"}
+{"event": "stage3_phase_start", "request": 11, "phase": 3, "device": "mps:0"}
+{"event": "dit_released_before_vae"}
+{"event": "video_vae_start", "precision": "float32_reference_no_autocast"}
+The config attributes {'vae_ratio': 16, 'vae_ratio_t': 4} were passed to AutoencoderKLLegacy, but are not expected and will be ignored. Please verify your config.json configuration file.
+/Users/supreme-paca/Projects/taomate-h3-metal/.venv/lib/python3.11/site-packages/torch/jit/_script.py:1491: FutureWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(
+{"event": "audio_vae_start", "precision": "float32"}
+{"event": "audio_vae_complete", "seconds": 4.053212500177324}
