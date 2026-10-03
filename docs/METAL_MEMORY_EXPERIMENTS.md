@@ -104,6 +104,8 @@ of 128 if no explicit query chunk was supplied.
 | `TAOMATE_MPS_WEIGHT_QUANTIZATION=native_int8pack` | Stream selected weights into INT8 final storage; BF16 activations |
 | `TAOMATE_MPS_WEIGHT_QUANTIZATION=dequantize` | Alternative bounded dequantized weight matmul |
 | `TAOMATE_MPS_KV_STORAGE=int8` | Lossy clean KV storage with full-softmax BF16 attention |
+| `TAOMATE_MPS_KV_ALLOCATION=packed8` | Group eight clean layers into shared INT8 allocations; default per-layer allocation |
+| `TAOMATE_MPS_INPLACE_ACTIVATIONS=1` | Reuse eligible detached MPS LoRA/SwiGLU outputs with exact BF16 rounding |
 | `TAOMATE_MPS_ATTENTION_QUERY_CHUNK=128` | Bound queries while each query sees all visible keys |
 | `TAOMATE_MPS_EMPTY_CACHE_PHASE=1` | Synchronize and trim unused MPS allocations after each phase |
 | `TAOMATE_MPS_WEIGHT_TILE_MIB=64` | BF16 weight tile budget (default 256 MiB; validated 1–256) |
@@ -330,3 +332,37 @@ The full CPU/real-MPS suite passes 185 tests.
 See `verification/memory-experiments/allocator-diagnostics/` for all commands,
 source/script hashes, complete and stopped receipts, numerical checks and
 per-step active/reserved/driver measurements.
+
+
+### Complete exact activation/lifecycle regression (E6)
+
+A fresh 480×864 ten-second run on frozen `dbb6992` combines the exact
+activation reuse, VAE lifetime fixes and LOW=0.3 with E5's unchanged
+dequantized weight path (256 MiB tiles), INT8 KV (1024-token tiles),
+256-query full-key attention and the same reused official teacher.
+It completes in 567.918 s, with a physical peak of 59.111 GiB, valid
+postflight telemetry, no guard trigger and no observed swap growth.
+Stage3 takes 299.418 s and FP32 video decoding 208.306 s. Teacher preparation
+is excluded from these timings.
+
+The delivered MP4, all 240 RGB frames, decoded audio samples and both
+publication latents are byte-exact with E5. MP4 SHA remains
+`c89c124f9530bc3649497e82b62d161944162939d55ea3b11d9301b430b97a8b`.
+This validates the exact changes against that already quantized result;
+E5's quantified difference from the BF16 baseline still applies. E5 and E6
+change several lifecycle/allocator settings together, so their 61.083 versus
+59.111 GiB process peaks cannot isolate one setting's contribution.
+
+The new counters measure DiT allocator peaks of 41.053 GiB active and
+58.625 GiB reserved; final DiT active/reserved are 35.552/56.055 GiB.
+A substantial reserve-minus-active gap remains. These allocator readings
+are not the independently measured process physical peak.
+
+`8e6b1dd` adds optional packed8 clean-cache ownership. All 198 CPU/real-MPS
+tests pass in 29.37 s, including both allocation modes, attention equality,
+52-commit retention/reset and transaction failure ownership. `ffa5c0b` fixes
+only import ordering, and lint/diff checks pass. Real-shape allocator and
+whole-model packed8 measurements remain to be established separately.
+
+See `verification/memory-experiments/int8-inplace-low03-10s/` for the source
+hashes, full-output comparison, runtime receipt and sampled physical memory.

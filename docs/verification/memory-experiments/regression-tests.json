@@ -1,18 +1,12 @@
 {
-  "passed": 161,
+  "passed": 198,
   "skipped": 0,
-  "seconds": 18.2,
-  "source_commit": "3b7fc88",
-  "new_integrated_test_files": [
-    "tests/test_metal_loader.py",
-    "tests/test_metal_memory.py",
-    "tests/test_memory_guard.py",
-    "tests/test_metal_vae_lifetimes.py",
-    "tests/test_metal_activations.py"
-  ],
+  "seconds": 29.37,
+  "source_commit": "8e6b1dd",
   "command": "PYTORCH_ENABLE_MPS_FALLBACK=0 .venv/bin/python -B -m pytest -q -p no:cacheprovider tests",
-  "execution": "real CPU and MPS",
-  "ruff": "passed",
-  "environment": "real CPU + MPS, Python 3.11.15, Torch 2.14.1",
-  "git_diff_check": "passed"
+  "execution": "real CPU and MPS, fallback disabled",
+  "environment": "Python 3.11.15, Torch 2.14.1, macOS 26.5",
+  "ruff": "passed on ffa5c0b after one import-order correction",
+  "git_diff_check": "passed",
+  "note": "ffa5c0b changes only import order relative to the tested packed8 commit. No inference math changed."
 }

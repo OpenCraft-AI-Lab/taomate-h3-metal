@@ -1,0 +1,19 @@
+{
+  "run": "int8-inplace-low03-10s",
+  "source_commit": "dbb6992",
+  "receipt_source_sha256_matches_commit": true,
+  "source_files_verified": 53,
+  "source_sha256_verified_unchanged_at_completion": true,
+  "whole_command_excludes_reused_teacher": true,
+  "wall_seconds": 567.9184068748727,
+  "kernel_peak_footprint_gib": 59.11119215935469,
+  "returncode": 0,
+  "guard_reason": null,
+  "minimum_available_estimate_gib": 37.64924621582031,
+  "maximum_system_swap_growth_gib": 0.0,
+  "postflight_system_swap_growth_gib": 0.0,
+  "postflight_sample_valid": true,
+  "full_telemetry_path": "/Users/supreme-paca/Projects/taomate-h3-metal/outputs/memory-experiments/int8-inplace-low03-10s/memory.jsonl",
+  "comparison": "Complete MP4, all 240 decoded RGB frames, decoded audio and both publication latents are byte-exact with int8-dequant-kv-10s (E5).",
+  "comparison_scope": "Exact lifecycle/allocation regression against the existing lossy W8A16+INT8 KV experiment; this does not make quantization itself equal to the BF16 baseline."
+}

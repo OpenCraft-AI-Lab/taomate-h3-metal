@@ -1,0 +1,32 @@
+{"event": "text_load_start", "device": "mps"}
+{"event": "text_load_complete", "seconds": 13.666998707689345}
+{"event": "text_encode_start", "device": "mps"}
+{"event": "text_encode_start", "device": "mps"}
+{"event": "text_released", "device": "mps"}
+{"event": "dit_load_start", "device": "mps", "w8a8": null}
+{"event": "dit_load_complete", "seconds": 39.55939933471382}
+[adapter-load] H3 LoRA tensors loaded=416
+{"event": "stage3_phase_start", "request": 0, "phase": 0, "device": "mps:0"}
+{"event": "adaln_precomputed_and_released", "mode": "exact_original_bf16_projection_cache_then_release", "projection_count": 51, "timestep_rows": [[0.0], [0.03883492946624756, 0.13913047313690186], [0.14666670560836792, 0.40740740299224854], [1.0]], "released_parameter_bytes": 26078739456, "cached_output_bytes": 58189824, "precompute_seconds": 3.0071501256898046, "unknown_timestep": "fail_closed", "mps_allocated_before": 29643947520, "mps_allocated_after": 29702407680, "mps_driver_after": 31485263872}
+{"event": "stage3_phase_memory", "request": 0, "phase": 0, "history_tokens": 4990, "allocated_bytes": 33531674624, "driver_bytes": 42758504448, "current_allocated_bytes": 33531674624, "current_reserved_bytes": 42756734976, "driver_allocated_bytes": 42758504448, "peak_allocated_bytes": 34862759168, "peak_reserved_bytes": 43838865408, "note": "Allocator peaks since last successful reset; not process physical footprint. Unavailable counters are null. Driver memory is a current sample, not a peak."}
+{"event": "stage3_phase_start", "request": 0, "phase": 1, "device": "mps:0"}
+{"event": "stage3_phase_memory", "request": 0, "phase": 1, "history_tokens": 9154, "allocated_bytes": 36616305408, "driver_bytes": 48773136384, "current_allocated_bytes": 36616305408, "current_reserved_bytes": 48771366912, "driver_allocated_bytes": 48773136384, "peak_allocated_bytes": 37917275136, "peak_reserved_bytes": 49845108736, "note": "Allocator peaks since last successful reset; not process physical footprint. Unavailable counters are null. Driver memory is a current sample, not a peak."}
+{"event": "stage3_phase_start", "request": 0, "phase": 2, "device": "mps:0"}
+{"event": "stage3_phase_memory", "request": 0, "phase": 2, "history_tokens": 13186, "allocated_bytes": 39699241728, "driver_bytes": 55324639232, "current_allocated_bytes": 39699241728, "current_reserved_bytes": 55322869760, "driver_allocated_bytes": 55324639232, "peak_allocated_bytes": 41000214528, "peak_reserved_bytes": 56396611584, "note": "Allocator peaks since last successful reset; not process physical footprint. Unavailable counters are null. Driver memory is a current sample, not a peak."}
+{"event": "stage3_phase_start", "request": 0, "phase": 3, "device": "mps:0"}
+{"event": "stage3_phase_memory", "request": 0, "phase": 3, "history_tokens": 11105, "allocated_bytes": 38202006272, "driver_bytes": 55374970880, "current_allocated_bytes": 38202006272, "current_reserved_bytes": 55373201408, "driver_allocated_bytes": 55374970880, "peak_allocated_bytes": 42493634816, "peak_reserved_bytes": 56455331840, "note": "Allocator peaks since last successful reset; not process physical footprint. Unavailable counters are null. Driver memory is a current sample, not a peak."}
+{"event": "stage3_phase_start", "request": 1, "phase": 0, "device": "mps:0"}
+{"event": "stage3_phase_memory", "request": 1, "phase": 0, "history_tokens": 11105, "allocated_bytes": 38199716608, "driver_bytes": 53227487232, "current_allocated_bytes": 38199716608, "current_reserved_bytes": 53225717760, "driver_allocated_bytes": 53227487232, "peak_allocated_bytes": 42582365952, "peak_reserved_bytes": 56983814144, "note": "Allocator peaks since last successful reset; not process physical footprint. Unavailable counters are null. Driver memory is a current sample, not a peak."}
+{"event": "stage3_phase_start", "request": 1, "phase": 1, "device": "mps:0"}
+{"event": "stage3_phase_memory", "request": 1, "phase": 1, "history_tokens": 13186, "allocated_bytes": 39696463872, "driver_bytes": 54276063232, "current_allocated_bytes": 39696463872, "current_reserved_bytes": 54274293760, "driver_allocated_bytes": 54276063232, "peak_allocated_bytes": 42584198144, "peak_reserved_bytes": 56983814144, "note": "Allocator peaks since last successful reset; not process physical footprint. Unavailable counters are null. Driver memory is a current sample, not a peak."}
+{"event": "stage3_phase_start", "request": 1, "phase": 2, "device": "mps:0"}
+{"event": "stage3_phase_memory", "request": 1, "phase": 2, "history_tokens": 13188, "allocated_bytes": 39698036992, "driver_bytes": 60181643264, "current_allocated_bytes": 39698036992, "current_reserved_bytes": 60179873792, "driver_allocated_bytes": 60181643264, "peak_allocated_bytes": 44080683264, "peak_reserved_bytes": 62948114432, "note": "Allocator peaks since last successful reset; not process physical footprint. Unavailable counters are null. Driver memory is a current sample, not a peak."}
+{"event": "stage3_phase_start", "request": 1, "phase": 3, "device": "mps:0"}
+{"event": "stage3_phase_memory", "request": 1, "phase": 3, "history_tokens": 11105, "allocated_bytes": 38198932736, "driver_bytes": 60190031872, "current_allocated_bytes": 38198932736, "current_reserved_bytes": 60188262400, "driver_allocated_bytes": 60190031872, "peak_allocated_bytes": 44080683264, "peak_reserved_bytes": 62948114432, "note": "Allocator peaks since last successful reset; not process physical footprint. Unavailable counters are null. Driver memory is a current sample, not a peak."}
+{"event": "dit_released_before_vae"}
+{"event": "video_vae_start", "precision": "float32_reference_no_autocast"}
+The config attributes {'vae_ratio': 16, 'vae_ratio_t': 4} were passed to AutoencoderKLLegacy, but are not expected and will be ignored. Please verify your config.json configuration file.
+/Users/supreme-paca/Projects/taomate-h3-metal/.venv/lib/python3.11/site-packages/torch/jit/_script.py:1491: FutureWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(
+{"event": "audio_vae_start", "precision": "float32"}
+{"event": "audio_vae_complete", "seconds": 1.0100075416266918}

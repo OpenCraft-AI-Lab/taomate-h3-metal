@@ -24,5 +24,7 @@ logical KV bytes or prove a lower real peak without a measured run.
 CPU tests compare both modes bitwise, including scale tensors, full attention,
 52 commits against upstream retention/reset metadata, out-of-order staging,
 final short group, failures at layers 0/7/49, synchronization failure before
-publication and owner lifetime. Matching small MPS tests are provided and must
-be run in an exclusive GPU window; they were not run during implementation.
+publication and owner lifetime. Matching small MPS tests subsequently passed in the exclusive parent GPU
+window, as part of all 198 CPU/real-MPS tests on `8e6b1dd` (29.37 s). These
+tests establish arithmetic/ownership behavior at small shapes; native-shape
+allocator and whole-model measurements are still required.
