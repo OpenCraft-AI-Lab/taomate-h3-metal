@@ -207,11 +207,19 @@ class MPSRuntime(H3Runtime):
         progress("video_vae_start", precision="float32_reference_no_autocast")
         decoder = self.pipeline._load_output_decoder()
         publication_chunk = 4 if os.environ.get("TAOMATE_MPS_STREAM_PUBLICATION") == "1" else None
-        frames = decoder.decode_video(
-            video_latents=video_latents,
-            device=self.device,
-            stream_publication_frame_chunk_size=publication_chunk,
-        )
+        try:
+            frames = decoder.decode_video(
+                video_latents=video_latents,
+                device=self.device,
+                stream_publication_frame_chunk_size=publication_chunk,
+                offload_after_decode=False,
+            )
+        finally:
+            # One-shot MPS decoding: discard GPU weights directly rather than
+            # copying them to CPU immediately before disposal, including failures.
+            decoder.video_vae = None
+            gc.collect()
+            empty_cache(self.device)
         result = save_h3_video_mp4(
             output_path,
             frames=frames,
@@ -231,8 +239,6 @@ class MPSRuntime(H3Runtime):
             publication_frame_chunk_size=publication_chunk,
         )
         self._timings["video_decode_seconds"] = time.perf_counter() - start
-        # Release video weights before audio is moved to MPS.
-        decoder.video_vae = None
         del frames
         gc.collect()
         empty_cache(self.device)

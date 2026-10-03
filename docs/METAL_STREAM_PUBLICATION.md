@@ -40,3 +40,23 @@ PYTHONPATH=/private/tmp/taomate-video-memory/src \
   /Users/supreme-paca/Projects/taomate-h3-metal/.venv/bin/python \
   -m pytest tests/test_metal_publication.py -q
 ```
+
+## MPS decoder storage lifetime
+
+The MPS pipeline additionally clears the final per-window `clip_chunk` view before
+starting the next temporal decode. That view otherwise holds the preceding entire
+GPU window after `clip_decoded` is deleted. The separate overlap tensor remains
+owned for the next blend. The helper's new `release_window_aliases` argument
+defaults to false, preserving the original CUDA/default scheduling behavior.
+
+The one-shot MPS runtime now requests `offload_after_decode=False` and discards
+the video VAE immediately after CPU frames return, before FFmpeg conversion and
+encoding. This avoids copying F32 VAE weights back to CPU immediately before
+throwing them away. Cleanup also runs if decode fails. Actual FP32 decoding,
+spatial tiles, temporal overlaps, normalization and encoding arithmetic are unchanged.
+
+CPU lifetime tests demonstrate the old full-window storage surviving into the next
+decode and the new storage being released, including overlap blending; resulting
+frames are bitwise equal. Mock MPS-runtime tests assert no CPU offload request and
+model disposal/cache cleanup before encoder entry, plus decode/encoder failure
+cleanup. Real fixed-latent MPS and physical footprint validation remain separate.

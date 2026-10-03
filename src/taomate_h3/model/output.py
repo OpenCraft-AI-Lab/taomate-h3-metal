@@ -572,7 +572,7 @@ class H3LatentDecoder:
     def enable_video_vae_keep_on_device_after_decode(self) -> None:
         self._keep_video_vae_on_device_after_decode = True
 
-    def enable_video_vae_cpu_temporal_output(self) -> None:
+    def enable_video_vae_cpu_temporal_output(self, *, release_window_aliases: bool = False) -> None:
         """Keep the assembled decoded video on CPU while VAE tiles stay on CUDA."""
 
         video_vae = self.video_vae.model
@@ -693,6 +693,11 @@ class H3LatentDecoder:
                         decoded_overlap = None
                     if decoded_tail is not None:
                         write_part(decoded_tail)
+                if release_window_aliases:
+                    # The final slice otherwise pins this complete decoded window
+                    # until the next _adaptive_decode has already allocated output.
+                    # The independently retained overlap still belongs to the next window.
+                    del clip_chunk
                 del clip_decoded, clip_z
 
             if retain_full_output and decoded is None:

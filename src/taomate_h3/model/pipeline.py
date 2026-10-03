@@ -232,7 +232,9 @@ class MiniMaxH3NativePipeline:
                 )
             if self.device.type != "mps":
                 self.output_decoder.enable_video_vae_keep_on_device_after_decode()
-            self.output_decoder.enable_video_vae_cpu_temporal_output()
+            self.output_decoder.enable_video_vae_cpu_temporal_output(
+                release_window_aliases=self.device.type == "mps"
+            )
         return self.output_decoder
 
     def _decode_and_save_parallel(
