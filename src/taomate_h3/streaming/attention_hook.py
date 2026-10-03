@@ -194,7 +194,10 @@ class H3StreamingAttentionHook:
                 )
         live_document = self._live_documents[0]
         scale = float(getattr(attention, "softmax_scale"))
-        persistent: AVKV | None = self.cache.history(layer_name)
+        quantized_attention = getattr(self.cache, "attention_with_history", None)
+        persistent: AVKV | None = (
+            None if callable(quantized_attention) else self.cache.history(layer_name)
+        )
         outputs: list[torch.Tensor] = []
 
         for document_index, (start, stop) in enumerate(boundaries):
@@ -241,11 +244,20 @@ class H3StreamingAttentionHook:
                     v_document.index_select(0, media_indices),
                 )
             )
-            media_output = self._attention(
-                q_document.index_select(0, media_indices),
-                media_parts,
-                scale=scale,
-            )
+            media_query = q_document.index_select(0, media_indices)
+            if callable(quantized_attention):
+                chunk = self.query_chunk_size or 128
+                media_output = quantized_attention(
+                    layer_name, media_query, AVKV(condition_key, condition_value),
+                    AVKV(media_parts[-1].key, media_parts[-1].value), scale=scale,
+                    query_chunk_size=chunk, max_joined_bytes=self.cache.max_joined_bytes,
+                )
+                self.kernel_calls += (int(media_query.shape[0]) + chunk - 1) // chunk
+                self.query_tokens += int(media_query.shape[0])
+                self.key_tokens += (int(condition_key.shape[0]) + self.cache.history_tokens
+                                    + int(media_parts[-1].key.shape[0]))
+            else:
+                media_output = self._attention(media_query, media_parts, scale=scale)
 
             document_output = torch.zeros_like(q_document)
             document_output.index_copy_(0, condition_indices, condition_output)

@@ -368,6 +368,13 @@ def run_direct(
         actual_policy.update(
             precision="bf16_reference_with_fp32_patch_time_final", attention_backend="torch_sdpa"
         )
+    if config.backend == "mps":
+        memory_options = runtime.model_resolution["metal_workspace_options"]
+        actual_policy["metal_memory_options"] = memory_options
+        if memory_options["weight_quantization_backend"] != "none":
+            actual_policy["precision"] = "selected_int8_weight_bf16_activation_with_fp32_heads"
+        if runtime.model_resolution["metal_workspace_options"]["kv_storage"] == "int8":
+            actual_policy["persistent_kv"] = "clean_audio_video_int8_per_token_head_f32_scale"
     streaming_receipt = {
         "policy": actual_policy,
         "stream_plan": stream_plan.to_dict(),

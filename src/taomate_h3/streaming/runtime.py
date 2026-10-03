@@ -596,9 +596,15 @@ class H3StreamingRuntime:
             phases = active_plan.phases
             cache = self._cache
             if cache is None:
-                cache = CleanAVKVCache(kv_contract_from_model(model))
+                if getattr(model, "_metal_kv_storage", "bf16") == "int8":
+                    from .metal_kv import QuantizedCleanAVKVCache
+
+                    cache = QuantizedCleanAVKVCache(kv_contract_from_model(model))
+                else:
+                    cache = CleanAVKVCache(kv_contract_from_model(model))
                 self._cache = cache
             cache.attention_query_chunk_size = getattr(model, "_metal_query_chunk_size", None)
+            cache.max_joined_bytes = getattr(model, "_metal_kv_max_joined_bytes", 4 * 1024**3)
             audio_kv_reset_applied = (
                 request_index > 0
                 and request_index % DIRECT_POLICY.audio_kv_reset_window_requests == 0
@@ -773,6 +779,8 @@ class H3StreamingRuntime:
                     )
 
             attention_receipt = session.hook.receipt()
+            if callable(getattr(cache, "receipt", None)):
+                attention_receipt["persistent_kv_storage"] = cache.receipt()
             joined_video = torch.cat(phase_video_outputs, dim=0)
             joined_audio = _join_phase_audio(phase_audio_outputs, phases)
             if joined_video.shape != request_video_rows.shape:

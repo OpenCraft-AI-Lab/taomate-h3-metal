@@ -17,6 +17,12 @@ def _module_linear(
     inputs: torch.Tensor,
     bias: torch.Tensor | None,
 ) -> torch.Tensor:
+    if getattr(module, "_metal_stream_loaded", False):
+        if bias is not None:
+            raise ValueError("Metal W8A16 projections must be bias-free")
+        from ..inference.metal_loader import metal_linear
+
+        return metal_linear(inputs, module)
     scale = getattr(module, "_cutlass_w8a8_weight_scale", None)
     if scale is None:
         return F.linear(inputs, module.weight, bias)

@@ -209,9 +209,23 @@ class MiniMaxH3DiT(nn.Module):
         *,
         parallel_context: ParallelContext,
         load_time_w8a8_policy: str | None = None,
+        metal_cpu_adaln: bool = False,
+        metal_quantization_backend: str = "none",
     ) -> "MiniMaxH3DiT":
         """Allocate TP-local parameter storage directly on the target device."""
 
+        if metal_cpu_adaln or metal_quantization_backend != "none":
+            if torch.device(device).type != "mps" or load_time_w8a8_policy is not None:
+                raise ValueError("Metal storage options require MPS and no CUDA load policy")
+            from ..inference.metal_loader import allocate_metal_storage_
+
+            with torch.device("meta"):
+                model = cls(parallel_context=parallel_context)
+            model._metal_allocation_receipt = allocate_metal_storage_(
+                model, device=device, cpu_adaln=metal_cpu_adaln,
+                quantization_backend=metal_quantization_backend,
+            )
+            return model
         with torch.device(device):
             return cls(
                 parallel_context=parallel_context,

@@ -31,7 +31,16 @@ class MPSRuntime(H3Runtime):
         query_chunk = int(os.environ.get("TAOMATE_MPS_ATTENTION_QUERY_CHUNK", "0"))
         if query_chunk < 0:
             raise ValueError("Metal attention query chunk must be nonnegative")
-        self._query_chunk_size = query_chunk or None
+        self._quantization_backend = os.environ.get("TAOMATE_MPS_WEIGHT_QUANTIZATION", "none")
+        if self._quantization_backend not in ("none", "dequantize", "native_int8pack"):
+            raise ValueError("unknown Metal weight quantization backend")
+        self._cpu_adaln = os.environ.get("TAOMATE_MPS_CPU_ADALN", "0") == "1"
+        if self._cpu_adaln and os.environ.get("TAOMATE_MPS_RELEASE_ADALN", "0") != "1":
+            raise ValueError("CPU AdaLN staging requires fixed-schedule precompute and release")
+        self._kv_storage = os.environ.get("TAOMATE_MPS_KV_STORAGE", "bf16")
+        if self._kv_storage not in ("bf16", "int8"):
+            raise ValueError("unknown Metal KV storage")
+        self._query_chunk_size = query_chunk or (128 if self._kv_storage == "int8" else None)
         self._empty_cache_phase = os.environ.get("TAOMATE_MPS_EMPTY_CACHE_PHASE", "0") == "1"
         for key in ("HF_DATASETS_OFFLINE", "HF_HUB_OFFLINE", "TRANSFORMERS_OFFLINE"):
             os.environ.setdefault(key, "1")
@@ -55,6 +64,8 @@ class MPSRuntime(H3Runtime):
             rank=0,
             world_size=1,
             transformer_load_w8a8_policy=None,
+            transformer_metal_cpu_adaln=self._cpu_adaln,
+            transformer_metal_quantization_backend=self._quantization_backend,
         )
         self._text_precompute_receipt = None
         self._static_cache = None
@@ -63,6 +74,9 @@ class MPSRuntime(H3Runtime):
             "metal_workspace_options": {
                 "attention_query_chunk_size": self._query_chunk_size,
                 "empty_cache_between_phases": self._empty_cache_phase,
+                "cpu_adaln_staging": self._cpu_adaln,
+                "weight_quantization_backend": self._quantization_backend,
+                "kv_storage": self._kv_storage,
             },
             "backend": "pytorch_mps",
             "dependencies": {
@@ -107,6 +121,13 @@ class MPSRuntime(H3Runtime):
         model._metal_release_adaln = os.environ.get("TAOMATE_MPS_RELEASE_ADALN", "0") == "1"
         model._metal_query_chunk_size = self._query_chunk_size
         model._metal_empty_cache_phase = self._empty_cache_phase
+        model._metal_kv_storage = self._kv_storage
+        model._metal_kv_max_joined_bytes = 4 * 1024**3
+        self.model_resolution["metal_weight_loading"] = self.pipeline.dit_weight_receipt
+        if self._quantization_backend != "none":
+            self.model_resolution["precision"] = (
+                "selected W8A16, BF16 LoRA, official FP32 patch/time/final parameters"
+            )
         return encoded
 
     def reset_dit_peak_memory(self) -> None:

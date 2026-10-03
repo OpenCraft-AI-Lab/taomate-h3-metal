@@ -57,6 +57,8 @@ class MiniMaxH3NativePipeline:
         rank: int,
         world_size: int,
         transformer_load_w8a8_policy: str | None = DIRECT_W8A8_POLICY,
+        transformer_metal_cpu_adaln: bool = False,
+        transformer_metal_quantization_backend: str = "none",
     ) -> None:
         self.partition_root = partition_root(Path(model_root).resolve(strict=True))
         self.device = device
@@ -64,6 +66,8 @@ class MiniMaxH3NativePipeline:
         self.rank = rank
         self.world_size = world_size
         self.transformer_load_w8a8_policy = transformer_load_w8a8_policy
+        self.transformer_metal_cpu_adaln = transformer_metal_cpu_adaln
+        self.transformer_metal_quantization_backend = transformer_metal_quantization_backend
         self.tokenizer = self._load_tokenizer()
 
         self.component_timings = {}
@@ -94,6 +98,8 @@ class MiniMaxH3NativePipeline:
             self.device,
             parallel_context=self.parallel_context,
             load_time_w8a8_policy=self.transformer_load_w8a8_policy,
+            metal_cpu_adaln=self.transformer_metal_cpu_adaln,
+            metal_quantization_backend=self.transformer_metal_quantization_backend,
         )
         self.dit_weight_receipt = load_minimax_h3_dit_weights(
             self.transformer,

@@ -177,6 +177,7 @@ def load_minimax_h3_dit_weights(
     for name, path in key_to_shard.items():
         by_shard[path].append(name)
     streamed_names: list[str] = []
+    metal_streamed_names: list[str] = []
     streamed_source_bytes = 0
     streamed_quantized_bytes = 0
     streamed_scale_bytes = 0
@@ -205,6 +206,12 @@ def load_minimax_h3_dit_weights(
                             f"H3 local tensor shape differs for {name}: "
                             f"{tuple(value.shape)} != {tuple(destination.shape)}"
                         )
+                    if leaf == "weight" and getattr(owner, "_metal_stream_load_pending", False):
+                        from ..inference.metal_loader import load_metal_stream_weight_
+
+                        load_metal_stream_weight_(owner, value)
+                        metal_streamed_names.append(owner_name)
+                        continue
                     if (
                         leaf == "weight"
                         and getattr(owner, "_cutlass_w8a8_stream_load_pending", None) is True
@@ -236,6 +243,10 @@ def load_minimax_h3_dit_weights(
                     destination.copy_(value)
                     if leaf == "weight" and value.dtype == torch.bfloat16:
                         bf16_copy_count += 1
+    pending_metal = [name for name, module in model.named_modules()
+                     if getattr(module, "_metal_stream_load_pending", False)]
+    if pending_metal:
+        raise H3NativeWeightError(f"Metal INT8 weights were not loaded: {pending_metal[:8]}")
     pending_w8a8 = [
         name
         for name, module in model.named_modules()
@@ -259,6 +270,8 @@ def load_minimax_h3_dit_weights(
         "streamed_w8a8_scale_bytes": streamed_scale_bytes,
         "stream_load_bf16_staging_bytes_limit": streamed_temporary_bytes_limit,
         "bf16_weight_copy_count": bf16_copy_count,
+        "metal_streamed_w8a16_linear_count": len(metal_streamed_names),
+        "metal_allocation": getattr(model, "_metal_allocation_receipt", None),
     }
     model._native_weight_load_receipt = receipt
     return receipt

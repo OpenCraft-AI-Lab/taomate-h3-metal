@@ -62,6 +62,10 @@ def precompute_release_adaln_(model, branch, *, sigmas_video, sigmas_audio):
     modules = [*(block.adaln_proj for block in model.blocks), model.final_layer.adaln_proj]
     released_bytes = cached_bytes = 0
     for projection in modules:
+        # CPU staging avoids allocating every large AdaLN matrix on Metal at
+        # once. Each projection still executes the original BF16 MPS math.
+        if next(projection.linear.parameters()).device != device:
+            projection.linear.to(device)
         if not projection._inference_static_cache_enabled:
             raise RuntimeError("every AdaLN projection must have its original cache enabled")
         # Warm every live timestep before releasing this projection's parameters.

@@ -206,7 +206,12 @@ class CleanAVKVCache:
                     value=torch.cat((previous.value, current.value), dim=0),
                 )
             _validate_av_pair(combined, self.contract, layer_name=layer_name)
+            if self.contract.device_type == "mps":
+                # GPU command buffers must finish reading previous/current
+                # before proceeding to the next layer's history allocation.
+                torch.mps.synchronize()
             self._history[layer_name] = combined
+            del current, previous, combined
 
         self._commit_token_counts.append(token_count)
         self._commit_token_tags.append(self._staged_tags)
