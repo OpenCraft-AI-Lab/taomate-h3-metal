@@ -20,6 +20,12 @@ TAOMATE_MPS_WEIGHT_COVERAGE defaults to interior_fc1_qkv_v1. Additional policies
 
 All 258 CPU/real-MPS tests pass (30.55s), including production indexed safetensors loading, stable parameter identity and 535-key inventory, full 208-target trained-LoRA installation, row-module dispatch against an independent FP64 dot-product oracle, protected dtype/selection, multi-device rejection, default-policy preservation and policy propagation.
 
-## Next complete-generation control
+## FC2 complete-generation control
 
-FC2-only expansion is tested first for its 3.23 GiB storage reduction. It is not yet described as low-impact visually. The 480×864/10s candidate reuses the exact prompts, request seeds and original teacher artifacts of int8-packed8-10s. Existing reference weight tile256 MiB/query256/LOW0.3 settings are retained. Boundary-purge and diagnostic trace are explicitly disabled, and row-view mode is disabled for this quality control. Safety remains HIGH0.9, physical105 GiB, reserve6 GiB and swap-growth2 GiB. Video/audio latent errors, full AV decoding and visual contacts will be reported before the native1080 memory test.
+The 480×864/10s expanded-FC2 run completed in 606.652s with 55.8707 GiB kernel lifetime physical peak and zero swap growth. All 53 source hashes match the pinned implementation ed1b1d0. Existing reference prompts, seeds, original teacher artifacts and weight256 MiB/query256/LOW0.3 settings were retained; purge, tracing and row views were disabled. Complete strict decoding verified 240 frames, 24 fps, 10 seconds and 32 kHz stereo audio. Teacher creation is excluded from this reused-guidance run time.
+
+Video latent relative L2 is 0.338986, cosine 0.942624 and RMS error 0.336258. Decoded RGB MAE is 8.4474/255 and PSNR 22.4931 dB. These are tensor/pixel differences, **not percentages of perceptual quality loss**. Audio latents and decoded audio samples are exactly equal. The archived comparison lists source/environment differences; the reference predates separately tested exact lifetime changes, so this is not falsely described as identical-source A/B.
+
+Visual inspection of paired frames 0/60/118/123/180/239 finds the same recognizable presenter, backpack and stable scene. Mouth/hand poses and bag details differ. Neither perceptual equivalence nor CUDA parity is established, but no obvious scene collapse appeared in those sampled frames. Contacts and complete metrics are under verification/memory-experiments/expanded-fc2-480-10s.
+
+Next is the native 1088×1920/10s memory validation with this explicit FC2 policy, weight64 MiB/query512/LOW0.1, unchanged HIGH0.9 and 105 GiB physical / 6 GiB reserve / 2 GiB swap-growth limits. Quantization does not remove all full-width BF16 activation allocations; successful native memory behavior remains to be measured.

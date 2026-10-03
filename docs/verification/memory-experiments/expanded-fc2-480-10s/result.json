@@ -1,0 +1,951 @@
+{
+  "config": {
+    "model_root": "/Users/supreme-paca/Projects/h3-metal/MiniMax-H3",
+    "adapter": "/Users/supreme-paca/Models/TaoMate-H3",
+    "output_dir": "/Users/supreme-paca/Projects/taomate-h3-metal/outputs/memory-experiments/expanded-fc2-480-10s/media",
+    "prompts": [
+      "integrated_multimodal_description: [Shot 1] Live-action premium portrait 9:16 e-commerce livestream, one uninterrupted five-second shot. A young East Asian man (S1) with short neatly combed black hair, a clean-shaven face, a sand-colored overshirt, and a plain black crew-neck T-shirt stands behind a light-gray display table. One unmarked medium charcoal commuter backpack with a clean rectangular silhouette stands upright at center. A deep forest-green wall and a narrow oak shelf holding one plain beige ceramic object form the background. A locked eye-level medium half-body camera, soft key light, gentle fill, restrained amber rim light, realistic skin, and neutral exposure remain constant. S1 uses a clear, practical, medium-paced Mandarin voice. He begins with both hands relaxed beside the backpack, then raises his right open palm beside it. He looks into the lens and says once: <d>[Chinese] 这个双肩包外形很克制，比较适合通勤，不会显得过分运动。</d> His lips close, and his palm remains beside the backpack. No other person or human voice appears. No captions, subtitles, lower thirds, signs, screens, packaging, logos, brands, watermarks, letters, numbers, symbols, or readable text appear anywhere in frame.\n\noverall_soundscape: Clear dry Mandarin speech, quiet treated studio room tone, and a restrained sleeve rustle beside the fabric backpack.\n\nnon_diegetic_music: N/A The entire front, sides, straps, and every visible surface of the backpack are continuous plain charcoal fabric. Keep them completely blank and seamless: do not invent a patch, badge, tag, label, plaque, emblem, logo, mark, icon, character, letter, number, symbol, print, stitching motif, or readable shape on the backpack.",
+      "integrated_multimodal_description: [Shot 1] Live-action premium portrait 9:16 e-commerce livestream, one uninterrupted five-second shot. The same young East Asian man (S1), short neatly combed black hair, clean-shaven face, sand overshirt, and black T-shirt stands behind the same light-gray table. The same unmarked charcoal backpack stays upright at center against the same forest-green wall and oak shelf with one plain beige ceramic object. The locked eye-level medium half-body camera, lighting, skin tone, focus, and exposure remain unchanged. S1 uses the same clear, practical, medium-paced Mandarin voice. Starting with his right palm beside the backpack, he traces only the bag's outer size with one restrained downward gesture and ends with that hand near its upper edge. He says once: <d>[Chinese] 容量看着不夸张，电脑、水杯和日常杂物都能分开放。</d> His lips close at the end. No other person or human voice appears. No captions, subtitles, lower thirds, signs, screens, packaging, logos, brands, watermarks, letters, numbers, symbols, or readable text appear anywhere in frame.\n\noverall_soundscape: Clear dry Mandarin speech, constant quiet studio ambience, and one soft sleeve movement near the backpack.\n\nnon_diegetic_music: N/A The entire front, sides, straps, and every visible surface of the backpack are continuous plain charcoal fabric. Keep them completely blank and seamless: do not invent a patch, badge, tag, label, plaque, emblem, logo, mark, icon, character, letter, number, symbol, print, stitching motif, or readable shape on the backpack."
+    ],
+    "duration_seconds": 10,
+    "segment_seconds": 5,
+    "resolution": "480x864",
+    "width": 480,
+    "height": 864,
+    "seed": 8301,
+    "request_seeds": [
+      8301,
+      8301
+    ],
+    "gpu_count": 1,
+    "backend": "mps",
+    "devices": [
+      "mps"
+    ],
+    "parallelism": {
+      "tensor_parallel_size": 1,
+      "ulysses_degree": 1
+    }
+  },
+  "model": {
+    "metal_workspace_options": {
+      "inplace_activations": true,
+      "attention_query_chunk_size": 256,
+      "empty_cache_between_phases": true,
+      "cpu_adaln_staging": true,
+      "weight_quantization_backend": "dequantize",
+      "weight_quantization_policy": "metal_interior_fc1_qkv_fc2_v1",
+      "bf16_weight_tile_budget_bytes": 268435456,
+      "weight_tile_budget_scope": "BF16 weights only; excludes FP32 scratch, outputs and matmul workspace",
+      "kv_storage": "int8",
+      "kv_allocation": "packed8",
+      "kv_tile_tokens": 1024,
+      "kv_tile_scratch_estimated_bytes": 148643840,
+      "kv_tile_scratch_budget_bytes": 268435456
+    },
+    "backend": "pytorch_mps",
+    "dependencies": {
+      "torch": "2.14.1",
+      "diffusers": "0.35.2",
+      "transformers": "4.57.6",
+      "safetensors": "0.8.0",
+      "numpy": "2.4.6"
+    },
+    "partition": "FL2VA",
+    "model_root": "/Users/supreme-paca/Projects/h3-metal/MiniMax-H3",
+    "precision": "selected W8A16, BF16 LoRA, official FP32 patch/time/final parameters",
+    "attention": "torch_sdpa",
+    "parallelism": {
+      "tensor_parallel_size": 1,
+      "ulysses_degree": 1,
+      "world_size": 1
+    },
+    "acceleration": {
+      "w8a8": false,
+      "triton": false,
+      "flash_attn_3": false
+    },
+    "adapter": {
+      "rank": 128,
+      "alpha": 128.0,
+      "scale": 1.0,
+      "target_count": 208,
+      "loaded_tensor_count": 416,
+      "local_adapter_numel": 620232704,
+      "tensor_parallel_size": 1
+    },
+    "lora_bf16_buffers": {
+      "target_count": 208,
+      "buffer_count": 416,
+      "converted_numel": 620232704,
+      "dtype": "bfloat16"
+    },
+    "metal_weight_loading": {
+      "shard_count": 13,
+      "tensor_count": 535,
+      "stream_load_policy": null,
+      "streamed_w8a8_linear_count": 0,
+      "streamed_w8a8_source_weight_bytes": 0,
+      "streamed_w8a8_quantized_weight_bytes": 0,
+      "streamed_w8a8_scale_bytes": 0,
+      "stream_load_bf16_staging_bytes_limit": 0,
+      "bf16_weight_copy_count": 335,
+      "metal_streamed_w8a16_linear_count": 135,
+      "metal_allocation": {
+        "quantization": "W8A16",
+        "backend": "dequantize",
+        "policy": "metal_interior_fc1_qkv_fc2_v1",
+        "additional_quantized_linear_names": [
+          "blocks.10.mlp.fc2",
+          "blocks.11.mlp.fc2",
+          "blocks.12.mlp.fc2",
+          "blocks.13.mlp.fc2",
+          "blocks.14.mlp.fc2",
+          "blocks.15.mlp.fc2",
+          "blocks.16.mlp.fc2",
+          "blocks.17.mlp.fc2",
+          "blocks.18.mlp.fc2",
+          "blocks.19.mlp.fc2",
+          "blocks.2.mlp.fc2",
+          "blocks.20.mlp.fc2",
+          "blocks.21.mlp.fc2",
+          "blocks.22.mlp.fc2",
+          "blocks.23.mlp.fc2",
+          "blocks.24.mlp.fc2",
+          "blocks.25.mlp.fc2",
+          "blocks.26.mlp.fc2",
+          "blocks.27.mlp.fc2",
+          "blocks.28.mlp.fc2",
+          "blocks.29.mlp.fc2",
+          "blocks.3.mlp.fc2",
+          "blocks.30.mlp.fc2",
+          "blocks.31.mlp.fc2",
+          "blocks.32.mlp.fc2",
+          "blocks.33.mlp.fc2",
+          "blocks.34.mlp.fc2",
+          "blocks.35.mlp.fc2",
+          "blocks.36.mlp.fc2",
+          "blocks.37.mlp.fc2",
+          "blocks.38.mlp.fc2",
+          "blocks.39.mlp.fc2",
+          "blocks.4.mlp.fc2",
+          "blocks.40.mlp.fc2",
+          "blocks.41.mlp.fc2",
+          "blocks.42.mlp.fc2",
+          "blocks.43.mlp.fc2",
+          "blocks.44.mlp.fc2",
+          "blocks.45.mlp.fc2",
+          "blocks.46.mlp.fc2",
+          "blocks.5.mlp.fc2",
+          "blocks.6.mlp.fc2",
+          "blocks.7.mlp.fc2",
+          "blocks.8.mlp.fc2",
+          "blocks.9.mlp.fc2"
+        ],
+        "additional_weight_storage_saved_bytes": 3467197440,
+        "additional_coverage_note": "Lossy base-weight expansion; storage savings are not process peak savings or quality equivalence.",
+        "quantized_linear_names": [
+          "blocks.10.attn.qkv_proj",
+          "blocks.10.mlp.fc1",
+          "blocks.10.mlp.fc2",
+          "blocks.11.attn.qkv_proj",
+          "blocks.11.mlp.fc1",
+          "blocks.11.mlp.fc2",
+          "blocks.12.attn.qkv_proj",
+          "blocks.12.mlp.fc1",
+          "blocks.12.mlp.fc2",
+          "blocks.13.attn.qkv_proj",
+          "blocks.13.mlp.fc1",
+          "blocks.13.mlp.fc2",
+          "blocks.14.attn.qkv_proj",
+          "blocks.14.mlp.fc1",
+          "blocks.14.mlp.fc2",
+          "blocks.15.attn.qkv_proj",
+          "blocks.15.mlp.fc1",
+          "blocks.15.mlp.fc2",
+          "blocks.16.attn.qkv_proj",
+          "blocks.16.mlp.fc1",
+          "blocks.16.mlp.fc2",
+          "blocks.17.attn.qkv_proj",
+          "blocks.17.mlp.fc1",
+          "blocks.17.mlp.fc2",
+          "blocks.18.attn.qkv_proj",
+          "blocks.18.mlp.fc1",
+          "blocks.18.mlp.fc2",
+          "blocks.19.attn.qkv_proj",
+          "blocks.19.mlp.fc1",
+          "blocks.19.mlp.fc2",
+          "blocks.2.attn.qkv_proj",
+          "blocks.2.mlp.fc1",
+          "blocks.2.mlp.fc2",
+          "blocks.20.attn.qkv_proj",
+          "blocks.20.mlp.fc1",
+          "blocks.20.mlp.fc2",
+          "blocks.21.attn.qkv_proj",
+          "blocks.21.mlp.fc1",
+          "blocks.21.mlp.fc2",
+          "blocks.22.attn.qkv_proj",
+          "blocks.22.mlp.fc1",
+          "blocks.22.mlp.fc2",
+          "blocks.23.attn.qkv_proj",
+          "blocks.23.mlp.fc1",
+          "blocks.23.mlp.fc2",
+          "blocks.24.attn.qkv_proj",
+          "blocks.24.mlp.fc1",
+          "blocks.24.mlp.fc2",
+          "blocks.25.attn.qkv_proj",
+          "blocks.25.mlp.fc1",
+          "blocks.25.mlp.fc2",
+          "blocks.26.attn.qkv_proj",
+          "blocks.26.mlp.fc1",
+          "blocks.26.mlp.fc2",
+          "blocks.27.attn.qkv_proj",
+          "blocks.27.mlp.fc1",
+          "blocks.27.mlp.fc2",
+          "blocks.28.attn.qkv_proj",
+          "blocks.28.mlp.fc1",
+          "blocks.28.mlp.fc2",
+          "blocks.29.attn.qkv_proj",
+          "blocks.29.mlp.fc1",
+          "blocks.29.mlp.fc2",
+          "blocks.3.attn.qkv_proj",
+          "blocks.3.mlp.fc1",
+          "blocks.3.mlp.fc2",
+          "blocks.30.attn.qkv_proj",
+          "blocks.30.mlp.fc1",
+          "blocks.30.mlp.fc2",
+          "blocks.31.attn.qkv_proj",
+          "blocks.31.mlp.fc1",
+          "blocks.31.mlp.fc2",
+          "blocks.32.attn.qkv_proj",
+          "blocks.32.mlp.fc1",
+          "blocks.32.mlp.fc2",
+          "blocks.33.attn.qkv_proj",
+          "blocks.33.mlp.fc1",
+          "blocks.33.mlp.fc2",
+          "blocks.34.attn.qkv_proj",
+          "blocks.34.mlp.fc1",
+          "blocks.34.mlp.fc2",
+          "blocks.35.attn.qkv_proj",
+          "blocks.35.mlp.fc1",
+          "blocks.35.mlp.fc2",
+          "blocks.36.attn.qkv_proj",
+          "blocks.36.mlp.fc1",
+          "blocks.36.mlp.fc2",
+          "blocks.37.attn.qkv_proj",
+          "blocks.37.mlp.fc1",
+          "blocks.37.mlp.fc2",
+          "blocks.38.attn.qkv_proj",
+          "blocks.38.mlp.fc1",
+          "blocks.38.mlp.fc2",
+          "blocks.39.attn.qkv_proj",
+          "blocks.39.mlp.fc1",
+          "blocks.39.mlp.fc2",
+          "blocks.4.attn.qkv_proj",
+          "blocks.4.mlp.fc1",
+          "blocks.4.mlp.fc2",
+          "blocks.40.attn.qkv_proj",
+          "blocks.40.mlp.fc1",
+          "blocks.40.mlp.fc2",
+          "blocks.41.attn.qkv_proj",
+          "blocks.41.mlp.fc1",
+          "blocks.41.mlp.fc2",
+          "blocks.42.attn.qkv_proj",
+          "blocks.42.mlp.fc1",
+          "blocks.42.mlp.fc2",
+          "blocks.43.attn.qkv_proj",
+          "blocks.43.mlp.fc1",
+          "blocks.43.mlp.fc2",
+          "blocks.44.attn.qkv_proj",
+          "blocks.44.mlp.fc1",
+          "blocks.44.mlp.fc2",
+          "blocks.45.attn.qkv_proj",
+          "blocks.45.mlp.fc1",
+          "blocks.45.mlp.fc2",
+          "blocks.46.attn.qkv_proj",
+          "blocks.46.mlp.fc1",
+          "blocks.46.mlp.fc2",
+          "blocks.5.attn.qkv_proj",
+          "blocks.5.mlp.fc1",
+          "blocks.5.mlp.fc2",
+          "blocks.6.attn.qkv_proj",
+          "blocks.6.mlp.fc1",
+          "blocks.6.mlp.fc2",
+          "blocks.7.attn.qkv_proj",
+          "blocks.7.mlp.fc1",
+          "blocks.7.mlp.fc2",
+          "blocks.8.attn.qkv_proj",
+          "blocks.8.mlp.fc1",
+          "blocks.8.mlp.fc2",
+          "blocks.9.attn.qkv_proj",
+          "blocks.9.mlp.fc1",
+          "blocks.9.mlp.fc2"
+        ],
+        "cpu_adaln": true,
+        "checkpoint_key_count": 535,
+        "weight_tile_budget_scope": "BF16 weights only; excludes FP32 scratch, outputs and matmul workspace",
+        "bf16_weight_tile_budget_bytes": 268435456
+      }
+    }
+  },
+  "text_precompute": {
+    "mode": "replicated",
+    "prompt_count": 2
+  },
+  "streaming": {
+    "policy": {
+      "request_seconds": 5,
+      "chunk_group_counts": [
+        2,
+        2,
+        2,
+        1
+      ],
+      "precision": "selected_int8_weight_bf16_activation_with_fp32_heads",
+      "attention_backend": "torch_sdpa",
+      "persistent_kv": "clean_audio_video_int8_per_token_head_f32_scale",
+      "video_kv_retention": "first_video_sink_plus_recent_2_chunks",
+      "audio_kv_retention": "match_video",
+      "audio_kv_reset_window_requests": 12,
+      "prompt_scope": "current_request",
+      "rope": "split_temporal_spatial",
+      "audio_guidance": "fl2va_tail40_rollover",
+      "audio_guidance_state_numbers": [
+        3,
+        6,
+        9
+      ],
+      "stage3_target_state_indices": [
+        16,
+        33,
+        49
+      ],
+      "prefix_normalization": "affine_to_first_stream_chunk",
+      "canonical_continuation_geometry": true,
+      "publication": "one_shot_audio_video_vae",
+      "metal_memory_options": {
+        "inplace_activations": true,
+        "attention_query_chunk_size": 256,
+        "empty_cache_between_phases": true,
+        "cpu_adaln_staging": true,
+        "weight_quantization_backend": "dequantize",
+        "weight_quantization_policy": "metal_interior_fc1_qkv_fc2_v1",
+        "bf16_weight_tile_budget_bytes": 268435456,
+        "weight_tile_budget_scope": "BF16 weights only; excludes FP32 scratch, outputs and matmul workspace",
+        "kv_storage": "int8",
+        "kv_allocation": "packed8",
+        "kv_tile_tokens": 1024,
+        "kv_tile_scratch_estimated_bytes": 148643840,
+        "kv_tile_scratch_budget_bytes": 268435456
+      }
+    },
+    "stream_plan": {
+      "native_frame_count": 124,
+      "duration_seconds": 5.166666666666667,
+      "phase_count": 4,
+      "phases": [
+        {
+          "index": 0,
+          "group_count": 2,
+          "frame_start": 0,
+          "frame_stop": 39,
+          "video_latent_start": 0,
+          "video_latent_stop": 12,
+          "audio_latent_start": 0,
+          "audio_latent_stop": 65,
+          "duration_numerator": 13,
+          "duration_denominator": 8,
+          "duration_seconds": 1.625,
+          "video_rope_start_numerator": 0,
+          "video_rope_start_denominator": 1,
+          "audio_rope_start": 0
+        },
+        {
+          "index": 1,
+          "group_count": 2,
+          "frame_start": 39,
+          "frame_stop": 73,
+          "video_latent_start": 12,
+          "video_latent_stop": 22,
+          "audio_latent_start": 65,
+          "audio_latent_stop": 122,
+          "duration_numerator": 17,
+          "duration_denominator": 12,
+          "duration_seconds": 1.4166666666666667,
+          "video_rope_start_numerator": 65,
+          "video_rope_start_denominator": 1,
+          "audio_rope_start": 65
+        },
+        {
+          "index": 2,
+          "group_count": 2,
+          "frame_start": 73,
+          "frame_stop": 107,
+          "video_latent_start": 22,
+          "video_latent_stop": 32,
+          "audio_latent_start": 122,
+          "audio_latent_stop": 178,
+          "duration_numerator": 17,
+          "duration_denominator": 12,
+          "duration_seconds": 1.4166666666666667,
+          "video_rope_start_numerator": 365,
+          "video_rope_start_denominator": 3,
+          "audio_rope_start": 122
+        },
+        {
+          "index": 3,
+          "group_count": 1,
+          "frame_start": 107,
+          "frame_stop": 124,
+          "video_latent_start": 32,
+          "video_latent_stop": 37,
+          "audio_latent_start": 178,
+          "audio_latent_stop": 207,
+          "duration_numerator": 17,
+          "duration_denominator": 24,
+          "duration_seconds": 0.7083333333333334,
+          "video_rope_start_numerator": 535,
+          "video_rope_start_denominator": 3,
+          "audio_rope_start": 178
+        }
+      ]
+    },
+    "request_count": 2,
+    "executions": [
+      {
+        "phase_count": 4,
+        "denoise_forwards": 12,
+        "clean_forwards": 4,
+        "video_latent_offset": 0,
+        "audio_latent_offset": 0,
+        "starting_history_tokens": 0,
+        "retained_history_tokens": 11105,
+        "cross_request_kv_reused": false,
+        "request_index": 0,
+        "audio_kv_reset_applied": false,
+        "audio_kv_reset_tokens": 0,
+        "starting_history_audio_tokens": 0,
+        "starting_history_video_tokens": 0,
+        "retained_history_audio_tokens": 170,
+        "retained_history_video_tokens": 10935,
+        "native_frame_offset": 0,
+        "published_native_frames": 124,
+        "video_transport_prefix_latents": 0,
+        "audio_transport_prefix_latents_per_channel": 0,
+        "published_video_latents": 37,
+        "published_audio_latents_per_channel": 207,
+        "current_text_token_count": 370,
+        "text_time_start": 0.0,
+        "fixed_media_time_origin": 370,
+        "position_capture": {
+          "phases": [
+            {
+              "phase_index": 0,
+              "text_count": 370,
+              "text_time_start": 0.0,
+              "text_time_stop": 370.0,
+              "request_media_time_start": 370.0,
+              "phase_video_time_start": 370.0,
+              "phase_audio_time_start": 370.0
+            },
+            {
+              "phase_index": 1,
+              "text_count": 370,
+              "text_time_start": 0.0,
+              "text_time_stop": 370.0,
+              "request_media_time_start": 370.0,
+              "phase_video_time_start": 435.0,
+              "phase_audio_time_start": 435.0
+            },
+            {
+              "phase_index": 2,
+              "text_count": 370,
+              "text_time_start": 0.0,
+              "text_time_stop": 370.0,
+              "request_media_time_start": 370.0,
+              "phase_video_time_start": 491.6666666666667,
+              "phase_audio_time_start": 492.0
+            },
+            {
+              "phase_index": 3,
+              "text_count": 370,
+              "text_time_start": 0.0,
+              "text_time_stop": 370.0,
+              "request_media_time_start": 370.0,
+              "phase_video_time_start": 548.3333333333334,
+              "phase_audio_time_start": 548.0
+            }
+          ]
+        },
+        "audio_teacher": {
+          "mode": "base10_fl2va_tail40_rollover",
+          "model": "external_base_h3_bf16",
+          "source": "external_bf16_artifact",
+          "base_precision": "bf16",
+          "artifact_storage_dtype": "float32",
+          "executed_forwards": 0,
+          "producer_executed_forwards": 9,
+          "full_state_count": 10,
+          "captured_base_state_numbers": [
+            3,
+            6,
+            9
+          ],
+          "stage3_target_state_indices": [
+            16,
+            33,
+            49
+          ],
+          "packed_video_rows": 0,
+          "packed_audio_rows": 414,
+          "audio_latents_per_channel": 207,
+          "milestone_shape": [
+            414,
+            32
+          ],
+          "reused_current_request_initial_audio_noise": true,
+          "reused_by_every_streaming_chunk": true,
+          "video_projection_executed": false,
+          "video_output_head_executed": false,
+          "consumer_teacher_model_resident": false,
+          "continuation_partition": "fl2va",
+          "audio_noise_seed": 8301,
+          "reference_latents_per_channel": 0,
+          "reference_duration_seconds": 0.0,
+          "prefix_source_request": null,
+          "producer_geometry": {
+            "width": 480,
+            "height": 864,
+            "video_latent_h": 54,
+            "video_latent_w": 30
+          },
+          "artifact_request_count": 2,
+          "consumed_request_count": 2,
+          "published_clean_audio_exact_match": true
+        },
+        "attention_backend": {
+          "backend": "torch_sdpa",
+          "tensor_layout": "NHD",
+          "is_causal": false,
+          "query_chunk_size": 256,
+          "softmax_scope": "all_visible_keys_per_query",
+          "kernel_calls": 15000,
+          "query_tokens": 3392000,
+          "key_tokens": 9154000,
+          "persistent_kv_storage": {
+            "storage": "int8_per_token_per_head_f32_scale",
+            "allocation": "packed8",
+            "visible_history_payload_bytes": 8208816000,
+            "physical_history_payload_bytes": 8304912000,
+            "staged_backing_bytes": 0,
+            "staged_payload_bytes": 0,
+            "dequant_tile_tokens": 1024,
+            "tile_scratch_estimated_bytes": 148643840,
+            "tile_scratch_budget_bytes": 268435456
+          }
+        },
+        "phases": [
+          {
+            "phase_index": 0,
+            "frame_start": 0,
+            "frame_stop": 39,
+            "video_latent_start": 0,
+            "video_latent_stop": 12,
+            "audio_latent_start": 0,
+            "audio_latent_stop": 65,
+            "denoise_forwards": 3,
+            "clean_forwards": 1,
+            "committed_history_tokens": 4990
+          },
+          {
+            "phase_index": 1,
+            "frame_start": 39,
+            "frame_stop": 73,
+            "video_latent_start": 12,
+            "video_latent_stop": 22,
+            "audio_latent_start": 65,
+            "audio_latent_stop": 122,
+            "denoise_forwards": 3,
+            "clean_forwards": 1,
+            "committed_history_tokens": 9154
+          },
+          {
+            "phase_index": 2,
+            "frame_start": 73,
+            "frame_stop": 107,
+            "video_latent_start": 22,
+            "video_latent_stop": 32,
+            "audio_latent_start": 122,
+            "audio_latent_stop": 178,
+            "denoise_forwards": 3,
+            "clean_forwards": 1,
+            "committed_history_tokens": 13186
+          },
+          {
+            "phase_index": 3,
+            "frame_start": 107,
+            "frame_stop": 124,
+            "video_latent_start": 32,
+            "video_latent_stop": 37,
+            "audio_latent_start": 178,
+            "audio_latent_stop": 207,
+            "denoise_forwards": 3,
+            "clean_forwards": 1,
+            "committed_history_tokens": 11105
+          }
+        ]
+      },
+      {
+        "phase_count": 4,
+        "denoise_forwards": 12,
+        "clean_forwards": 4,
+        "video_latent_offset": 37,
+        "audio_latent_offset": 207,
+        "starting_history_tokens": 11105,
+        "retained_history_tokens": 11105,
+        "cross_request_kv_reused": true,
+        "request_index": 1,
+        "audio_kv_reset_applied": false,
+        "audio_kv_reset_tokens": 0,
+        "starting_history_audio_tokens": 170,
+        "starting_history_video_tokens": 10935,
+        "retained_history_audio_tokens": 170,
+        "retained_history_video_tokens": 10935,
+        "native_frame_offset": 124,
+        "published_native_frames": 119,
+        "video_transport_prefix_latents": 2,
+        "audio_transport_prefix_latents_per_channel": 9,
+        "published_video_latents": 35,
+        "published_audio_latents_per_channel": 198,
+        "current_text_token_count": 343,
+        "text_time_start": 233.66666666666666,
+        "fixed_media_time_origin": 370,
+        "position_capture": {
+          "phases": [
+            {
+              "phase_index": 0,
+              "text_count": 343,
+              "text_time_start": 233.66666666666666,
+              "text_time_stop": 576.6666666666666,
+              "request_media_time_start": 576.6666666666666,
+              "phase_video_time_start": 576.6666666666666,
+              "phase_audio_time_start": 577.0
+            },
+            {
+              "phase_index": 1,
+              "text_count": 343,
+              "text_time_start": 233.66666666666666,
+              "text_time_stop": 576.6666666666666,
+              "request_media_time_start": 576.6666666666666,
+              "phase_video_time_start": 633.3333333333334,
+              "phase_audio_time_start": 633.0
+            },
+            {
+              "phase_index": 2,
+              "text_count": 343,
+              "text_time_start": 233.66666666666666,
+              "text_time_stop": 576.6666666666666,
+              "request_media_time_start": 576.6666666666666,
+              "phase_video_time_start": 690.0,
+              "phase_audio_time_start": 690.0
+            },
+            {
+              "phase_index": 3,
+              "text_count": 343,
+              "text_time_start": 233.66666666666666,
+              "text_time_stop": 576.6666666666666,
+              "request_media_time_start": 576.6666666666666,
+              "phase_video_time_start": 746.6666666666666,
+              "phase_audio_time_start": 747.0
+            }
+          ]
+        },
+        "audio_teacher": {
+          "mode": "base10_fl2va_tail40_rollover",
+          "model": "external_base_h3_bf16",
+          "source": "external_bf16_artifact",
+          "base_precision": "bf16",
+          "artifact_storage_dtype": "float32",
+          "executed_forwards": 0,
+          "producer_executed_forwards": 9,
+          "full_state_count": 10,
+          "captured_base_state_numbers": [
+            3,
+            6,
+            9
+          ],
+          "stage3_target_state_indices": [
+            16,
+            33,
+            49
+          ],
+          "packed_video_rows": 0,
+          "packed_audio_rows": 476,
+          "audio_latents_per_channel": 198,
+          "milestone_shape": [
+            396,
+            32
+          ],
+          "reused_current_request_initial_audio_noise": true,
+          "reused_by_every_streaming_chunk": true,
+          "video_projection_executed": false,
+          "video_output_head_executed": false,
+          "consumer_teacher_model_resident": false,
+          "continuation_partition": "fl2va",
+          "audio_noise_seed": 8302,
+          "reference_latents_per_channel": 40,
+          "reference_duration_seconds": 1.0,
+          "prefix_source_request": 0,
+          "producer_geometry": {
+            "width": 480,
+            "height": 864,
+            "video_latent_h": 54,
+            "video_latent_w": 30
+          },
+          "artifact_request_count": 2,
+          "consumed_request_count": 2,
+          "published_clean_audio_exact_match": true
+        },
+        "attention_backend": {
+          "backend": "torch_sdpa",
+          "tensor_layout": "NHD",
+          "is_causal": false,
+          "query_chunk_size": 256,
+          "softmax_scope": "all_visible_keys_per_query",
+          "kernel_calls": 14400,
+          "query_tokens": 3212800,
+          "key_tokens": 13204000,
+          "persistent_kv_storage": {
+            "storage": "int8_per_token_per_head_f32_scale",
+            "allocation": "packed8",
+            "visible_history_payload_bytes": 8208816000,
+            "physical_history_payload_bytes": 8304912000,
+            "staged_backing_bytes": 0,
+            "staged_payload_bytes": 0,
+            "dequant_tile_tokens": 1024,
+            "tile_scratch_estimated_bytes": 148643840,
+            "tile_scratch_budget_bytes": 268435456
+          }
+        },
+        "phases": [
+          {
+            "phase_index": 0,
+            "frame_start": 0,
+            "frame_stop": 34,
+            "video_latent_start": 0,
+            "video_latent_stop": 10,
+            "audio_latent_start": 0,
+            "audio_latent_stop": 56,
+            "denoise_forwards": 3,
+            "clean_forwards": 1,
+            "committed_history_tokens": 11105
+          },
+          {
+            "phase_index": 1,
+            "frame_start": 34,
+            "frame_stop": 68,
+            "video_latent_start": 10,
+            "video_latent_stop": 20,
+            "audio_latent_start": 56,
+            "audio_latent_stop": 113,
+            "denoise_forwards": 3,
+            "clean_forwards": 1,
+            "committed_history_tokens": 13186
+          },
+          {
+            "phase_index": 2,
+            "frame_start": 68,
+            "frame_stop": 102,
+            "video_latent_start": 20,
+            "video_latent_stop": 30,
+            "audio_latent_start": 113,
+            "audio_latent_stop": 170,
+            "denoise_forwards": 3,
+            "clean_forwards": 1,
+            "committed_history_tokens": 13188
+          },
+          {
+            "phase_index": 3,
+            "frame_start": 102,
+            "frame_stop": 119,
+            "video_latent_start": 30,
+            "video_latent_stop": 35,
+            "audio_latent_start": 170,
+            "audio_latent_stop": 198,
+            "denoise_forwards": 3,
+            "clean_forwards": 1,
+            "committed_history_tokens": 11105
+          }
+        ]
+      }
+    ]
+  },
+  "noise_contract": [
+    {
+      "request_index": 0,
+      "authored_seed": 8301,
+      "video_noise_seed": 8301,
+      "audio_noise_seed": 8301
+    },
+    {
+      "request_index": 1,
+      "authored_seed": 8301,
+      "video_noise_seed": 1008304,
+      "audio_noise_seed": 8302
+    }
+  ],
+  "publication": {
+    "video": "/Users/supreme-paca/Projects/taomate-h3-metal/outputs/memory-experiments/expanded-fc2-480-10s/media/video.mp4",
+    "probe": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "codec_type": "video",
+          "width": 480,
+          "height": 864,
+          "pix_fmt": "yuv420p",
+          "r_frame_rate": "24/1",
+          "time_base": "1/12288",
+          "duration_ts": 122880,
+          "nb_frames": "240"
+        },
+        {
+          "codec_name": "aac",
+          "codec_type": "audio",
+          "sample_rate": "32000",
+          "channels": 2,
+          "r_frame_rate": "0/0",
+          "time_base": "1/32000",
+          "duration_ts": 320000,
+          "nb_frames": "314"
+        }
+      ],
+      "format": {
+        "duration": "10.000000"
+      }
+    },
+    "strict_decode": true,
+    "video_latent_shape": [
+      1,
+      24,
+      72,
+      54,
+      30
+    ],
+    "audio_latent_shape": [
+      2,
+      32,
+      405
+    ],
+    "video_transport_prefix_latents": [
+      0,
+      2
+    ],
+    "audio_transport_prefix_latents": [
+      0,
+      9
+    ],
+    "native_video_frames": 243,
+    "published_video_frames": 240,
+    "published_audio_samples": 320000,
+    "video_vae_decodes": 1,
+    "h264_encode_count": 1,
+    "video_vae": {
+      "active": false,
+      "mode": "single_device_spatial_tiling",
+      "reason": "temporal_window_parallelism_disabled_for_mps",
+      "temporal_window_count": 14,
+      "video_parallel_world_size": 1,
+      "backend": "mps",
+      "precision": "float32_reference_no_autocast",
+      "stream_publication": true,
+      "publication_frame_chunk_size": 4
+    },
+    "audio_vae_decodes": 1,
+    "temporary_media_removed": true
+  },
+  "performance": {
+    "backend": "mps",
+    "timings_seconds": {
+      "text_precompute_seconds": 1.5011428333818913,
+      "text_load_seconds": 14.445420583710074,
+      "dit_load_seconds": 44.990408999845386,
+      "stage3_generation_seconds": 316.0742127923295,
+      "video_decode_seconds": 223.775009999983,
+      "audio_vae_seconds": 1.000109207816422,
+      "one_shot_publication_seconds": 225.3078002501279
+    },
+    "worker_cold_e2e_seconds": 605.9040608340874,
+    "static_timestep_adaln_cache": {
+      "time_embedding_hits": 32,
+      "time_embedding_misses": 4,
+      "adaln_input_hits": 32,
+      "adaln_input_misses": 4,
+      "adaln_projection_hits": 1624,
+      "adaln_projection_misses": 204
+    },
+    "memory": {
+      "backend": "mps",
+      "current_allocated_bytes": 0,
+      "current_reserved_bytes": 0,
+      "driver_allocated_bytes": 62586880,
+      "peak_allocated_bytes": 40609543424,
+      "peak_reserved_bytes": 50591694848,
+      "note": "Allocator peaks since last successful reset; not process physical footprint. Unavailable counters are null. Driver memory is a current sample, not a peak.",
+      "peak_reset_succeeded": true,
+      "peak_scope": "since_dit_reset"
+    },
+    "memory_optimizations": {
+      "adaln_release": {
+        "mode": "exact_original_bf16_projection_cache_then_release",
+        "projection_count": 51,
+        "timestep_rows": [
+          [
+            0.0
+          ],
+          [
+            0.03883492946624756,
+            0.13913047313690186
+          ],
+          [
+            0.14666670560836792,
+            0.40740740299224854
+          ],
+          [
+            1.0
+          ]
+        ],
+        "released_parameter_bytes": 26078739456,
+        "cached_output_bytes": 58189824,
+        "precompute_seconds": 3.156465374864638,
+        "unknown_timestep": "fail_closed",
+        "mps_allocated_before": 26148569600,
+        "mps_allocated_after": 26207029760,
+        "mps_driver_after": 28029157376
+      }
+    },
+    "dit": {
+      "noisy_calls": 24,
+      "clean_kv_calls": 8,
+      "total_calls": 32,
+      "device_seconds": 312.20759487431496,
+      "timing_backend": "mps_synchronized_wall",
+      "cuda_seconds": null,
+      "frames_per_second": 0.7687192878719574,
+      "backend": "mps",
+      "current_allocated_bytes": 34592431104,
+      "current_reserved_bytes": 44149243904,
+      "driver_allocated_bytes": 44151013376,
+      "peak_allocated_bytes": 40609543424,
+      "peak_reserved_bytes": 50591694848,
+      "note": "Allocator peaks since last successful reset; not process physical footprint. Unavailable counters are null. Driver memory is a current sample, not a peak.",
+      "peak_reset_succeeded": true,
+      "peak_scope": "since_dit_reset"
+    },
+    "run_direct_wall_seconds": 605.9176797075197,
+    "dit_frames_per_second": 0.7687192878719574,
+    "real_time_factor": 0.016504263044934873
+  }
+}
