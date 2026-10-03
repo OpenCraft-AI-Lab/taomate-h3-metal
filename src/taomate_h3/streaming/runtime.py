@@ -598,6 +598,7 @@ class H3StreamingRuntime:
             if cache is None:
                 cache = CleanAVKVCache(kv_contract_from_model(model))
                 self._cache = cache
+            cache.attention_query_chunk_size = getattr(model, "_metal_query_chunk_size", None)
             audio_kv_reset_applied = (
                 request_index > 0
                 and request_index % DIRECT_POLICY.audio_kv_reset_window_requests == 0
@@ -743,6 +744,17 @@ class H3StreamingRuntime:
                         )
 
                     session.cache.retain_sink_and_recent_commits()
+                    if getattr(model, "_metal_empty_cache_phase", False):
+                        from ..runtime.backend import empty_cache, synchronize
+
+                        synchronize(cuda_device)
+                        empty_cache(cuda_device)
+                        progress(
+                            "stage3_phase_memory", request=request_index, phase=phase.index,
+                            history_tokens=cache.history_tokens,
+                            allocated_bytes=torch.mps.current_allocated_memory(),
+                            driver_bytes=torch.mps.driver_allocated_memory(),
+                        )
                     phase_video_outputs.append(clean_phase_video)
                     phase_audio_outputs.append(generated_audio)
                     phase_records.append(

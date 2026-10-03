@@ -30,6 +30,7 @@ class H3StreamingSession:
         self._block_index_base = self.cache.committed_blocks
         self.hook = H3StreamingAttentionHook(
             self.cache,
+            query_chunk_size=getattr(cache, "attention_query_chunk_size", None),
             backend=(
                 "torch_sdpa"
                 if cache.contract.device_type == "mps"

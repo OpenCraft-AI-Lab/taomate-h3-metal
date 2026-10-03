@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import subprocess
 import tempfile
@@ -154,6 +155,15 @@ def _publish(
 
     full_video = torch.cat(cropped_video, dim=2).contiguous()
     full_audio = torch.cat(cropped_audio, dim=2).contiguous()
+    if config.backend == "mps" and os.environ.get("TAOMATE_MPS_SAVE_LATENTS", "0") == "1":
+        from safetensors.torch import save_file
+
+        save_file(
+            {"video": full_video.detach().cpu().contiguous(),
+             "audio": full_audio.detach().cpu().contiguous()},
+            str(config.output_dir / "publication-latents.safetensors"),
+            metadata={"role": "exact_inputs_to_unchanged_output_decoder"},
+        )
     native_frames = _video_codec_frames(int(full_video.shape[2]))
     published_frames = config.duration_seconds * 24
     published_samples = config.duration_seconds * 32_000

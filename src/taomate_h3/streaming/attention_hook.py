@@ -39,9 +39,17 @@ def _live_documents_from_mask(
 class H3StreamingAttentionHook:
     """Condition current media on text, persistent clean AV KV, and current KV."""
 
-    def __init__(self, cache: CleanAVKVCache, *, backend: str = "flash_attn_3") -> None:
+    def __init__(
+        self, cache: CleanAVKVCache, *, backend: str = "flash_attn_3",
+        query_chunk_size: int | None = None,
+    ) -> None:
         if backend not in ("flash_attn_3", "torch_sdpa"):
             raise ValueError("unknown streaming attention backend")
+        if query_chunk_size is not None and query_chunk_size <= 0:
+            raise ValueError("query chunk size must be positive")
+        if query_chunk_size is not None and backend != "torch_sdpa":
+            raise ValueError("query chunking requires torch_sdpa")
+        self.query_chunk_size = query_chunk_size
         self.backend = backend
         self.cache = cache
         self._flash_attention = None
@@ -61,6 +69,8 @@ class H3StreamingAttentionHook:
             "backend": self.backend,
             "tensor_layout": "NHD",
             "is_causal": False,
+            "query_chunk_size": self.query_chunk_size,
+            "softmax_scope": "all_visible_keys_per_query",
             "kernel_calls": self.kernel_calls,
             "query_tokens": self.query_tokens,
             "key_tokens": self.key_tokens,
@@ -83,7 +93,13 @@ class H3StreamingAttentionHook:
             if len(parts) == 1
             else torch.cat(tuple(part.value for part in parts), dim=0)
         )
-        if self.backend == "torch_sdpa":
+        if self.query_chunk_size is not None:
+            from ..inference.metal_attention import query_chunked_sdpa
+
+            output = query_chunked_sdpa(
+                query, key, value, scale=scale, query_chunk_size=self.query_chunk_size,
+            ).unsqueeze(0)
+        elif self.backend == "torch_sdpa":
             from torch.nn.functional import scaled_dot_product_attention
 
             output = (
@@ -110,7 +126,10 @@ class H3StreamingAttentionHook:
             )
         if isinstance(output, tuple):
             output = output[0]
-        self.kernel_calls += 1
+        self.kernel_calls += (
+            (int(query.shape[0]) + self.query_chunk_size - 1) // self.query_chunk_size
+            if self.query_chunk_size is not None else 1
+        )
         self.query_tokens += int(query.shape[0])
         self.key_tokens += int(key.shape[0])
         return output.squeeze(0)

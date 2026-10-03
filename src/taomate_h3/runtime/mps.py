@@ -28,6 +28,11 @@ class MPSRuntime(H3Runtime):
         from ..model.pipeline import MiniMaxH3NativePipeline
 
         require_mps()
+        query_chunk = int(os.environ.get("TAOMATE_MPS_ATTENTION_QUERY_CHUNK", "0"))
+        if query_chunk < 0:
+            raise ValueError("Metal attention query chunk must be nonnegative")
+        self._query_chunk_size = query_chunk or None
+        self._empty_cache_phase = os.environ.get("TAOMATE_MPS_EMPTY_CACHE_PHASE", "0") == "1"
         for key in ("HF_DATASETS_OFFLINE", "HF_HUB_OFFLINE", "TRANSFORMERS_OFFLINE"):
             os.environ.setdefault(key, "1")
         os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
@@ -55,6 +60,10 @@ class MPSRuntime(H3Runtime):
         self._static_cache = None
         self._memory_optimizations = {}
         self.model_resolution = {
+            "metal_workspace_options": {
+                "attention_query_chunk_size": self._query_chunk_size,
+                "empty_cache_between_phases": self._empty_cache_phase,
+            },
             "backend": "pytorch_mps",
             "dependencies": {
                 name: _distribution_version(name)
@@ -96,6 +105,8 @@ class MPSRuntime(H3Runtime):
         self.model_resolution["lora_bf16_buffers"] = materialize_h3_lora_bf16_buffers_(model)
         model.enable_inference_static_timestep_cache()
         model._metal_release_adaln = os.environ.get("TAOMATE_MPS_RELEASE_ADALN", "0") == "1"
+        model._metal_query_chunk_size = self._query_chunk_size
+        model._metal_empty_cache_phase = self._empty_cache_phase
         return encoded
 
     def reset_dit_peak_memory(self) -> None:

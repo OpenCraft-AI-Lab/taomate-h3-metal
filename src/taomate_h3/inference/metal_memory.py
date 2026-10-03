@@ -41,6 +41,7 @@ def precompute_release_adaln_(model, branch, *, sigmas_video, sigmas_audio):
         raise ValueError("video/audio sigma schedules must match")
     device = next(model.parameters()).device
     start = time.perf_counter()
+    allocation_before = torch.mps.current_allocated_memory() if device.type == "mps" else None
     plans = branch.prepare_timestep_plan(
         video_timesteps=[1.0 - sigma for sigma in sigmas_video[:-1]] + [1.0],
         audio_timesteps=[1.0 - sigma for sigma in sigmas_audio[:-1]] + [1.0],
@@ -81,6 +82,11 @@ def precompute_release_adaln_(model, branch, *, sigmas_video, sigmas_audio):
         "released_parameter_bytes": released_bytes, "cached_output_bytes": cached_bytes,
         "precompute_seconds": time.perf_counter() - start,
         "unknown_timestep": "fail_closed",
+        "mps_allocated_before": allocation_before,
+        "mps_allocated_after": (
+            torch.mps.current_allocated_memory() if device.type == "mps" else None
+        ),
+        "mps_driver_after": torch.mps.driver_allocated_memory() if device.type == "mps" else None,
     }
     model._metal_adaln_release_receipt = receipt
     progress("adaln_precomputed_and_released", **receipt)
