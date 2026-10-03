@@ -1,0 +1,32 @@
+{"event": "text_load_start", "device": "mps"}
+{"event": "text_load_complete", "seconds": 14.92718349955976}
+{"event": "text_encode_start", "device": "mps"}
+{"event": "text_encode_start", "device": "mps"}
+{"event": "text_released", "device": "mps"}
+{"event": "dit_load_start", "device": "mps", "w8a8": null}
+{"event": "dit_load_complete", "seconds": 39.91947612538934}
+[adapter-load] H3 LoRA tensors loaded=416
+{"event": "stage3_phase_start", "request": 0, "phase": 0, "device": "mps:0"}
+{"event": "adaln_precomputed_and_released", "mode": "exact_original_bf16_projection_cache_then_release", "projection_count": 51, "timestep_rows": [[0.0], [0.03883492946624756, 0.13913047313690186], [0.14666670560836792, 0.40740740299224854], [1.0]], "released_parameter_bytes": 26078739456, "cached_output_bytes": 58189824, "precompute_seconds": 3.037620290182531, "unknown_timestep": "fail_closed", "mps_allocated_before": 29651576320, "mps_allocated_after": 29710036480, "mps_driver_after": 31493652480}
+{"event": "stage3_phase_memory", "request": 0, "phase": 0, "history_tokens": 4990, "allocated_bytes": 33543626752, "driver_bytes": 42230022144}
+{"event": "stage3_phase_start", "request": 0, "phase": 1, "device": "mps:0"}
+{"event": "stage3_phase_memory", "request": 0, "phase": 1, "history_tokens": 9154, "allocated_bytes": 36628257536, "driver_bytes": 46634041344}
+{"event": "stage3_phase_start", "request": 0, "phase": 2, "device": "mps:0"}
+{"event": "stage3_phase_memory", "request": 0, "phase": 2, "history_tokens": 13186, "allocated_bytes": 39710866176, "driver_bytes": 53177155584}
+{"event": "stage3_phase_start", "request": 0, "phase": 3, "device": "mps:0"}
+{"event": "stage3_phase_memory", "request": 0, "phase": 3, "history_tokens": 11105, "allocated_bytes": 38169918208, "driver_bytes": 51096780800}
+{"event": "stage3_phase_start", "request": 1, "phase": 0, "device": "mps:0"}
+{"event": "stage3_phase_memory", "request": 1, "phase": 0, "history_tokens": 11105, "allocated_bytes": 38167300864, "driver_bytes": 54301229056}
+{"event": "stage3_phase_start", "request": 1, "phase": 1, "device": "mps:0"}
+{"event": "stage3_phase_memory", "request": 1, "phase": 1, "history_tokens": 13186, "allocated_bytes": 39708219392, "driver_bytes": 54292840448}
+{"event": "stage3_phase_start", "request": 1, "phase": 2, "device": "mps:0"}
+{"event": "stage3_phase_memory", "request": 1, "phase": 2, "history_tokens": 13188, "allocated_bytes": 39709006080, "driver_bytes": 59636383744}
+{"event": "stage3_phase_start", "request": 1, "phase": 3, "device": "mps:0"}
+{"event": "stage3_phase_memory", "request": 1, "phase": 3, "history_tokens": 11105, "allocated_bytes": 38168220928, "driver_bytes": 58604584960}
+{"event": "dit_released_before_vae"}
+{"event": "video_vae_start", "precision": "float32_reference_no_autocast"}
+The config attributes {'vae_ratio': 16, 'vae_ratio_t': 4} were passed to AutoencoderKLLegacy, but are not expected and will be ignored. Please verify your config.json configuration file.
+/Users/supreme-paca/Projects/taomate-h3-metal/.venv/lib/python3.11/site-packages/torch/jit/_script.py:1491: FutureWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(
+{"event": "audio_vae_start", "precision": "float32"}
+{"event": "audio_vae_complete", "seconds": 0.9679634170606732}

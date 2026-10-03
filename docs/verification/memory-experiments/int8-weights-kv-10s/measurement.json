@@ -1,0 +1,17 @@
+{
+  "run": "int8-weights-kv-10s",
+  "source_commit": "4350b29",
+  "receipt_source_sha256_matches_commit": true,
+  "source_files_verified": 51,
+  "whole_command_excludes_reused_teacher": true,
+  "wall_seconds": 828.399617084302,
+  "kernel_peak_footprint_gib": 59.08192900568247,
+  "returncode": 0,
+  "guard_reason": null,
+  "minimum_available_estimate_gib": 41.917724609375,
+  "maximum_system_swap_growth_gib": 0.0,
+  "last_system_swap_growth_gib": -0.0390625,
+  "full_telemetry_path": "/Users/supreme-paca/Projects/taomate-h3-metal/outputs/memory-experiments/int8-weights-kv-10s/memory.jsonl",
+  "source_sha256_verified_unchanged_at_completion": true,
+  "visual_sample_assessment": "Ten samples retain presenter, backpack and studio; pose and details vary. No obvious identity break in these samples. No perceptual or lip-sync equivalence claim."
+}

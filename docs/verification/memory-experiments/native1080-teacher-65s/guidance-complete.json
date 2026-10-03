@@ -1,0 +1,204 @@
+{
+  "mode": "base10_milestones",
+  "strategy": "previous_clean_audio_tail_reference_then_new_noise",
+  "partition": "fl2va",
+  "base_precision": "bf16",
+  "parallelism": {
+    "tensor_parallel_size": 1,
+    "ulysses_degree": 1
+  },
+  "request_count": 13,
+  "request_seconds": 5,
+  "request_seeds": [
+    8301,
+    8301,
+    8301,
+    8301,
+    8301,
+    8301,
+    8301,
+    8301,
+    8301,
+    8301,
+    8301,
+    8301,
+    8301
+  ],
+  "audio_noise_seed_sequence": [
+    8301,
+    8302,
+    8303,
+    8304,
+    8305,
+    8306,
+    8307,
+    8308,
+    8309,
+    8310,
+    8311,
+    8312,
+    8313
+  ],
+  "producer_geometry": {
+    "width": 1088,
+    "height": 1920,
+    "video_latent_h": 120,
+    "video_latent_w": 68
+  },
+  "official_audio_latents_per_channel": 207,
+  "active_audio_latents_per_channel": [
+    207,
+    198,
+    198,
+    199,
+    198,
+    198,
+    199,
+    198,
+    198,
+    199,
+    198,
+    198,
+    199
+  ],
+  "request_receipts": [
+    {
+      "transport_prefix_audio_latents_per_channel": 0,
+      "packed_text_rows": 370,
+      "packed_audio_rows": 414,
+      "reference_latents_per_channel": 0,
+      "reference_duration_seconds": 0.0,
+      "audio_noise_seed": 8301,
+      "prefix_source_request": null
+    },
+    {
+      "transport_prefix_audio_latents_per_channel": 9,
+      "packed_text_rows": 343,
+      "packed_audio_rows": 476,
+      "reference_latents_per_channel": 40,
+      "reference_duration_seconds": 1.0,
+      "audio_noise_seed": 8302,
+      "prefix_source_request": 0
+    },
+    {
+      "transport_prefix_audio_latents_per_channel": 9,
+      "packed_text_rows": 341,
+      "packed_audio_rows": 476,
+      "reference_latents_per_channel": 40,
+      "reference_duration_seconds": 1.0,
+      "audio_noise_seed": 8303,
+      "prefix_source_request": 1
+    },
+    {
+      "transport_prefix_audio_latents_per_channel": 8,
+      "packed_text_rows": 337,
+      "packed_audio_rows": 478,
+      "reference_latents_per_channel": 40,
+      "reference_duration_seconds": 1.0,
+      "audio_noise_seed": 8304,
+      "prefix_source_request": 2
+    },
+    {
+      "transport_prefix_audio_latents_per_channel": 9,
+      "packed_text_rows": 321,
+      "packed_audio_rows": 476,
+      "reference_latents_per_channel": 40,
+      "reference_duration_seconds": 1.0,
+      "audio_noise_seed": 8305,
+      "prefix_source_request": 3
+    },
+    {
+      "transport_prefix_audio_latents_per_channel": 9,
+      "packed_text_rows": 335,
+      "packed_audio_rows": 476,
+      "reference_latents_per_channel": 40,
+      "reference_duration_seconds": 1.0,
+      "audio_noise_seed": 8306,
+      "prefix_source_request": 4
+    },
+    {
+      "transport_prefix_audio_latents_per_channel": 8,
+      "packed_text_rows": 334,
+      "packed_audio_rows": 478,
+      "reference_latents_per_channel": 40,
+      "reference_duration_seconds": 1.0,
+      "audio_noise_seed": 8307,
+      "prefix_source_request": 5
+    },
+    {
+      "transport_prefix_audio_latents_per_channel": 9,
+      "packed_text_rows": 336,
+      "packed_audio_rows": 476,
+      "reference_latents_per_channel": 40,
+      "reference_duration_seconds": 1.0,
+      "audio_noise_seed": 8308,
+      "prefix_source_request": 6
+    },
+    {
+      "transport_prefix_audio_latents_per_channel": 9,
+      "packed_text_rows": 337,
+      "packed_audio_rows": 476,
+      "reference_latents_per_channel": 40,
+      "reference_duration_seconds": 1.0,
+      "audio_noise_seed": 8309,
+      "prefix_source_request": 7
+    },
+    {
+      "transport_prefix_audio_latents_per_channel": 8,
+      "packed_text_rows": 325,
+      "packed_audio_rows": 478,
+      "reference_latents_per_channel": 40,
+      "reference_duration_seconds": 1.0,
+      "audio_noise_seed": 8310,
+      "prefix_source_request": 8
+    },
+    {
+      "transport_prefix_audio_latents_per_channel": 9,
+      "packed_text_rows": 320,
+      "packed_audio_rows": 476,
+      "reference_latents_per_channel": 40,
+      "reference_duration_seconds": 1.0,
+      "audio_noise_seed": 8311,
+      "prefix_source_request": 9
+    },
+    {
+      "transport_prefix_audio_latents_per_channel": 9,
+      "packed_text_rows": 335,
+      "packed_audio_rows": 476,
+      "reference_latents_per_channel": 40,
+      "reference_duration_seconds": 1.0,
+      "audio_noise_seed": 8312,
+      "prefix_source_request": 10
+    },
+    {
+      "transport_prefix_audio_latents_per_channel": 8,
+      "packed_text_rows": 335,
+      "packed_audio_rows": 478,
+      "reference_latents_per_channel": 40,
+      "reference_duration_seconds": 1.0,
+      "audio_noise_seed": 8313,
+      "prefix_source_request": 11
+    }
+  ],
+  "full_state_count": 10,
+  "executed_forwards_per_request": 9,
+  "teacher_state_numbers": [
+    3,
+    6,
+    9
+  ],
+  "stage3_target_state_indices": [
+    16,
+    33,
+    49
+  ],
+  "artifact_storage_dtype": "float32",
+  "video_rows": 0,
+  "noise_order": "draw_and_discard_full_video_then_draw_audio",
+  "reference_latents_per_channel": 40,
+  "reference_duration_seconds": 1.0,
+  "persistent_kv": false,
+  "waveform_crossfade": false,
+  "audio_vae_decode_count": 0,
+  "adapter_loaded": false
+}

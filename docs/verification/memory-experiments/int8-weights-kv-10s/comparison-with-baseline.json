@@ -1,0 +1,61 @@
+{
+  "baseline": "/Users/supreme-paca/Projects/taomate-h3-metal/outputs/memory-experiments/adaln-bounded-10s/media/video.mp4",
+  "candidate": "/Users/supreme-paca/Projects/taomate-h3-metal/outputs/memory-experiments/int8-weights-kv-10s/media/video.mp4",
+  "file_sha256": [
+    "dba747b56066230fde93cc526c197e4cdd654b826fcd8b44ad72d3a71439d613",
+    "25fbfb94c38dc4009cd193558cfc7c4d91c50f2a97427a9ac47ccef235adf32f"
+  ],
+  "video": {
+    "frames": 240,
+    "identical_frames": 0,
+    "decoded_rgb_sha256": [
+      "0b2721fe3af0734ee1b5f3ef44eee9dcec26e2317511de4531163df0dd4c6075",
+      "096b5d3d626e868260710b4b013d5d6154e2aa4ae79f6396d429b5c55c49cb10"
+    ],
+    "mean_absolute_pixel_error": 6.001966011874143,
+    "max_pixel_error": 242,
+    "psnr_db": 25.780339680984355,
+    "exact_pixels": false
+  },
+  "audio": {
+    "decoded_f32_sha256": [
+      "34be9ea6fd63ca6cad3a073681c5c116a9aa8b7a998f2c8e618ebdc707c494c4",
+      "34be9ea6fd63ca6cad3a073681c5c116a9aa8b7a998f2c8e618ebdc707c494c4"
+    ],
+    "samples_including_channels": 641024,
+    "exact_samples": true,
+    "rms_error": 0.0,
+    "maximum_absolute_error": 0.0,
+    "rms": [
+      0.1808602608780485,
+      0.1808602608780485
+    ]
+  },
+  "note": "Pixel/latent distance is not a perceptual quality or semantic parity score.",
+  "latents": {
+    "audio": {
+      "shape": [
+        2,
+        32,
+        405
+      ],
+      "exact": true,
+      "relative_l2": 0.0,
+      "rms_error": 0.0,
+      "max_absolute_error": 0.0
+    },
+    "video": {
+      "shape": [
+        1,
+        24,
+        72,
+        54,
+        30
+      ],
+      "exact": false,
+      "relative_l2": 0.27039280321734516,
+      "rms_error": 0.2718444981678025,
+      "max_absolute_error": 4.160368919372559
+    }
+  }
+}

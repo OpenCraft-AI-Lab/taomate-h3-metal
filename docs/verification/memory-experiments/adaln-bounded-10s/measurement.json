@@ -1,0 +1,11 @@
+{
+  "run": "adaln-bounded-10s",
+  "wall_seconds": 534.4220865005627,
+  "kernel_peak_footprint_gib": 98.03936962038279,
+  "returncode": 0,
+  "guard_reason": null,
+  "minimum_available_estimate_gib": 14.761489868164062,
+  "maximum_system_swap_growth_gib": 0.0,
+  "last_system_swap_growth_gib": -0.0390625,
+  "full_telemetry_path": "/Users/supreme-paca/Projects/taomate-h3-metal/outputs/memory-experiments/adaln-bounded-10s/memory.jsonl"
+}

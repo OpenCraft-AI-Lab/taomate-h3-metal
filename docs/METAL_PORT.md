@@ -233,10 +233,12 @@ PYTORCH_MPS_LOW_WATERMARK_RATIO=0.8 \
 
 ### Precision and validation limits
 
-The current MPS DiT uses the official BF16 reference operations and trained
-LoRA. It does not introduce INT4/INT8 model quantization. CUDA's selective
-W8A8 acceleration and FlashAttention-3 are replaced by the BF16 path and
-PyTorch SDPA. Final projections remain FP32.
+The default MPS DiT uses the official BF16 reference operations and trained
+LoRA. CUDA's selective W8A8 acceleration and FlashAttention-3 are replaced
+by the BF16 path and PyTorch SDPA. Final projections remain FP32. Opt-in
+streamed W8A16 weights and INT8 clean KV experiments are documented in
+[METAL_MEMORY_EXPERIMENTS.md](METAL_MEMORY_EXPERIMENTS.md); they do not alter
+the default path and must not be called CUDA W8A8 or lossless quantization.
 
 Video VAE decoding uses an explicit full-FP32 reference policy because the
 bundled model has CUDA-specific autocast protection regions. CUDA normally

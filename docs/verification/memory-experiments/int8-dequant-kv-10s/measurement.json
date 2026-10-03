@@ -1,0 +1,17 @@
+{
+  "run": "int8-dequant-kv-10s",
+  "source_commit": "ca6702f",
+  "receipt_source_sha256_matches_commit": true,
+  "source_files_verified": 51,
+  "whole_command_excludes_reused_teacher": true,
+  "wall_seconds": 581.132272833027,
+  "kernel_peak_footprint_gib": 61.083409287035465,
+  "returncode": 0,
+  "guard_reason": null,
+  "minimum_available_estimate_gib": 34.398956298828125,
+  "maximum_system_swap_growth_gib": 0.0,
+  "last_system_swap_growth_gib": -0.0078125,
+  "full_telemetry_path": "/Users/supreme-paca/Projects/taomate-h3-metal/outputs/memory-experiments/int8-dequant-kv-10s/memory.jsonl",
+  "source_sha256_verified_unchanged_at_completion": true,
+  "visual_sample_assessment": "Ten samples retain presenter, backpack and studio; pose and details vary. No obvious identity break in these samples. No perceptual or lip-sync equivalence claim."
+}

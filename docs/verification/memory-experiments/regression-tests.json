@@ -1,0 +1,15 @@
+{
+  "passed": 137,
+  "skipped": 0,
+  "seconds": 28.53,
+  "source_commit": "9ec5153",
+  "new_integrated_test_files": [
+    "tests/test_metal_loader.py",
+    "tests/test_metal_memory.py"
+  ],
+  "command": "PYTORCH_ENABLE_MPS_FALLBACK=0 .venv/bin/python -B -m pytest -q -p no:cacheprovider tests",
+  "execution": "real CPU and MPS",
+  "ruff": "passed",
+  "environment": "real CPU + MPS, Python 3.11.15, Torch 2.14.1",
+  "git_diff_check": "passed"
+}

@@ -1,0 +1,15 @@
+{
+  "run": "linear-backends",
+  "source_commit": "ca6702f",
+  "receipt_source_sha256_matches_commit": true,
+  "source_files_verified": 51,
+  "whole_command_excludes_reused_teacher": false,
+  "wall_seconds": 13.713550499640405,
+  "kernel_peak_footprint_gib": 8.059908643364906,
+  "returncode": -15,
+  "guard_reason": "process footprint exceeded budget",
+  "minimum_available_estimate_gib": 74.56661987304688,
+  "maximum_system_swap_growth_gib": 0.0,
+  "last_system_swap_growth_gib": 0.0,
+  "full_telemetry_path": "/Users/supreme-paca/Projects/taomate-h3-metal/outputs/memory-experiments/linear-backends/memory.jsonl"
+}

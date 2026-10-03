@@ -1,0 +1,11 @@
+{
+  "run": "adaln-10s",
+  "wall_seconds": 329.3929792912677,
+  "kernel_peak_footprint_gib": 97.06953559815884,
+  "returncode": -15,
+  "guard_reason": "system swap growth exceeded budget",
+  "minimum_available_estimate_gib": 8.786849975585938,
+  "maximum_system_swap_growth_gib": 2.3216552734375,
+  "last_system_swap_growth_gib": 2.1575927734375,
+  "full_telemetry_path": "/Users/supreme-paca/Projects/taomate-h3-metal/outputs/memory-experiments/adaln-10s/memory.jsonl"
+}

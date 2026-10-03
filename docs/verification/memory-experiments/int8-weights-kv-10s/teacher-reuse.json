@@ -1,0 +1,9 @@
+{
+  "teacher_reused": true,
+  "guidance_root": "/Users/supreme-paca/Projects/taomate-h3-metal/outputs/memory-experiments/guidance-10s",
+  "guidance_sha256": {
+    "complete.json": "a21e7625ebd5b3f692f96eec5a7f65a7ac43d90ea6630902e1ec62a6a3674fc0",
+    "request_00.pt": "a6e561614522ff0dade00aa7605a27e48c8f8441b830495e8ce180bdff9d1465",
+    "request_01.pt": "257d196753b5226a6442d8b023ed2b16a9c565793f0f33e7ef3759c1655ca7bf"
+  }
+}

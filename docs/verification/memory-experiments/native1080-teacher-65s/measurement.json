@@ -1,0 +1,15 @@
+{
+  "run": "native1080-teacher-65s",
+  "source_commit": "9ec5153",
+  "receipt_source_sha256_matches_commit": true,
+  "source_files_verified": 51,
+  "whole_command_excludes_reused_teacher": false,
+  "wall_seconds": 148.1242808336392,
+  "kernel_peak_footprint_gib": 65.53305254876614,
+  "returncode": 0,
+  "guard_reason": null,
+  "minimum_available_estimate_gib": 37.62103271484375,
+  "maximum_system_swap_growth_gib": 0.0,
+  "last_system_swap_growth_gib": 0.0,
+  "full_telemetry_path": "/Users/supreme-paca/Projects/taomate-h3-metal/outputs/memory-experiments/native1080-teacher-65s/memory.jsonl"
+}

@@ -1,0 +1,2 @@
+{"input_rows": 4990, "input_features": 5376, "output_features": 28672, "dequantize": {"seconds": 0.035156749188899994, "repeat_seconds": [0.035156749188899994, 0.03524495754390955, 0.03510016668587923]}}
+{"input_rows": 24590, "input_features": 5376, "output_features": 28672, "dequantize": {"seconds": 0.14035887457430363, "repeat_seconds": [0.14030512515455484, 0.14050362538546324, 0.14035887457430363]}}

@@ -1,0 +1,15 @@
+{
+  "run": "linear-fc1-64mib",
+  "source_commit": "9ec5153",
+  "receipt_source_sha256_matches_commit": true,
+  "source_files_verified": 51,
+  "whole_command_excludes_reused_teacher": false,
+  "wall_seconds": 5.811770999804139,
+  "kernel_peak_footprint_gib": 5.113298520445824,
+  "returncode": 0,
+  "guard_reason": null,
+  "minimum_available_estimate_gib": 77.89952087402344,
+  "maximum_system_swap_growth_gib": 0.0,
+  "last_system_swap_growth_gib": 0.0,
+  "full_telemetry_path": "/Users/supreme-paca/Projects/taomate-h3-metal/outputs/memory-experiments/linear-fc1-64mib/memory.jsonl"
+}

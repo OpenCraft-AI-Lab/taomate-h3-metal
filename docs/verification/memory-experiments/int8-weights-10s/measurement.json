@@ -1,0 +1,16 @@
+{
+  "run": "int8-weights-10s",
+  "whole_command_excludes_reused_teacher": true,
+  "wall_seconds": 722.5978493755683,
+  "kernel_peak_footprint_gib": 62.82060369104147,
+  "returncode": 0,
+  "guard_reason": null,
+  "minimum_available_estimate_gib": 31.985610961914062,
+  "maximum_system_swap_growth_gib": 0.0,
+  "last_system_swap_growth_gib": -0.0078125,
+  "source_commit": "677a877",
+  "source_sha256_verified_unchanged_at_completion": true,
+  "source_files_verified": 50,
+  "full_telemetry_path": "/Users/supreme-paca/Projects/taomate-h3-metal/outputs/memory-experiments/int8-weights-10s/memory.jsonl",
+  "visual_sample_assessment": "Ten paired samples retain presenter, backpack and studio; hand/mouth positions vary. No obvious identity break in these samples. No perceptual quality equivalence claim."
+}

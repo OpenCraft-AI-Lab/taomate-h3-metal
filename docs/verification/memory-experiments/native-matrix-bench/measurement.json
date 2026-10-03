@@ -1,0 +1,11 @@
+{
+  "run": "native-matrix-bench",
+  "wall_seconds": 4.595170082524419,
+  "kernel_peak_footprint_gib": 2.706834875047207,
+  "returncode": 0,
+  "guard_reason": null,
+  "minimum_available_estimate_gib": 97.30819702148438,
+  "maximum_system_swap_growth_gib": 0.0,
+  "last_system_swap_growth_gib": 0.0,
+  "full_telemetry_path": "/Users/supreme-paca/Projects/taomate-h3-metal/outputs/memory-experiments/native-matrix-bench/memory.jsonl"
+}
