@@ -27,3 +27,7 @@ The run failed in request 1 phase 2 at the FC1 LoRA second linear projection, af
 ## Allocation-boundary diagnostic
 
 Optional scalar-only telemetry now records synchronized A/R/D, history/staged physical backing and requested buffer bytes before/after joined K/V, clean stage, and LoRA updates. It neither collects frames nor retains tensors, invokes GC, or empties the cache. All 237 CPU/real-MPS tests pass (29.59s) under a 10 GiB guard, including exact traced/untraced outputs and cache ownership. Diagnostic synchronization is explicitly disclosed and timing must not be treated as the unchanged uninstrumented workload.
+
+## Native allocation-boundary result
+
+The synchronized diagnostic still failed in request 1 phase 2, layer 40: the FC1 base-output allocation requested 1.12 GiB while MPS reserved 96.05 GiB under the unchanged 96.77 GiB cap. Wall 2875.435s, physical peak 97.8030 GiB, swap delta -92340224 bytes. The preceding synchronized sample (same-layer attention out_proj after LoRA) showed A 89.958478 GiB and R 96.054688 GiB; gate/AdaLN executes afterwards, so this is not the exact failure-instant A. The R−A gap is not proof that all bytes are reclaimable. Source inventory 53/53 matches. Full lossless logs are archived as gzip. Next minimal control samples the linear-output allocation boundary and explicitly empties cached heaps at critical boundaries, measuring before/after counters while preserving arithmetic and all safety limits.

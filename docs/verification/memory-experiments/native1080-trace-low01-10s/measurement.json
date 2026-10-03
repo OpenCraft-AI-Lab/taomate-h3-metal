@@ -1,0 +1,24 @@
+{
+  "returncode": 1,
+  "wall_seconds": 2875.434644541703,
+  "physical_peak_gib": 97.80299516022205,
+  "swap_delta_bytes": -92340224,
+  "failure": "request1 phase2 layer40 FC1 base output, MPS reserved96.05GiB +1.12GiB under cap96.77GiB",
+  "source53_verified": true,
+  "last_synchronized_point": {
+    "event": "mps_allocation_boundary",
+    "point": "after_lora_update",
+    "synchronized": true,
+    "current_allocated_bytes": 96592180736,
+    "current_reserved_bytes": 103137935360,
+    "driver_allocated_bytes": 103139704832,
+    "peak_allocated_bytes": 96597554688,
+    "peak_reserved_bytes": 103205044224,
+    "note": "Allocator peaks since last successful reset; not process physical footprint. Unavailable counters are null. Driver memory is a current sample, not a peak.",
+    "layer": "blocks.40.attn.out_proj",
+    "rows": 20864,
+    "output_columns": 5376,
+    "update_bytes": 224329728
+  },
+  "limitation": "Last synchronized point is attention out_proj after LoRA; subsequent gate/AdaLN occurs before failed FC1 allocation, so it is not the exact failure A sample."
+}
