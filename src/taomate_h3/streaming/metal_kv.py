@@ -57,6 +57,31 @@ class _Segment:
         )
 
 
+MAX_KV_TILE_TOKENS = 2048
+MAX_KV_TILE_SCRATCH_BYTES = 256 * 1024**2
+
+
+def parse_kv_tile_tokens(value: str) -> int:
+    """Strict environment option, independent of device availability/model loading."""
+    if not value or not value.isascii() or not value.isdecimal():
+        raise ValueError("TAOMATE_MPS_KV_TILE_TOKENS must be an integer in 1..2048")
+    # Bound string length before int conversion, including pathological env input.
+    if len(value) > 4 or not 1 <= int(value) <= MAX_KV_TILE_TOKENS:
+        raise ValueError("TAOMATE_MPS_KV_TILE_TOKENS must be an integer in 1..2048")
+    return int(value)
+
+
+def kv_tile_scratch_bound(tile_tokens: int, heads: int, head_dim: int = 128) -> int:
+    """Conservative live-tensor estimate, NOT measured process/driver peak.
+
+    Five F32-equivalent tiles cover selected/quantization intermediates and
+    replacement overlap; add scales, indices and validation workspace. Joined
+    BF16 KV, persistent/staged INT8 payload and allocator caches are separate.
+    Each tile still synchronizes before the next tile is enqueued.
+    """
+    return tile_tokens * (20 * heads * head_dim + 32 * heads + 8)
+
+
 class QuantizedCleanAVKVCache(CleanAVKVCache):
     """Single-owner inference cache with non-reentrant mutation/attention leases.
 
@@ -74,11 +99,15 @@ class QuantizedCleanAVKVCache(CleanAVKVCache):
         if (
             isinstance(tile_tokens, bool)
             or not isinstance(tile_tokens, int)
-            or tile_tokens <= 0
+            or not 1 <= tile_tokens <= MAX_KV_TILE_TOKENS
         ):
-            raise ValueError("tile_tokens must be a positive integer")
+            raise ValueError("tile_tokens must be an integer in 1..2048")
+        scratch_bound = kv_tile_scratch_bound(tile_tokens, contract.local_heads, contract.head_dim)
+        if scratch_bound > MAX_KV_TILE_SCRATCH_BYTES:
+            raise ValueError("KV tile scratch estimate exceeds 256 MiB budget")
         self.contract = contract
         self.tile_tokens = tile_tokens
+        self.tile_scratch_estimated_bytes = scratch_bound
         self._segments: tuple[_Segment, ...] = ()
         self._staged: dict[str, _QuantizedPair] = {}
         self._staged_block: int | None = None
@@ -277,6 +306,8 @@ class QuantizedCleanAVKVCache(CleanAVKVCache):
             ),
             "staged_payload_bytes": sum(p.bytes() for p in self._staged.values()),
             "dequant_tile_tokens": self.tile_tokens,
+            "tile_scratch_estimated_bytes": self.tile_scratch_estimated_bytes,
+            "tile_scratch_budget_bytes": MAX_KV_TILE_SCRATCH_BYTES,
         }
 
     @torch.no_grad()

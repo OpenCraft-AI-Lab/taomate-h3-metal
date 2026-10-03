@@ -26,7 +26,15 @@ class MPSRuntime(H3Runtime):
     ) -> None:
         from ..distributed import ParallelContext
         from ..model.pipeline import MiniMaxH3NativePipeline
+        from ..streaming.metal_kv import (
+            MAX_KV_TILE_SCRATCH_BYTES,
+            kv_tile_scratch_bound,
+            parse_kv_tile_tokens,
+        )
 
+        self._kv_tile_tokens = parse_kv_tile_tokens(
+            os.environ.get("TAOMATE_MPS_KV_TILE_TOKENS", "128")
+        )
         require_mps()
         query_chunk = int(os.environ.get("TAOMATE_MPS_ATTENTION_QUERY_CHUNK", "0"))
         if query_chunk < 0:
@@ -40,6 +48,16 @@ class MPSRuntime(H3Runtime):
         self._kv_storage = os.environ.get("TAOMATE_MPS_KV_STORAGE", "bf16")
         if self._kv_storage not in ("bf16", "int8"):
             raise ValueError("unknown Metal KV storage")
+        self._kv_tile_scratch_estimated_bytes = None
+        if self._kv_storage == "int8":
+            from ..model.architecture import MiniMaxH3Architecture
+
+            arch = MiniMaxH3Architecture()
+            self._kv_tile_scratch_estimated_bytes = kv_tile_scratch_bound(
+                self._kv_tile_tokens, arch.num_attention_heads, arch.attention_head_dim
+            )
+            if self._kv_tile_scratch_estimated_bytes > MAX_KV_TILE_SCRATCH_BYTES:
+                raise ValueError("KV tile scratch estimate exceeds 256 MiB budget")
         self._query_chunk_size = query_chunk or (128 if self._kv_storage == "int8" else None)
         self._empty_cache_phase = os.environ.get("TAOMATE_MPS_EMPTY_CACHE_PHASE", "0") == "1"
         for key in ("HF_DATASETS_OFFLINE", "HF_HUB_OFFLINE", "TRANSFORMERS_OFFLINE"):
@@ -77,6 +95,11 @@ class MPSRuntime(H3Runtime):
                 "cpu_adaln_staging": self._cpu_adaln,
                 "weight_quantization_backend": self._quantization_backend,
                 "kv_storage": self._kv_storage,
+                "kv_tile_tokens": self._kv_tile_tokens if self._kv_storage == "int8" else None,
+                "kv_tile_scratch_estimated_bytes": self._kv_tile_scratch_estimated_bytes,
+                "kv_tile_scratch_budget_bytes": (
+                    MAX_KV_TILE_SCRATCH_BYTES if self._kv_storage == "int8" else None
+                ),
             },
             "backend": "pytorch_mps",
             "dependencies": {
@@ -122,6 +145,7 @@ class MPSRuntime(H3Runtime):
         model._metal_query_chunk_size = self._query_chunk_size
         model._metal_empty_cache_phase = self._empty_cache_phase
         model._metal_kv_storage = self._kv_storage
+        model._metal_kv_tile_tokens = self._kv_tile_tokens
         model._metal_kv_max_joined_bytes = 4 * 1024**3
         self.model_resolution["metal_weight_loading"] = self.pipeline.dit_weight_receipt
         if self._quantization_backend != "none":

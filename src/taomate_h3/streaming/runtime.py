@@ -599,7 +599,10 @@ class H3StreamingRuntime:
                 if getattr(model, "_metal_kv_storage", "bf16") == "int8":
                     from .metal_kv import QuantizedCleanAVKVCache
 
-                    cache = QuantizedCleanAVKVCache(kv_contract_from_model(model))
+                    cache = QuantizedCleanAVKVCache(
+                        kv_contract_from_model(model),
+                        tile_tokens=getattr(model, "_metal_kv_tile_tokens", 128),
+                    )
                 else:
                     cache = CleanAVKVCache(kv_contract_from_model(model))
                 self._cache = cache
