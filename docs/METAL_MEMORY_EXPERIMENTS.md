@@ -403,3 +403,31 @@ no observed swap growth; the per-layer process guard slightly overshoots its
 Full receipts, per-step counters, script snapshots, artifact hashes and the
 source audit are under `verification/memory-experiments/packed-kv-sdpa-diagnostics/`.
 Whole-model packed8 and native video outcomes are measured separately.
+
+
+### Complete packed8 regression (E7)
+
+At 480×864, ten seconds, `ffa5c0b` packed8 with otherwise E6-identical options
+completes in 572.580 s. All 240 RGB frames, decoded audio, both publication
+latents and the delivered MP4 are byte-exact with E6/E5 (SHA `c89c124f...`).
+Stage3 takes 300.431 s and video decode 211.218 s, excluding the same reused
+unmodified official teacher. Postflight is valid, no guard triggers and
+system swap does not grow.
+
+DiT allocator reserved peak falls from E6's 58.625 to 47.452 GiB, while
+active peaks stay near 41.05 GiB. Independently, the main-process physical
+peak rises from 59.111 to 64.585 GiB this run. Its high-water mark first
+appears at 93.494 s, with sampled current footprint 63.085 GiB and RSS
+25.784 GiB; RSS later falls to roughly 2.47 GiB by125 s. At similar94 s E6
+has footprint50.514/RSS9.733 GiB, and by110 s RSS0.527 GiB. The identical
+AdaLN receipts report release of24.288 GiB CPU parameters. A read-only
+review finds no obvious large packed host copy or retained AdaLN parameter
+in the normal returned receipts, but does not distinguish live CPU tensors
+from deferred allocator/VM page release. Sparse end-of-phase D/R samples
+cannot rule out transient allocations. No universal process-peak reduction
+is claimed from the allocator improvement alone; guards remain authoritative.
+
+This complete regression establishes exact delivered values at480p. Native
+1088×1920 tests now use packed8, 64 MiB weight tiles and query512 based on the
+separate controlled measurements; their results must be measured separately.
+See `verification/memory-experiments/int8-packed8-10s/` for complete evidence.
