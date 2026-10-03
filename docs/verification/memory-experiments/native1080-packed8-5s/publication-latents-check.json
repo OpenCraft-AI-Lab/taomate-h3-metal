@@ -1,0 +1,30 @@
+{
+  "sha256": "a79f8d912ee1726a5814937e0901218531437c0d4510963ad5f276f4cfb43fca",
+  "method": "safetensors CPU load; every element checked with torch.isfinite",
+  "tensors": {
+    "audio": {
+      "shape": [
+        2,
+        32,
+        207
+      ],
+      "dtype": "torch.float32",
+      "finite": true,
+      "minimum": -1.9947779178619385,
+      "maximum": 2.214224338531494
+    },
+    "video": {
+      "shape": [
+        1,
+        24,
+        37,
+        120,
+        68
+      ],
+      "dtype": "torch.float32",
+      "finite": true,
+      "minimum": -4.077012062072754,
+      "maximum": 4.395177364349365
+    }
+  }
+}

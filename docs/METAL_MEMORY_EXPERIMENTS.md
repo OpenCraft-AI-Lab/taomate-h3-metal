@@ -431,3 +431,38 @@ This complete regression establishes exact delivered values at 480p. Native
 1088×1920 tests now use packed8, 64 MiB weight tiles and query 512 based on the
 separate controlled measurements; their results must be measured separately.
 See `verification/memory-experiments/int8-packed8-10s/` for complete evidence.
+
+
+### Completed native 1080p-class five-second video
+
+The revised `ffa5c0b` experiment successfully generates and publishes native
+1088×1920 video (aligned 1080p-class portrait), not an upscaled 480p result.
+It uses the original trained LoRA, the matching unchanged Base10 teacher
+prefix, dequantized W8A16/64 MiB weight tiles, INT8 KV/1024-token conversion,
+packed8 ownership, exact activation reuse, query512 full-key attention and
+LOW=0.3. No hard limit is increased.
+
+The complete command takes 1709.416 s (28m29s), excluding reused teacher
+preparation. Stage3 is 1218.775 s and the original FP32 video VAE publication
+429.170 s. Main-worker physical peak is 94.143 GiB; DiT allocator active and
+reserved peaks are 85.005 and 91.703 GiB. No guard triggers, postflight is valid
+and no system swap growth is observed. All four phases finish, including
+the old failing phase2 and its complete immutable clean-cache commit.
+
+The MP4 contains 120 frames at24 fps, five seconds, 1088×1920, stereo32 kHz
+AAC, and fully decodes. Saved video/audio latents are FP32 and every element
+is finite. The MP4 SHA is
+`3fa3dca9cc67a5afef8d69ac6703d78db7139a050a94c5e95cef3fb9ef6553e3`.
+Ten contact samples show the same presenter, backpack and studio with
+plausible speech/hand poses, without an obvious sampled identity or scene
+break. A small grey backpack label remains despite the no-label prompt;
+this observation does not establish a quantization cause. No matching native
+BF16/CUDA reference exists, so quality equivalence and lip-sync accuracy are
+not claimed. The self-comparison JSON establishes complete media decoding
+and hashes only, not an A/B comparison.
+
+The five-second success does not cover the largest continuation cache or
+the request13 audio reset. Ten-second and 65-second outcomes will be recorded
+only after their own guarded execution and validation. Full receipts, source
+verification, finite checks and contact sheet are under
+`verification/memory-experiments/native1080-packed8-5s/`.
