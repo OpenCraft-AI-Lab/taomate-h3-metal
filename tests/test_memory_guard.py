@@ -47,6 +47,7 @@ def test_watchdog_stops_bounded_cpu_allocation(tmp_path):
     assert recorded["guard_reason"] == "process footprint exceeded budget"
     assert recorded["wall_seconds"] < 8
     assert recorded["memory_samples"] > 0
+    assert recorded["postflight"]["sample_ok"] is True
     assert 64 * 1024**2 < recorded["kernel_peak_footprint_bytes"] < guard.GIB
 
 
@@ -145,3 +146,78 @@ def test_closed_stdout_after_child_spawn_cleans_up(monkeypatch, tmp_path):
     assert all(child.poll() is not None for child in children)
     recorded = json.loads((tmp_path / "receipt.json").read_text())
     assert recorded["returncode"] < 0
+
+
+def _fake_watcher(tmp_path, body):
+    path = tmp_path / "watcher"
+    path.write_text("#!" + sys.executable + "\n" + body)
+    path.chmod(0o755)
+    return path
+
+
+def test_first_sample_reaps_watcher_inheriting_ignored_sigterm(tmp_path):
+    import os
+    import signal
+    import time
+
+    pid_path = tmp_path / "pid"
+    watcher = _fake_watcher(
+        tmp_path,
+        "import os,signal,time,json\n"
+        f'open({str(pid_path)!r},"w").write(str(os.getpid()))\n'
+        'print(json.dumps({"sample_ok":True,"term_ignored":signal.getsignal(signal.SIGTERM)==signal.SIG_IGN}),flush=True)\n'
+        "time.sleep(30)\n",
+    )
+    previous = signal.signal(signal.SIGTERM, signal.SIG_IGN)
+    started = time.monotonic()
+    try:
+        sample = guard.first_sample(watcher, timeout=1)
+    finally:
+        signal.signal(signal.SIGTERM, previous)
+    assert sample["term_ignored"] is True
+    assert time.monotonic() - started < 2
+    with pytest.raises(ProcessLookupError):
+        os.kill(int(pid_path.read_text()), 0)
+
+
+@pytest.mark.parametrize("output", ["", '{"sample_ok":true}', "x" * 70000 + "\n"])
+def test_first_sample_bounds_incomplete_or_oversized_output_and_reaps(tmp_path, output):
+    import os
+
+    pid_path = tmp_path / "pid"
+    watcher = _fake_watcher(
+        tmp_path,
+        "import os,time,sys\n"
+        f'open({str(pid_path)!r},"w").write(str(os.getpid()))\n'
+        f"sys.stdout.write({output!r});sys.stdout.flush()\n"
+        "time.sleep(30)\n",
+    )
+    with pytest.raises((TimeoutError, RuntimeError)):
+        guard.first_sample(watcher, timeout=0.5)
+    with pytest.raises(ProcessLookupError):
+        os.kill(int(pid_path.read_text()), 0)
+
+
+def test_successful_run_records_valid_postflight_under_cleanup_signal_mask(tmp_path):
+    watcher = _fake_watcher(
+        tmp_path,
+        "import json,time\n"
+        'sample={"sample_ok":True,"kernel_peak_footprint_bytes":1,"available_estimate_bytes":100000000000,"system_swap_bytes":0}\n'
+        "while True:\n print(json.dumps(sample),flush=True);time.sleep(.05)\n",
+    )
+    receipt = tmp_path / "receipt.json"
+    assert (
+        guard.run(
+            [sys.executable, "-c", 'print("done")'],
+            repository=tmp_path,
+            watcher=watcher,
+            lock_path=tmp_path / "lock",
+            log_path=tmp_path / "log",
+            memory_path=tmp_path / "memory",
+            receipt_path=receipt,
+        )
+        == 0
+    )
+    result = json.loads(receipt.read_text())
+    assert result["preflight"]["sample_ok"] and result["postflight"]["sample_ok"]
+    assert result["postflight"]["system_swap_bytes"] == 0

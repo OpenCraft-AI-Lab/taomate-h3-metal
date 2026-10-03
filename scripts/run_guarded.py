@@ -6,6 +6,7 @@ import fcntl
 import hashlib
 import json
 import os
+import selectors
 import signal
 import subprocess
 import threading
@@ -56,16 +57,41 @@ def stop_group(child: subprocess.Popen) -> None:
         return
 
 
-def first_sample(watcher: Path) -> dict:
-    with subprocess.Popen(
-        [str(watcher), str(os.getpid())], stdout=subprocess.PIPE, text=True
-    ) as process:
+def first_sample(watcher: Path, *, timeout: float = 3.0) -> dict:
+    """Read one bounded JSON line and unconditionally reap this auxiliary process.
+
+    Cleanup may deliberately ignore SIGTERM in the launcher. That disposition is
+    inherited across exec, so terminate() cannot be relied on for a new watcher.
+    SIGKILL is appropriate after its one required sample and cannot be ignored.
+    Nonblocking reads also bound missing-newline and silent-watcher failures.
+    """
+    if timeout <= 0:
+        raise ValueError("sampling timeout must be positive")
+    with subprocess.Popen([str(watcher), str(os.getpid())], stdout=subprocess.PIPE) as process:
         try:
-            sample = json.loads(process.stdout.readline())
+            assert process.stdout is not None
+            descriptor = process.stdout.fileno()
+            os.set_blocking(descriptor, False)
+            deadline = time.monotonic() + timeout
+            data = bytearray()
+            with selectors.DefaultSelector() as selector:
+                selector.register(descriptor, selectors.EVENT_READ)
+                while b"\n" not in data:
+                    remaining = deadline - time.monotonic()
+                    if remaining <= 0 or not selector.select(remaining):
+                        raise TimeoutError("memory telemetry sample timed out")
+                    chunk = os.read(descriptor, 4096)
+                    if not chunk:
+                        raise RuntimeError("memory telemetry ended before a complete sample")
+                    data.extend(chunk)
+                    if len(data) > 64 * 1024:
+                        raise RuntimeError("memory telemetry sample exceeds 64 KiB")
+            sample = json.loads(data.split(b"\n", 1)[0])
         finally:
-            process.terminate()
+            if process.poll() is None:
+                process.kill()
             process.wait(timeout=3)
-    if not sample.get("sample_ok"):
+    if not isinstance(sample, dict) or not sample.get("sample_ok"):
         raise RuntimeError("cannot start without working memory telemetry")
     return sample
 
