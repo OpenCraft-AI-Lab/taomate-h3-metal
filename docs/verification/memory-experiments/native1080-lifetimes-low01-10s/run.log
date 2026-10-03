@@ -1,0 +1,78 @@
+{"event": "text_load_start", "device": "mps"}
+{"event": "text_load_complete", "seconds": 13.567867875099182}
+{"event": "text_encode_start", "device": "mps"}
+{"event": "text_encode_start", "device": "mps"}
+{"event": "text_released", "device": "mps"}
+{"event": "dit_load_start", "device": "mps", "w8a8": null}
+{"event": "dit_load_complete", "seconds": 39.626380999572575}
+[adapter-load] H3 LoRA tensors loaded=416
+{"event": "stage3_phase_start", "request": 0, "phase": 0, "device": "mps:0"}
+{"event": "adaln_precomputed_and_released", "mode": "exact_original_bf16_projection_cache_then_release", "projection_count": 51, "timestep_rows": [[0.0], [0.03883492946624756, 0.13913047313690186], [0.14666670560836792, 0.40740740299224854], [1.0]], "released_parameter_bytes": 26078739456, "cached_output_bytes": 58189824, "precompute_seconds": 2.050165167078376, "unknown_timestep": "fail_closed", "mps_allocated_before": 29725560576, "mps_allocated_after": 29784649472, "mps_driver_after": 30998724608}
+{"event": "stage3_phase_memory", "request": 0, "phase": 0, "history_tokens": 24610, "allocated_bytes": 48383120640, "driver_bytes": 51197444096, "current_allocated_bytes": 48383120640, "current_reserved_bytes": 51195674624, "driver_allocated_bytes": 51197444096, "peak_allocated_bytes": 52232013056, "peak_reserved_bytes": 60725133312, "note": "Allocator peaks since last successful reset; not process physical footprint. Unavailable counters are null. Driver memory is a current sample, not a peak."}
+{"event": "stage3_phase_start", "request": 0, "phase": 1, "device": "mps:0"}
+{"event": "stage3_phase_memory", "request": 0, "phase": 1, "history_tokens": 45124, "allocated_bytes": 63956569344, "driver_bytes": 68712857600, "current_allocated_bytes": 63956569344, "current_reserved_bytes": 68711088128, "driver_allocated_bytes": 68712857600, "peak_allocated_bytes": 67855756544, "peak_reserved_bytes": 75656855552, "note": "Allocator peaks since last successful reset; not process physical footprint. Unavailable counters are null. Driver memory is a current sample, not a peak."}
+{"event": "stage3_phase_start", "request": 0, "phase": 2, "device": "mps:0"}
+{"event": "stage3_phase_memory", "request": 0, "phase": 2, "history_tokens": 65506, "allocated_bytes": 79525315840, "driver_bytes": 85624291328, "current_allocated_bytes": 79525315840, "current_reserved_bytes": 85622521856, "driver_allocated_bytes": 85624291328, "peak_allocated_bytes": 84028482560, "peak_reserved_bytes": 91058339840, "note": "Allocator peaks since last successful reset; not process physical footprint. Unavailable counters are null. Driver memory is a current sample, not a peak."}
+{"event": "stage3_phase_start", "request": 0, "phase": 3, "device": "mps:0"}
+{"event": "stage3_phase_memory", "request": 0, "phase": 3, "history_tokens": 55250, "allocated_bytes": 71737965824, "driver_bytes": 80389799936, "current_allocated_bytes": 71737965824, "current_reserved_bytes": 80388030464, "driver_allocated_bytes": 80389799936, "peak_allocated_bytes": 90833024000, "peak_reserved_bytes": 98910076928, "note": "Allocator peaks since last successful reset; not process physical footprint. Unavailable counters are null. Driver memory is a current sample, not a peak."}
+{"event": "stage3_phase_start", "request": 1, "phase": 0, "device": "mps:0"}
+{"event": "stage3_phase_memory", "request": 1, "phase": 0, "history_tokens": 55250, "allocated_bytes": 71727015168, "driver_bytes": 82373705728, "current_allocated_bytes": 71727015168, "current_reserved_bytes": 82371936256, "driver_allocated_bytes": 82373705728, "peak_allocated_bytes": 92093039360, "peak_reserved_bytes": 102210994176, "note": "Allocator peaks since last successful reset; not process physical footprint. Unavailable counters are null. Driver memory is a current sample, not a peak."}
+{"event": "stage3_phase_start", "request": 1, "phase": 1, "device": "mps:0"}
+{"event": "stage3_phase_memory", "request": 1, "phase": 1, "history_tokens": 65506, "allocated_bytes": 79515590144, "driver_bytes": 84487634944, "current_allocated_bytes": 79515590144, "current_reserved_bytes": 84485865472, "driver_allocated_bytes": 84487634944, "peak_allocated_bytes": 92101180672, "peak_reserved_bytes": 102210994176, "note": "Allocator peaks since last successful reset; not process physical footprint. Unavailable counters are null. Driver memory is a current sample, not a peak."}
+{"event": "stage3_phase_start", "request": 1, "phase": 2, "device": "mps:0"}
+Traceback (most recent call last):
+  File "/Users/supreme-paca/Projects/taomate-h3-metal/scripts/run_cached_guidance.py", line 35, in <module>
+    main()
+  File "/Users/supreme-paca/Projects/taomate-h3-metal/scripts/run_cached_guidance.py", line 31, in main
+    run_direct(config, audio_guidance_dir=args.guidance)
+  File "/Users/supreme-paca/Projects/taomate-h3-metal/src/taomate_h3/runner.py", line 319, in run_direct
+    video_latents, audio_latents = runtime.generate_latents(
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/supreme-paca/Projects/taomate-h3-metal/src/taomate_h3/runtime/direct.py", line 284, in generate_latents
+    result = self.pipeline.generate(
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/supreme-paca/Projects/taomate-h3-metal/.venv/lib/python3.11/site-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/supreme-paca/Projects/taomate-h3-metal/src/taomate_h3/model/pipeline.py", line 447, in generate
+    video_rows, audio_rows = denoise_loop(
+                             ^^^^^^^^^^^^^
+  File "/Users/supreme-paca/Projects/taomate-h3-metal/src/taomate_h3/streaming/runtime.py", line 741, in run
+    model(**clean_kwargs)
+  File "/Users/supreme-paca/Projects/taomate-h3-metal/.venv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1783, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/supreme-paca/Projects/taomate-h3-metal/.venv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1794, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/supreme-paca/Projects/taomate-h3-metal/src/taomate_h3/model/dit.py", line 428, in forward
+    hidden = block(
+             ^^^^^^
+  File "/Users/supreme-paca/Projects/taomate-h3-metal/.venv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1783, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/supreme-paca/Projects/taomate-h3-metal/.venv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1794, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/supreme-paca/Projects/taomate-h3-metal/src/taomate_h3/model/layers.py", line 661, in forward
+    hidden = self.attn(
+             ^^^^^^^^^^
+  File "/Users/supreme-paca/Projects/taomate-h3-metal/.venv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1783, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/supreme-paca/Projects/taomate-h3-metal/.venv/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1794, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/supreme-paca/Projects/taomate-h3-metal/src/taomate_h3/model/layers.py", line 428, in forward
+    output = _NATIVE_STREAM_HOOK(
+             ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/supreme-paca/Projects/taomate-h3-metal/src/taomate_h3/streaming/attention_hook.py", line 262, in __call__
+    media_output = quantized_attention(
+                   ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/supreme-paca/Projects/taomate-h3-metal/.venv/lib/python3.11/site-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/supreme-paca/Projects/taomate-h3-metal/src/taomate_h3/streaming/metal_kv.py", line 416, in attention_with_history
+    joined_value = torch.empty_like(joined_key)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: MPS backend out of memory (MPS allocated: 95.68 GiB, other allocations: 1.69 MiB, max allowed: 96.77 GiB). Tried to allocate 1.16 GiB on shared pool. Use PYTORCH_MPS_HIGH_WATERMARK_RATIO=0.0 to disable upper limit for memory allocations (may cause system failure).

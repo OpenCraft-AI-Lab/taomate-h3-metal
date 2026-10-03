@@ -1,0 +1,8 @@
+{
+  "returncode": 1,
+  "wall_seconds": 2805.977631624788,
+  "physical_peak_gib": 98.72442919760942,
+  "swap_delta_bytes": -117440512,
+  "failure": "request1 phase2 joined_value allocation: reserved95.68GiB +1.16GiB under cap96.77GiB",
+  "source53_verified": true
+}
