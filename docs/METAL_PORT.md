@@ -247,4 +247,3 @@ blending and publication logic, with one process and no CUDA fusion.
 Remaining validation: fixed-input official CUDA intermediate tensors and
 quality comparisons; higher-resolution memory limits; longer runs beyond the
 validated minute and real model execution across the 13th-request audio reset.
-

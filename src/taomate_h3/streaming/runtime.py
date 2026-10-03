@@ -644,6 +644,12 @@ class H3StreamingRuntime:
                         video_latent_offset=self._video_latent_offset,
                         audio_latent_offset=self._audio_latent_offset,
                     )
+                    if getattr(model, "_metal_release_adaln", False):
+                        from ..inference.metal_memory import precompute_release_adaln_
+
+                        precompute_release_adaln_(
+                            model, branch, sigmas_video=sigmas_video, sigmas_audio=sigmas_audio
+                        )
                     position_capture["phases"].append(
                         {
                             "phase_index": phase.index,

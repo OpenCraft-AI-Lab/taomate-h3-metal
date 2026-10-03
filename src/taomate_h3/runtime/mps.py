@@ -53,6 +53,7 @@ class MPSRuntime(H3Runtime):
         )
         self._text_precompute_receipt = None
         self._static_cache = None
+        self._memory_optimizations = {}
         self.model_resolution = {
             "backend": "pytorch_mps",
             "dependencies": {
@@ -94,6 +95,7 @@ class MPSRuntime(H3Runtime):
         self.model_resolution["adapter"] = apply_h3_lora_checkpoint(model, self.adapter_root)
         self.model_resolution["lora_bf16_buffers"] = materialize_h3_lora_bf16_buffers_(model)
         model.enable_inference_static_timestep_cache()
+        model._metal_release_adaln = os.environ.get("TAOMATE_MPS_RELEASE_ADALN", "0") == "1"
         return encoded
 
     def reset_dit_peak_memory(self) -> None:
@@ -113,6 +115,9 @@ class MPSRuntime(H3Runtime):
     def release_transformer(self) -> None:
         self._synchronize()
         self._static_cache = self.pipeline.transformer.inference_static_timestep_cache_stats()
+        self._memory_optimizations["adaln_release"] = getattr(
+            self.pipeline.transformer, "_metal_adaln_release_receipt", None
+        )
         self.pipeline.transformer = None
         progress("dit_released_before_vae")
         gc.collect()
@@ -177,4 +182,5 @@ class MPSRuntime(H3Runtime):
             "worker_cold_e2e_seconds": time.perf_counter() - self._worker_started_at,
             "static_timestep_adaln_cache": self._static_cache,
             "memory": self.dit_peak_memory_receipt(),
+            "memory_optimizations": dict(self._memory_optimizations),
         }
