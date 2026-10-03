@@ -19,6 +19,19 @@ from taomate_h3.distributed.linear import MergedColumnParallelLinear
 from .w8a8 import INTERIOR_FC1_QKV_POLICY, resolve_h3_cutlass_w8a8_policy
 
 
+def parse_weight_tile_mib(value: str) -> int:
+    """Parse the opt-in BF16 dequantized weight budget, returning bytes."""
+    if (
+        not value
+        or not value.isascii()
+        or not value.isdecimal()
+        or len(value) > 3
+        or not 1 <= int(value) <= 256
+    ):
+        raise ValueError("TAOMATE_MPS_WEIGHT_TILE_MIB must be an integer in 1..256")
+    return int(value) * 1024**2
+
+
 def allocate_metal_storage_(
     model_meta: nn.Module,
     device: str | torch.device = "mps",
@@ -41,9 +54,9 @@ def allocate_metal_storage_(
     if (
         isinstance(temporary_bytes, bool)
         or not isinstance(temporary_bytes, int)
-        or temporary_bytes <= 0
+        or not 0 < temporary_bytes <= 256 * 1024**2
     ):
-        raise ValueError("temporary_bytes must be positive integer")
+        raise ValueError("temporary_bytes must be a positive integer at most 256 MiB")
     modules = dict(model_meta.named_modules())
     original_keys = tuple(model_meta.state_dict())
     selection = (
@@ -62,7 +75,10 @@ def allocate_metal_storage_(
                 )
             if module.bias is not None or module.weight.dtype != torch.bfloat16:
                 raise ValueError(f"{name}: quantization requires bias-free BF16 weight")
-            if temporary_bytes < module.weight.shape[1] * 2:
+            if (
+                quantization_backend == "dequantize"
+                and temporary_bytes < module.weight.shape[1] * 2
+            ):
                 raise ValueError(f"{name}: budget cannot fit one BF16 row")
             if quantization_backend == "native_int8pack" and any(
                 n % 32 for n in module.weight.shape
@@ -129,6 +145,12 @@ def allocate_metal_storage_(
         "quantized_linear_names": sorted(selected),
         "cpu_adaln": cpu_adaln,
         "checkpoint_key_count": len(original_keys),
+        "weight_tile_budget_scope": (
+            "BF16 weights only; excludes FP32 scratch, outputs and matmul workspace"
+        ),
+        "bf16_weight_tile_budget_bytes": (
+            temporary_bytes if quantization_backend == "dequantize" else None
+        ),
     }
 
 

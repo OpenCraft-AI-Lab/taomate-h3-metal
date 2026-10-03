@@ -35,6 +35,11 @@ class MPSRuntime(H3Runtime):
         self._kv_tile_tokens = parse_kv_tile_tokens(
             os.environ.get("TAOMATE_MPS_KV_TILE_TOKENS", "128")
         )
+        from ..inference.metal_loader import parse_weight_tile_mib
+
+        self._weight_tile_bytes = parse_weight_tile_mib(
+            os.environ.get("TAOMATE_MPS_WEIGHT_TILE_MIB", "256")
+        )
         require_mps()
         query_chunk = int(os.environ.get("TAOMATE_MPS_ATTENTION_QUERY_CHUNK", "0"))
         if query_chunk < 0:
@@ -84,6 +89,7 @@ class MPSRuntime(H3Runtime):
             transformer_load_w8a8_policy=None,
             transformer_metal_cpu_adaln=self._cpu_adaln,
             transformer_metal_quantization_backend=self._quantization_backend,
+            transformer_metal_weight_tile_bytes=self._weight_tile_bytes,
         )
         self._text_precompute_receipt = None
         self._static_cache = None
@@ -94,6 +100,12 @@ class MPSRuntime(H3Runtime):
                 "empty_cache_between_phases": self._empty_cache_phase,
                 "cpu_adaln_staging": self._cpu_adaln,
                 "weight_quantization_backend": self._quantization_backend,
+                "bf16_weight_tile_budget_bytes": (
+                    self._weight_tile_bytes if self._quantization_backend == "dequantize" else None
+                ),
+                "weight_tile_budget_scope": (
+                    "BF16 weights only; excludes FP32 scratch, outputs and matmul workspace"
+                ),
                 "kv_storage": self._kv_storage,
                 "kv_tile_tokens": self._kv_tile_tokens if self._kv_storage == "int8" else None,
                 "kv_tile_scratch_estimated_bytes": self._kv_tile_scratch_estimated_bytes,

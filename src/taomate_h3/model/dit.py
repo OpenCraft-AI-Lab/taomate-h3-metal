@@ -211,6 +211,7 @@ class MiniMaxH3DiT(nn.Module):
         load_time_w8a8_policy: str | None = None,
         metal_cpu_adaln: bool = False,
         metal_quantization_backend: str = "none",
+        metal_weight_tile_bytes: int = 256 * 1024**2,
     ) -> "MiniMaxH3DiT":
         """Allocate TP-local parameter storage directly on the target device."""
 
@@ -224,6 +225,7 @@ class MiniMaxH3DiT(nn.Module):
             model._metal_allocation_receipt = allocate_metal_storage_(
                 model, device=device, cpu_adaln=metal_cpu_adaln,
                 quantization_backend=metal_quantization_backend,
+                temporary_bytes=metal_weight_tile_bytes,
             )
             return model
         with torch.device(device):
