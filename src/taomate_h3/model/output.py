@@ -723,7 +723,10 @@ class H3LatentDecoder:
         video_latents: torch.Tensor,
         device: torch.device,
         offload_after_decode: bool | None = None,
+        stream_publication_frame_chunk_size: int | None = None,
     ) -> torch.Tensor:
+        if stream_publication_frame_chunk_size is not None and device.type != "mps":
+            raise ValueError("stream publication postprocessing is MPS-only")
         if offload_after_decode is None:
             offload_after_decode = not self._keep_video_vae_on_device_after_decode
         self.last_video_decode_receipt = None
@@ -899,7 +902,18 @@ class H3LatentDecoder:
                         "video_parallel_world_size": self.video_parallel_world_size,
                     }
                 if not (temporal_dp_active and self._video_vae_gpu_rgb24_output_enabled):
-                    frames = video_vae.processor.revert_tensor(frames)
+                    if stream_publication_frame_chunk_size is not None:
+                        from ..inference.metal_publication import revert_cpu_frames_inplace_
+
+                        frames = revert_cpu_frames_inplace_(
+                            frames,
+                            video_vae.processor.revert_tensor,
+                            frame_chunk_size=stream_publication_frame_chunk_size,
+                        )
+                    else:
+                        frames = video_vae.processor.revert_tensor(frames)
+            if stream_publication_frame_chunk_size is not None:
+                return frames  # already CPU FP32 BCTHW; no full contiguous copy
             frames = _canonical_video(
                 frames,
                 batch_size=int(video_latents.shape[0]),
@@ -957,6 +971,7 @@ def save_h3_video_mp4(
     published_frames: int | None = None,
     crf: int = 12,
     verify_decode: bool = True,
+    frame_chunk_size: int | None = None,
 ) -> Path:
     """Atomically publish a decodable video-only H3 segment."""
 
@@ -972,15 +987,22 @@ def save_h3_video_mp4(
         raise ValueError("filtered H3 video output requires published_frames")
     if published_frames is not None and published_frames < 1:
         raise ValueError("published H3 video frame count must be positive")
-    video = frames[0].permute(1, 2, 3, 0).detach().cpu().numpy()
-    if frames.dtype != torch.uint8:
-        video = (video.clip(0, 1) * 255.0).round().astype("uint8")
+    if frame_chunk_size is None:
+        video = frames[0].permute(1, 2, 3, 0).detach().cpu().numpy()
+        if frames.dtype != torch.uint8:
+            video = (video.clip(0, 1) * 255.0).round().astype("uint8")
+    else:
+        from ..inference.metal_publication import _check_chunk_size
+
+        _check_chunk_size(frame_chunk_size)
+        if frames.device.type != "cpu":
+            raise ValueError("bounded video publication requires CPU frames")
     ffmpeg = shutil.which("ffmpeg")
     if ffmpeg is None:
         raise RuntimeError("ffmpeg is required to save H3 decoded video")
     with tempfile.TemporaryDirectory(prefix="taomate-h3-video-") as temporary:
         encoded = Path(temporary) / "video.mp4"
-        frame_height, frame_width = video.shape[1:3]
+        frame_height, frame_width = frames.shape[-2:]
         command = [
             ffmpeg,
             "-y",
@@ -1013,13 +1035,18 @@ def save_h3_video_mp4(
                 str(encoded),
             )
         )
-        process = subprocess.run(
-            command,
-            input=video.tobytes(),
-            check=False,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.PIPE,
-        )
+        if frame_chunk_size is None:
+            process = subprocess.run(
+                command,
+                input=video.tobytes(),
+                check=False,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.PIPE,
+            )
+        else:
+            from ..inference.metal_publication import encode_frame_chunks
+
+            process = encode_frame_chunks(command, frames, frame_chunk_size=frame_chunk_size)
         if process.returncode != 0:
             detail = process.stderr.decode("utf-8", errors="replace").strip()
             raise RuntimeError(f"ffmpeg failed to encode H3 video: {detail}")

@@ -170,7 +170,12 @@ class MPSRuntime(H3Runtime):
         start = time.perf_counter()
         progress("video_vae_start", precision="float32_reference_no_autocast")
         decoder = self.pipeline._load_output_decoder()
-        frames = decoder.decode_video(video_latents=video_latents, device=self.device)
+        publication_chunk = 4 if os.environ.get("TAOMATE_MPS_STREAM_PUBLICATION") == "1" else None
+        frames = decoder.decode_video(
+            video_latents=video_latents,
+            device=self.device,
+            stream_publication_frame_chunk_size=publication_chunk,
+        )
         result = save_h3_video_mp4(
             output_path,
             frames=frames,
@@ -178,6 +183,7 @@ class MPSRuntime(H3Runtime):
             published_frames=published_frames,
             crf=video_crf,
             verify_decode=verify_video_decode,
+            frame_chunk_size=publication_chunk,
         )
         self._video_vae_receipt = dict(decoder.last_video_decode_receipt or {})
         self._video_vae_receipt.update(
@@ -185,6 +191,8 @@ class MPSRuntime(H3Runtime):
             precision="float32_reference_no_autocast",
             mode="single_device_spatial_tiling",
             reason="temporal_window_parallelism_disabled_for_mps",
+            stream_publication=publication_chunk is not None,
+            publication_frame_chunk_size=publication_chunk,
         )
         self._timings["video_decode_seconds"] = time.perf_counter() - start
         # Release video weights before audio is moved to MPS.
