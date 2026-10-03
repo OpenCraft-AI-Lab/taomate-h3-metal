@@ -23,3 +23,7 @@ A separate opt-in replaces gathers with verified contiguous slices only for MPS/
 ## Native 10 seconds with contiguous-row views
 
 The run failed in request 1 phase 2 at the FC1 LoRA second linear projection, after progressing beyond the prior joined-V failure site. MPS reserved 95.80 GiB and requested another 1.12 GiB under the unchanged 96.77 GiB cap. Wall 2881.994 seconds, physical peak 98.5405 GiB, swap delta -83886080 bytes. No video was delivered; 65 seconds has not started. All 53 source hashes match preflight and process receipt. Reserved bytes at failure do not establish active-tensor bytes; the next controlled diagnostic adds optional synchronized A/R/D and cache-backing samples at joined-KV, clean-stage, and LoRA boundaries before deciding on further allocation or quantization changes.
+
+## Allocation-boundary diagnostic
+
+Optional scalar-only telemetry now records synchronized A/R/D, history/staged physical backing and requested buffer bytes before/after joined K/V, clean stage, and LoRA updates. It neither collects frames nor retains tensors, invokes GC, or empties the cache. All 237 CPU/real-MPS tests pass (29.59s) under a 10 GiB guard, including exact traced/untraced outputs and cache ownership. Diagnostic synchronization is explicitly disclosed and timing must not be treated as the unchanged uninstrumented workload.
