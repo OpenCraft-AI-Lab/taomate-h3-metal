@@ -1,0 +1,7 @@
+{
+  "reason": "Explicit user instruction: stop current experiment and switch to expanded selective weight quantization",
+  "signal": "SIGTERM sent to guarded launcher43019; cleanup terminated child43036",
+  "source53_verified": true,
+  "completed_video": false,
+  "result": "Intentionally interrupted; not a success or memory-limit failure"
+}

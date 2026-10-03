@@ -35,3 +35,7 @@ The synchronized diagnostic still failed in request 1 phase 2, layer 40: the FC1
 ## Boundary cache-purge control
 
 TAOMATE_MPS_EMPTY_CACHE_BOUNDARIES=1 requires the diagnostic trace mode and empties allocator caches at before_* boundaries, including the previously failing W8A16 base-output allocation. It records counters before and after empty_cache and leaves all tensor arithmetic, ownership, quantization and hard limits unchanged. All 241 CPU/real-MPS tests pass (30.40s). A native continuation-size single-layer LoRA attention/MLP and complete staged KV/scales comparison is bitwise exact; the 10 GiB guarded diagnostic completed in 8.54s at 8.55 GiB physical peak. In that fixed-order isolated example, before-joined R fell 5.664→2.836 GiB and before-stage 3.836→2.836 GiB without changing A. These are not additive full-model savings. Native10 now tests the same allocator-only control under the unchanged 105/6/2/HIGH.9/LOW.1 limits.
+
+## User-directed stop and strategy change
+
+The boundary-purge native10 control was explicitly stopped by the user after 305.058s. SIGTERM to the guarded launcher completed cleanup, saved a valid postflight, and terminated the GPU child. Physical peak was 61.4722 GiB; all 53 source hashes matched. This intentionally interrupted run is neither a completed generation nor a memory-limit failure. Further purge experiments stop here. Work switches to separately measured additional INT8 base-weight coverage, preserving BF16 trained LoRA, boundary blocks, FP32 heads and the VAE.
