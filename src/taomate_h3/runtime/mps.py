@@ -30,8 +30,8 @@ class MPSRuntime(H3Runtime):
         from ..streaming.metal_kv import (
             MAX_KV_TILE_SCRATCH_BYTES,
             kv_tile_scratch_bound,
-            parse_kv_tile_tokens,
             parse_kv_allocation,
+            parse_kv_tile_tokens,
         )
 
         self._kv_allocation = parse_kv_allocation(
