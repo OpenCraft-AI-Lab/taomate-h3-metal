@@ -127,3 +127,24 @@ def try_inplace_swiglu(
     ):
         return None
     return _swiglu_owned_(projected, inputs)
+
+
+def can_release_projection(
+    projected: torch.Tensor, inputs: torch.Tensor, *consumers: torch.Tensor
+) -> bool:
+    """Release only a no-grad Metal projection whose replacement owns other storage.
+
+    This predicate never mutates tensors or changes their layout. Checking every
+    surviving consumer also handles single-row contiguous() returning an alias.
+    """
+    return (
+        _eligible(projected, inputs)
+        and not _aliases(projected, inputs)
+        and bool(consumers)
+        and all(
+            not consumer.requires_grad
+            and consumer.device == projected.device
+            and not _aliases(projected, consumer)
+            for consumer in consumers
+        )
+    )

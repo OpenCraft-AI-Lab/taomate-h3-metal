@@ -33,3 +33,28 @@ original LoRA wrapper and MLP outputs, input/update immutability, storage reuse,
 nonunit/grad/CPU fallbacks and rejected unsafe aliases. Matching real MPS tests
 are included; the parent runs them only after the active full-size job finishes.
 A successful small test does not establish full-model physical-peak reduction.
+
+## Projection lifetime trimming
+
+The same opt-in also permits dropping two obsolete local references, with no
+operator, stride, rounding or KV-window change:
+
+- In the non-fused, single-Ulysses-rank attention path, the existing Q/K/V stack
+  remains unchanged. Once all three returned tensors own storage distinct from
+  the original projection, its `qkv` local is released before attention.
+- After the existing in-place SwiGLU produces the contiguous FC2 input, the
+  full-width `projected` local is released before FC2 only if the result does not
+  alias its storage. A single-row contiguous view may alias and is retained.
+
+These checks require MPS BF16 no-grad inference and the opt-in flag. Default,
+CUDA and gradient paths retain the prior lifetime. Estimated obsolete buffers
+are about 0.822 GiB QKV and 1.096 GiB FC1 for 20,514 native media rows, excluding
+text/padding. They exist at different points; this is not an additive or measured
+process-peak reduction. FC1's own calculation peak is unaffected.
+
+CPU tests simulate only the device eligibility gate for complete official tiny
+attention/MLP+LoRA calls, compare exact BF16 output bits and staged INT8 K/V/F32
+scales, and inspect weak references at downstream projection entry. They also
+cover real production gating, unchanged noncontiguous inputs, and single-row
+alias fallback. Corresponding small MPS cases are provided for an exclusive GPU
+window; they were not executed during this implementation.

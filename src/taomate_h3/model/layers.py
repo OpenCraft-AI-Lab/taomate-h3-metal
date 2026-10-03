@@ -412,6 +412,12 @@ class MiniMaxH3Attention(nn.Module):
                 )
             else:
                 q, k, v = packed_qkv_sequence_to_heads(q, k, v, context=self.parallel_context)
+                from ..inference.metal_activations import can_release_projection
+
+                if self.parallel_context.ulysses_world_size == 1 and can_release_projection(
+                    qkv, value, q, k, v
+                ):
+                    del qkv
         stream_metadata = _NATIVE_STREAM_METADATA.get()
         if (
             self.layer_name is not None
@@ -476,10 +482,12 @@ class MiniMaxH3MLP(nn.Module):
 
         if h3_inference_fused_kernels_enabled():
             return self.fc2(fused_swiglu(projected))
-        from ..inference.metal_activations import try_inplace_swiglu
+        from ..inference.metal_activations import can_release_projection, try_inplace_swiglu
 
         reused = try_inplace_swiglu(self.fc1, projected, value)
         if reused is not None:
+            if can_release_projection(projected, value, reused):
+                del projected
             return self.fc2(reused)
         gate, up = projected.chunk(2, dim=-1)
         return self.fc2(F.silu(gate) * up)
