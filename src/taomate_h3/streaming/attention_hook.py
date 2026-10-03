@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass
 from enum import Enum
 from typing import Sequence
@@ -11,6 +12,15 @@ from typing import Sequence
 import torch
 
 from .cache import AVKV, CleanAVKVCache
+
+
+def _release_clean_temporaries_enabled(query, key, value) -> bool:
+    return (
+        os.environ.get("TAOMATE_MPS_INPLACE_ACTIVATIONS") == "1"
+        and query.device.type == "mps"
+        and not torch.is_grad_enabled()
+        and not any(t.requires_grad for t in (query, key, value))
+    )
 
 
 class HookMode(str, Enum):
@@ -199,6 +209,8 @@ class H3StreamingAttentionHook:
             None if callable(quantized_attention) else self.cache.history(layer_name)
         )
         outputs: list[torch.Tensor] = []
+        condition_key = condition_value = condition_output = None
+        media_parts = media_query = media_output = document_output = None
 
         for document_index, (start, stop) in enumerate(boundaries):
             if start == stop:
@@ -266,6 +278,13 @@ class H3StreamingAttentionHook:
 
         output = torch.cat(outputs, dim=0)
         if self.mode is HookMode.CLEAN_COMMIT:
+            if _release_clean_temporaries_enabled(query, key, value):
+                # Initialize all live-document locals above: padding or unusual
+                # document ordering must never make cleanup depend on definition.
+                # cat owns the final output; retain original Q/K/V for staging.
+                outputs.clear()
+                del condition_key, condition_value, condition_output
+                del media_parts, media_query, media_output, document_output
             self.cache.stage(layer_name, key, value, token_tags, commit_mask)
         return output
 

@@ -104,8 +104,10 @@ def test_full_lora_mlp_owner_and_bitwise(monkeypatch, device, rows):
 
 
 @pytest.mark.parametrize("device", ["cpu", "mps"])
+@pytest.mark.parametrize("trim_clean", [False, True])
 @torch.no_grad()
-def test_full_lora_attention_owner_output_and_clean_quantized_kv(monkeypatch, device):
+def test_full_lora_attention_owner_output_and_clean_quantized_kv(monkeypatch, device, trim_clean):
+    from taomate_h3.streaming import attention_hook as hooks
     from taomate_h3.streaming.attention_hook import H3StreamingAttentionHook, HookMode
     from taomate_h3.streaming.cache import KVContract
     from taomate_h3.streaming.metal_kv import QuantizedCleanAVKVCache
@@ -125,6 +127,7 @@ def test_full_lora_attention_owner_output_and_clean_quantized_kv(monkeypatch, de
     positions = torch.arange(14, device=device)
     rope = (torch.linspace(-0.7, 0.9, 14 * 128).reshape(14, 128).bfloat16().to(device), positions)
     original = activation.can_release_projection
+    clean_gate = hooks._release_clean_temporaries_enabled
     refs = []
 
     def predicate(projected, inputs, *consumers):
@@ -134,6 +137,13 @@ def test_full_lora_attention_owner_output_and_clean_quantized_kv(monkeypatch, de
 
     outputs, pairs = [], []
     for release in (False, True):
+        monkeypatch.setattr(
+            hooks,
+            "_release_clean_temporaries_enabled",
+            clean_gate
+            if device == "mps" and trim_clean and release
+            else lambda *args: bool(device == "cpu" and trim_clean and release),
+        )
         cache = QuantizedCleanAVKVCache(
             KVContract(local_heads=1, device_type=device), allocation="packed8", tile_tokens=4
         )

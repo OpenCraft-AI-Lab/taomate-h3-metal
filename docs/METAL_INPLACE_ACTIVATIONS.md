@@ -58,3 +58,15 @@ scales, and inspect weak references at downstream projection entry. They also
 cover real production gating, unchanged noncontiguous inputs, and single-row
 alias fallback. Corresponding small MPS cases are provided for an exclusive GPU
 window; they were not executed during this implementation.
+
+The same gate now trims clean-commit hook temporaries after the final document
+`torch.cat` and before `cache.stage`: document output lists, condition/media
+selection copies, and their attention outputs. Original Q/K/V remain live and
+are passed unchanged to staging. Every temporary local is initialized before
+the document loop, so cleanup is valid for arbitrary live-document position,
+padding documents and noncontiguous masks. No gather becomes a view and noisy
+forward lifetime is unchanged. CPU tests inspect weak references at stage entry
+and compare final attention output plus INT8 K/V and F32 scales, including full
+tiny official LoRA attention. MPS variants await an exclusive test window.
+These released buffers overlap other lifetime optimizations; theoretical byte
+counts must not be added together as a measured peak saving.
