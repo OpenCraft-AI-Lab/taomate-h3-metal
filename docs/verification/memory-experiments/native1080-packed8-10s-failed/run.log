@@ -1,0 +1,18 @@
+{"event": "text_load_start", "device": "mps"}
+{"event": "text_load_complete", "seconds": 13.805676166899502}
+{"event": "text_encode_start", "device": "mps"}
+{"event": "text_encode_start", "device": "mps"}
+{"event": "text_released", "device": "mps"}
+{"event": "dit_load_start", "device": "mps", "w8a8": null}
+{"event": "dit_load_complete", "seconds": 39.585693624801934}
+[adapter-load] H3 LoRA tensors loaded=416
+{"event": "stage3_phase_start", "request": 0, "phase": 0, "device": "mps:0"}
+{"event": "adaln_precomputed_and_released", "mode": "exact_original_bf16_projection_cache_then_release", "projection_count": 51, "timestep_rows": [[0.0], [0.03883492946624756, 0.13913047313690186], [0.14666670560836792, 0.40740740299224854], [1.0]], "released_parameter_bytes": 26078739456, "cached_output_bytes": 58189824, "precompute_seconds": 2.9391952082514763, "unknown_timestep": "fail_closed", "mps_allocated_before": 29704785664, "mps_allocated_after": 29763874560, "mps_driver_after": 31493652480}
+{"event": "stage3_phase_memory", "request": 0, "phase": 0, "history_tokens": 24610, "allocated_bytes": 48362345728, "driver_bytes": 51356827648, "current_allocated_bytes": 48362345728, "current_reserved_bytes": 51355058176, "driver_allocated_bytes": 51356827648, "peak_allocated_bytes": 53400594176, "peak_reserved_bytes": 60037267456, "note": "Allocator peaks since last successful reset; not process physical footprint. Unavailable counters are null. Driver memory is a current sample, not a peak."}
+{"event": "stage3_phase_start", "request": 0, "phase": 1, "device": "mps:0"}
+{"event": "stage3_phase_memory", "request": 0, "phase": 1, "history_tokens": 45124, "allocated_bytes": 63934680320, "driver_bytes": 68268261376, "current_allocated_bytes": 63934680320, "current_reserved_bytes": 68266491904, "driver_allocated_bytes": 68268261376, "peak_allocated_bytes": 68739837184, "peak_reserved_bytes": 75514249216, "note": "Allocator peaks since last successful reset; not process physical footprint. Unavailable counters are null. Driver memory is a current sample, not a peak."}
+{"event": "stage3_phase_start", "request": 0, "phase": 2, "device": "mps:0"}
+{"event": "stage3_phase_memory", "request": 0, "phase": 2, "history_tokens": 65506, "allocated_bytes": 79503426816, "driver_bytes": 85179695104, "current_allocated_bytes": 79503426816, "current_reserved_bytes": 85177925632, "driver_allocated_bytes": 85179695104, "peak_allocated_bytes": 84912563200, "peak_reserved_bytes": 91217723392, "note": "Allocator peaks since last successful reset; not process physical footprint. Unavailable counters are null. Driver memory is a current sample, not a peak."}
+{"event": "stage3_phase_start", "request": 0, "phase": 3, "device": "mps:0"}
+{"event": "stage3_phase_memory", "request": 0, "phase": 3, "history_tokens": 55250, "allocated_bytes": 71716076800, "driver_bytes": 79341223936, "current_allocated_bytes": 71716076800, "current_reserved_bytes": 79339454464, "driver_allocated_bytes": 79341223936, "peak_allocated_bytes": 91272508416, "peak_reserved_bytes": 98465480704, "note": "Allocator peaks since last successful reset; not process physical footprint. Unavailable counters are null. Driver memory is a current sample, not a peak."}
+{"event": "stage3_phase_start", "request": 1, "phase": 0, "device": "mps:0"}

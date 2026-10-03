@@ -505,3 +505,29 @@ allocated before reaching the low threshold, and `empty_cache` can release
 whole empty heaps but cannot compact active weights. R−A alone cannot locate
 the pinned owner, and non-simultaneous A/R peaks must not be subtracted as a
 measured instantaneous fragmentation peak. Production source remains unchanged.
+
+
+### Native ten-second continuation: guarded swap stop
+
+The native `ffa5c0b` packed8 ten-second run keeps all successful five-second
+options, including LOW0.3/query512. All four phases of request0 finish;
+request1/phase0 starts true KV continuation. The guard stops the worker after
+1732.872 s (28m53s, reused teacher excluded) when system-wide swap growth
+exceeds the unchanged 2 GiB budget. Lifetime process physical peak is
+100.797 GiB and postflight swap growth 2.434 GiB. No complete video or
+publication latents exist. Termination is by the guard, not an MPS allocator
+OOM; valid postflight and unchanged hashes of all 53 source files are verified.
+
+Request0's last reserved allocator peak is 91.707 GiB. Its counters do not
+measure the request1 failure point, and system swap is an aggregate signal
+that cannot identify which process's pages were swapped. The first request
+showed more CPU RSS than the five-second run; this observation alone does
+not identify a live CPU owner. Failed evidence is preserved under
+`verification/memory-experiments/native1080-packed8-10s-failed/`.
+
+The next control changes only the adaptive LOW threshold from 0.3 to 0.1
+in a fresh process. Model math, trained adapter, teacher artifacts, cache
+retention and HIGH0.9/105 GiB physical/6 GiB reserve/2 GiB swap budgets stay
+identical. The intended hypothesis is reduced early heap reservation; this
+is not yet a measured improvement. A 65-second run remains gated on a
+complete safe continuation result.
