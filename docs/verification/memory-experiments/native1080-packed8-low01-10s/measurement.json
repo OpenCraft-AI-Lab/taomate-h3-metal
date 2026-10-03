@@ -1,0 +1,10 @@
+{
+  "source_files_verified": 53,
+  "returncode": 1,
+  "guard_reason": null,
+  "wall_seconds": 2750.901540041901,
+  "kernel_peak_physical_gib": 98.58331587165594,
+  "swap_delta_bytes": -25165824,
+  "failure": "MPS allocator HIGH0.9 at request1 phase2 joined_value: reserved95.64GiB, request1.16GiB, cap96.77GiB",
+  "delivered_video": false
+}
