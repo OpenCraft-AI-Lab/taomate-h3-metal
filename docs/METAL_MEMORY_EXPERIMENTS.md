@@ -286,3 +286,47 @@ retain their original behavior; grad-enabled, aliased, hooked/custom and
 default CUDA paths do not use this optimization. Six new real-MPS cases
 exercise bitwise outputs and storage safety; the full CPU/MPS suite passes
 161 tests. Whole-model memory savings remain to be measured.
+
+
+### Allocator diagnostics
+
+Eight independent guarded synthetic diagnostics ran on byte-matched source
+`3b7fc88`, Torch 2.14.1 (`5c488690`), with HIGH=0.9 and a separate 75 GiB
+process cap. All recorded system swap deltas were zero. These are allocation
+and arithmetic controls, not generated videos or whole-model measurements.
+
+Three real FC1 layout variants (28,672×5,376 weight, 20,928 activation rows,
+64 MiB weight tiles) match the production path across all 600,047,616 BF16
+output elements. Original strided column writes have allocator-reserved peak
+3.13 GiB; concatenate and transposed alternatives have 4.26 and 3.26 GiB.
+There is no measured memory reason to change this layout.
+
+A control using production INT8 cache, all 50 layers, native geometry, 28 GiB
+of uniform touched resident tensors and interleaved real FC1 shows a growing
+reserved-minus-active gap. One phase completes at 58.69 GiB process peak
+with LOW=0.8 and 57.60 GiB with LOW=0.3. Two phases stop safely at the
+fixed 75 GiB cap, after different amounts of completed work. At the matched
+second-phase layer-38 FC1 point, both have active 58.677 GiB, while reserved
+memory is 73.477 versus 71.012 GiB. LOW=0.3 improves this point by 2.465 GiB;
+it is insufficient to complete the controlled interleaving within the cap.
+
+Removing the FC1 workload and its roughly 0.4 GiB of associated weight/input
+storage lets the same two-phase cache control finish at 62.63 GiB process
+peak, allocator active peak 60.47 GiB and reserved peak 61.01 GiB. In these
+controls driver-minus-reserved stays below 0.704 MiB. This supports further
+investigation of persistent KV and transient linear allocations sharing heap
+space. It does not prove the entire full-model 31 GiB gap has this sole cause.
+The native MPS OOM text's “MPS allocated” value is allocator-reserved heaps,
+not the active tensor counter.
+
+`scripts/run_guarded.py --mps-low-watermark 0.3` can lower the adaptive
+allocation threshold. Accepted finite values are strictly `(0, 0.8]`, default
+0.8; the HIGH=0.9 hard cap and the existing process/reserve/swap limits remain.
+`dbb6992` records active/reserved current and allocator peak counters through
+Torch's generic MPS API, with explicit nulls on older/unsupported APIs.
+Allocator peaks remain distinct from the independently sampled physical peak.
+The full CPU/real-MPS suite passes 185 tests.
+
+See `verification/memory-experiments/allocator-diagnostics/` for all commands,
+source/script hashes, complete and stopped receipts, numerical checks and
+per-step active/reserved/driver measurements.

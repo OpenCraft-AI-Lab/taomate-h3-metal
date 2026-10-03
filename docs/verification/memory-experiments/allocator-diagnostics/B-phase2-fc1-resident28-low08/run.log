@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/private/tmp/taomate-metal-memory-diagnostics/diagnose_quantized_cache.py", line 234, in <module>
+    main()
+  File "/private/tmp/taomate-metal-memory-diagnostics/diagnose_quantized_cache.py", line 195, in main
+    rec.memory(torch,'interleaved_linear_output_live',phase=phase,layer=layer)
+  File "/private/tmp/taomate-metal-memory-diagnostics/diag_common.py", line 139, in memory
+    raise RuntimeError('Diagnostic driver allocation exceeded 73 GiB; outer guard is 75 GiB whole-PID.')
+RuntimeError: Diagnostic driver allocation exceeded 73 GiB; outer guard is 75 GiB whole-PID.

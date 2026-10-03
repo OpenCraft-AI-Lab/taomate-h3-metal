@@ -1,0 +1,101 @@
+TaoMate MPS allocation diagnostics — 2026-10-03
+
+Source: src byte-matched 3b7fc88b58761860ba5c00c877b9e2b55e9d1c9a
+Repository/guard HEAD: 2862f725a3d09938dc80c87dcc4e0856cfff21e0
+Torch: 2.14.1, git 5c4886908584029761b579af026dcfb627c84070
+Main source remained unchanged. All eight GPU jobs ran serially under the same
+heavy-gpu.lock, HIGH=0.9, a 75 GiB physical-footprint guard, 6 GiB system reserve,
+and 2 GiB maximum swap growth. Measured system swap delta was zero in every job.
+
+A = active PyTorch allocator buffers. R = all PyTorch Metal heaps. D = driver
+allocation. A/R peaks are allocator counters, D peak is sampled, and the kernel
+whole-PID peak is recorded by the outer guard. Whole-PID includes CPU inputs and
+comparison buffers as well as Metal memory. Below, all memory values are GiB.
+
+Case                                      Result      PID peak   A peak    R peak   wall s
+A strided column write                    complete      8.673    1.789     3.133     5.724
+A contiguous pieces then cat              complete      9.799    2.613     4.258     5.617
+A transposed destination + contiguous     complete      8.801    2.606     3.258     5.727
+B 1 phase + FC1 + resident28, LOW .8       complete     58.693   48.100    56.695    16.195
+B 1 phase + FC1 + resident28, LOW .3       complete     57.599   48.100    55.602    16.172
+B 2 phases + FC1 + resident28, LOW .8      stopped      75.476   58.986    73.477    25.938
+B 2 phases + FC1 + resident28, LOW .3      stopped      75.119   60.726    73.121    27.409
+B 2 phases cache-only + resident28, .8    complete     62.634   60.469    61.008    12.699
+
+A used real blocks.2.mlp.fc1 weights, CPU-generated BF16 activation
+[20928,5376], output [20928,28672], and a 64 MiB BF16 dequantized weight tile.
+All 600,047,616 output elements of every variant exactly matched production
+metal_linear. Three instrumented trials took respectively:
+  strided:   .2011 / .1497 / .1341 seconds
+  cat:       .2195 / .1554 / .1348 seconds
+  transposed:.2436 / .1584 / .1584 seconds
+These include telemetry and per-tile barriers; they are not end-to-end inference
+timings. The cat/transposed variants retain additional output storage at the
+final join. This isolated matrix test provides no memory reason to replace the
+existing column write. It does not isolate all interleavings of the full model.
+
+B uses official 1088x1920 first-request phase geometry, 56 heads x 128, actual
+production QuantizedCleanAVKVCache, all 50 layers, and one synthetic K/V pair per
+phase reused across layers with independent INT8 backing. The 28 GiB control is
+uniform touched 256 MiB allocations; it is not the real model's weight layout.
+FC1, where enabled, is the real single matrix after each staged cache layer.
+The rest of each transformer block, LoRA, teacher, VAE and SDPA are absent.
+
+Key results:
+1. All observed D−R values were at most 0.703125 MiB. The large gap in this
+   diagnostic lies in PyTorch allocator heaps (R−A), rather than a large measured
+   allocation outside those heaps. This alone does not identify the allocator's
+   exact cause or prove the full model's 31 GiB gap has the same complete cause.
+
+2. One-phase .3 versus .8 preserves the same A peak while reducing R and PID
+   peak by about 1.094 GiB. At the matched second-phase layer38 FC1 output point:
+     both A = 58.67715 GiB
+     LOW .8 R = 73.47656 GiB
+     LOW .3 R = 71.01172 GiB
+     R reduction = 2.46484 GiB
+   This is the appropriate like-for-like memory comparison. Comparing the two
+   stopped jobs' final peaks alone would compare different amounts of completed
+   work: .8 reached layer38 and .3 reached layer44 of the second phase.
+
+3. Neither two-phase FC1-interleaved job completed within the fixed cap. Both
+   crossed the script's sampled 73 GiB driver stop and the independent 75 GiB
+   footprint watchdog stopped the process group. Kernel peaks overshot by
+   .476/.119 GiB between sampling/termination. The cap was not raised.
+
+4. Removing the FC1 workload and its associated ~0.4 GiB weight/input storage
+   allowed the full two-phase cache control to complete. Its final commit had
+   A=60.38627, R=61.00781, R−A=.62154 GiB. Thus the cache+linear allocation
+   interleaving materially changes heap use in this synthetic controlled setup.
+   Releasing all cache/control objects and empty_cache returned A=R=0 in each
+   completed case; remaining D was about .688 MiB.
+
+Numerical checks:
+- All B staged inputs pass the production full finite check.
+- Selected first/last-layer key INT8 rows and F32 scales exactly match the CPU
+  quantization oracle. On these synthetic rows, dequantized-vs-input relative L2
+  is .006677 for phase0; it does not measure video quality or CUDA parity.
+- First-versus-last FC1 64-row samples are exact within completed phases.
+- In the two-phase LOW pair, completed first-phase sampled FC1 bytes have the
+  same SHA256 across both runs:
+  175ff4e0da7c65e5e41dba14fe4893ff0b2320bdd0ac7f97fac769afd2d2c34e
+- The first one-phase pair predates sample hashing. Its within-run and CPU-oracle
+  checks pass, but its receipts cannot establish cross-process output identity.
+- Full-key SDPA optional probe is prepared but was not run in this allocation
+  experiment; no attention/kernel speed claim follows from these results.
+
+Recommended next test: an isolated allocator experiment changing the lifetime
+order of FC1 temporary tiles versus KV publication, or an approved full-model
+retest with LOW .3 plus separately verified activation-lifetime fixes. Preserve
+the guard and compare matched A/R/D points, full outputs where feasible, and
+actual whole-process peak. The measured LOW change alone is insufficient to
+promise native1080 completion.
+
+Artifacts:
+/private/tmp/taomate-metal-diagnostic-runs/summary.json includes every process
+receipt summary and matched-step comparisons. Each named subdirectory contains
+run.log, memory.jsonl, process-receipt.json, and diagnostic/{receipt.json,
+steps.jsonl}. Scripts and usage are in
+/private/tmp/taomate-metal-memory-diagnostics/.
+The first five runs' exact script sources are preserved in
+/private/tmp/taomate-metal-memory-diagnostics/v1-used-first-five-runs/.
+No production source, checkpoint, or repository metadata was modified.
