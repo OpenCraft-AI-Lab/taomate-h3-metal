@@ -149,8 +149,9 @@ def test_alias_preserved_and_no_materialized_model_accepted():
 
 
 @pytest.mark.parametrize("backend", ["dequantize", "native_int8pack"])
+@pytest.mark.parametrize("policy", ["interior_fc1_qkv_v1", "metal_interior_all_linear_v1"])
 @torch.no_grad()
-def test_mps_integrated_safetensors_loader_and_official_lora(model, tmp_path, backend):
+def test_mps_integrated_safetensors_loader_and_official_lora(model, tmp_path, backend, policy):
     """Actual allocate/load/LoRA/dispatch on MPS; independent CPU FP64 oracle."""
     if not torch.backends.mps.is_available():
         pytest.skip("native MPS unavailable")
@@ -190,13 +191,16 @@ def test_mps_integrated_safetensors_loader_and_official_lora(model, tmp_path, ba
             parallel_context=model.parallel_context,
             metal_cpu_adaln=True,
             metal_quantization_backend=backend,
+            metal_quantization_policy=policy,
         )
         .eval()
     )
     before = {name: id(p) for name, p in actual.named_parameters()}
     receipt = load_minimax_h3_dit_weights(actual, root)
     assert receipt["tensor_count"] == 535 and receipt["shard_count"] == 2
-    assert receipt["metal_streamed_w8a16_linear_count"] == 90
+    assert receipt["metal_streamed_w8a16_linear_count"] == (
+        90 if policy == "interior_fc1_qkv_v1" else 180
+    )
     assert before == {name: id(p) for name, p in actual.named_parameters()}
     selected = set(actual._metal_allocation_receipt["quantized_linear_names"])
     for name, tensor in actual.state_dict().items():
@@ -224,7 +228,10 @@ def test_mps_integrated_safetensors_loader_and_official_lora(model, tmp_path, ba
     assert apply_h3_lora_checkpoint(actual, adapter)["target_count"] == 208
     materialize_h3_lora_bf16_buffers_(actual)
     # Full-key QKV and FC1 both go through unmocked original module dispatch.
-    for target in ("blocks.2.attn.qkv_proj", "blocks.46.mlp.fc1"):
+    targets = ("blocks.2.attn.qkv_proj", "blocks.46.mlp.fc1")
+    if policy != "interior_fc1_qkv_v1":
+        targets += ("blocks.2.attn.out_proj", "blocks.46.mlp.fc2")
+    for target in targets:
         wrapper = actual.get_submodule(target)
         x = torch.randn(3, wrapper.base.input_size, generator=generator).bfloat16()
         output = wrapper(x.to("mps")).cpu().float()

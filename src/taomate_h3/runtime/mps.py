@@ -40,7 +40,7 @@ class MPSRuntime(H3Runtime):
         self._kv_tile_tokens = parse_kv_tile_tokens(
             os.environ.get("TAOMATE_MPS_KV_TILE_TOKENS", "128")
         )
-        from ..inference.metal_loader import parse_weight_tile_mib
+        from ..inference.metal_loader import parse_metal_weight_policy, parse_weight_tile_mib
 
         self._weight_tile_bytes = parse_weight_tile_mib(
             os.environ.get("TAOMATE_MPS_WEIGHT_TILE_MIB", "256")
@@ -52,6 +52,14 @@ class MPSRuntime(H3Runtime):
         self._quantization_backend = os.environ.get("TAOMATE_MPS_WEIGHT_QUANTIZATION", "none")
         if self._quantization_backend not in ("none", "dequantize", "native_int8pack"):
             raise ValueError("unknown Metal weight quantization backend")
+        self._quantization_policy = parse_metal_weight_policy(
+            os.environ.get("TAOMATE_MPS_WEIGHT_COVERAGE", "interior_fc1_qkv_v1")
+        )
+        if (
+            self._quantization_backend == "none"
+            and self._quantization_policy != "interior_fc1_qkv_v1"
+        ):
+            raise ValueError("expanded Metal coverage requires an enabled quantization backend")
         self._cpu_adaln = os.environ.get("TAOMATE_MPS_CPU_ADALN", "0") == "1"
         if self._cpu_adaln and os.environ.get("TAOMATE_MPS_RELEASE_ADALN", "0") != "1":
             raise ValueError("CPU AdaLN staging requires fixed-schedule precompute and release")
@@ -94,6 +102,7 @@ class MPSRuntime(H3Runtime):
             transformer_load_w8a8_policy=None,
             transformer_metal_cpu_adaln=self._cpu_adaln,
             transformer_metal_quantization_backend=self._quantization_backend,
+            transformer_metal_quantization_policy=self._quantization_policy,
             transformer_metal_weight_tile_bytes=self._weight_tile_bytes,
         )
         self._text_precompute_receipt = None
@@ -106,6 +115,7 @@ class MPSRuntime(H3Runtime):
                 "empty_cache_between_phases": self._empty_cache_phase,
                 "cpu_adaln_staging": self._cpu_adaln,
                 "weight_quantization_backend": self._quantization_backend,
+                "weight_quantization_policy": self._quantization_policy,
                 "bf16_weight_tile_budget_bytes": (
                     self._weight_tile_bytes if self._quantization_backend == "dequantize" else None
                 ),
@@ -185,7 +195,8 @@ class MPSRuntime(H3Runtime):
             **mps_memory_receipt(),
             "peak_reset_succeeded": getattr(self, "_dit_peak_reset_succeeded", None),
             "peak_scope": (
-                "since_dit_reset" if getattr(self, "_dit_peak_reset_succeeded", False)
+                "since_dit_reset"
+                if getattr(self, "_dit_peak_reset_succeeded", False)
                 else "allocator_since_external_reset_or_initialization"
             ),
         }

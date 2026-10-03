@@ -14,9 +14,63 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 
-from taomate_h3.distributed.linear import MergedColumnParallelLinear
+from taomate_h3.distributed.linear import MergedColumnParallelLinear, RowParallelLinear
 
 from .w8a8 import INTERIOR_FC1_QKV_POLICY, resolve_h3_cutlass_w8a8_policy
+
+METAL_EXPANDED_WEIGHT_POLICIES = {
+    "metal_interior_fc1_qkv_out_v1": ("attn.out_proj",),
+    "metal_interior_fc1_qkv_fc2_v1": ("mlp.fc2",),
+    "metal_interior_all_linear_v1": ("attn.out_proj", "mlp.fc2"),
+}
+
+
+def parse_metal_weight_policy(value: str) -> str:
+    if value != INTERIOR_FC1_QKV_POLICY and value not in METAL_EXPANDED_WEIGHT_POLICIES:
+        raise ValueError("unknown TAOMATE_MPS_WEIGHT_COVERAGE policy")
+    return value
+
+
+def resolve_metal_weight_policy(names: list[str], *, policy: str) -> dict[str, Any]:
+    """Metal-only experimental expansion; the official CUDA resolver is untouched.
+
+    Extra base weights may change quality. Boundary blocks, refiners, FP32 heads
+    and trained LoRA buffers are never selected by the additional policies.
+    """
+    parse_metal_weight_policy(policy)
+    original = resolve_h3_cutlass_w8a8_policy(names, policy=INTERIOR_FC1_QKV_POLICY)
+    base = list(original["quantized_linear_names"])
+    extras = []
+    if policy != INTERIOR_FC1_QKV_POLICY:
+        expected_base = {
+            f"blocks.{block}.{suffix}"
+            for block in range(2, 47)
+            for suffix in ("attn.qkv_proj", "mlp.fc1")
+        }
+        if set(base) != expected_base or original["bf16_boundary_block_indices"] != [
+            0,
+            1,
+            47,
+            48,
+            49,
+        ]:
+            raise ValueError("expanded Metal policy requires the original 50-block architecture")
+        extras = [
+            f"blocks.{block}.{suffix}"
+            for block in range(2, 47)
+            for suffix in METAL_EXPANDED_WEIGHT_POLICIES[policy]
+        ]
+        if any(name not in names for name in extras):
+            raise ValueError("expanded Metal policy projection inventory differs")
+    return {
+        **original,
+        "quantized_linear_names": sorted(base + extras),
+        "bf16_protected_linear_names": [
+            name for name in original["bf16_protected_linear_names"] if name not in extras
+        ],
+        "additional_quantized_linear_names": sorted(extras),
+        "policy": policy,
+    }
 
 
 def parse_weight_tile_mib(value: str) -> int:
@@ -38,6 +92,7 @@ def allocate_metal_storage_(
     *,
     cpu_adaln: bool = True,
     quantization_backend: str = "none",
+    quantization_policy: str = INTERIOR_FC1_QKV_POLICY,
     temporary_bytes: int = 256 * 1024 * 1024,
 ) -> dict[str, Any]:
     """Materialize meta parameters/buffers without BF16 GPU staging copies.
@@ -57,21 +112,34 @@ def allocate_metal_storage_(
         or not 0 < temporary_bytes <= 256 * 1024**2
     ):
         raise ValueError("temporary_bytes must be a positive integer at most 256 MiB")
+    parse_metal_weight_policy(quantization_policy)
+    if quantization_backend == "none" and quantization_policy != INTERIOR_FC1_QKV_POLICY:
+        raise ValueError("expanded Metal coverage requires an enabled quantization backend")
     modules = dict(model_meta.named_modules())
     original_keys = tuple(model_meta.state_dict())
     selection = (
-        resolve_h3_cutlass_w8a8_policy(list(modules), policy=INTERIOR_FC1_QKV_POLICY)
+        resolve_metal_weight_policy(list(modules), policy=quantization_policy)
         if quantization_backend != "none"
-        else {"quantized_linear_names": []}
+        else {"quantized_linear_names": [], "additional_quantized_linear_names": []}
     )
     selected = set(selection["quantized_linear_names"])
     plans = []
     alias_specs: dict[int, tuple] = {}
     for name, module in modules.items():
         if name in selected:
-            if not isinstance(module, MergedColumnParallelLinear) or module.tp_size != 1:
+            expected_type = (
+                RowParallelLinear
+                if name in selection["additional_quantized_linear_names"]
+                else MergedColumnParallelLinear
+            )
+            if (
+                type(module) is not expected_type
+                or module.tp_size != 1
+                or module.parallel_context.tp_world_size != 1
+                or module.parallel_context.ulysses_world_size != 1
+            ):
                 raise ValueError(
-                    f"{name}: quantization requires original single-device merged column"
+                    f"{name}: quantization requires original single-device {expected_type.__name__}"
                 )
             if module.bias is not None or module.weight.dtype != torch.bfloat16:
                 raise ValueError(f"{name}: quantization requires bias-free BF16 weight")
@@ -143,6 +211,18 @@ def allocate_metal_storage_(
     return {
         "quantization": "W8A16" if selected else "none",
         "backend": quantization_backend,
+        "policy": quantization_policy,
+        "additional_quantized_linear_names": selection["additional_quantized_linear_names"],
+        "additional_weight_storage_saved_bytes": sum(
+            modules[name].weight.numel()
+            - modules[name].weight.shape[0]
+            * (6 if quantization_backend == "native_int8pack" else 4)
+            for name in selection["additional_quantized_linear_names"]
+        ),
+        "additional_coverage_note": (
+            "Lossy base-weight expansion; storage savings are not process peak savings "
+            "or quality equivalence."
+        ),
         "quantized_linear_names": sorted(selected),
         "cpu_adaln": cpu_adaln,
         "checkpoint_key_count": len(original_keys),

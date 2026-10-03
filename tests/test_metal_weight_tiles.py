@@ -1,6 +1,5 @@
 """Weight-tile configuration, real module dispatch and independent matmul oracle."""
 
-
 import pytest
 import torch
 from torch import nn
@@ -130,6 +129,7 @@ def test_pipeline_forwards_budget_to_allocate(monkeypatch, tmp_path):
         transformer_load_w8a8_policy=None,
         transformer_metal_cpu_adaln=True,
         transformer_metal_quantization_backend="dequantize",
+        transformer_metal_quantization_policy="interior_fc1_qkv_v1",
         transformer_metal_weight_tile_bytes=64 * 1024**2,
         partition_root=tmp_path,
         component_timings={},
