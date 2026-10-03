@@ -15,3 +15,7 @@ Production now includes commits 62d4626 and 356340a: release original QKV after 
 ## Native 10 seconds with lifetime releases
 
 The exact lifetime changes alone were insufficient. The run failed again in request 1 phase 2 when allocating joined BF16 V: MPS reserved 95.68 GiB, requested 1.16 GiB, unchanged cap 96.77 GiB. Wall 2805.978 seconds; physical peak 98.7244 GiB; swap delta -117440512 bytes. No video delivered and no 65-second run started. All 53 source hashes matched preflight and process receipt. Next isolated candidate removes copies only when selected condition/media rows form a contiguous interval; arbitrary masks must retain the original gather.
+
+## Contiguous-row view candidate
+
+A separate opt-in replaces gathers with verified contiguous slices only for MPS/no-grad contiguous tensors. Noncontiguous masks retain gathers; full-key attention and all numeric operators remain unchanged. All 231 CPU/real-MPS tests passed (28.73s). Actual native continuation-size isolated attention/MLP and full staged INT8 K/V/scales SHA256 are exact between gather/view modes. A synchronized sample before joined-history construction fell from 3,049,323,008 to 2,142,779,904 allocated bytes; strides remained [7168,128,1], while storage offset changed as expected. R/D remained unchanged in this fixed-order isolated control. These are not end-to-end peak claims. Native10 retest uses the unchanged hard limits and teacher hashes.
