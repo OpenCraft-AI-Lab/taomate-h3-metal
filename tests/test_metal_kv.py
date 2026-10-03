@@ -37,12 +37,13 @@ def add(cache):
 
 
 @pytest.mark.parametrize("device", ("cpu", "mps"))
+@pytest.mark.parametrize("allocation", ("per_layer", "packed8"))
 @torch.no_grad()
-def test_52_commits_match_upstream_retention_and_reset(device):
+def test_52_commits_match_upstream_retention_and_reset(device, allocation):
     if device == "mps" and not torch.backends.mps.is_available():
         pytest.skip("native MPS unavailable")
     contract = KVContract(local_heads=1, device_type=device)
-    cache = QuantizedCleanAVKVCache(contract)
+    cache = QuantizedCleanAVKVCache(contract, allocation=allocation)
     original = CleanAVKVCache(contract)
     _, tags, mask = fixture()
     tags, mask = tags.to(device), mask.to(device)

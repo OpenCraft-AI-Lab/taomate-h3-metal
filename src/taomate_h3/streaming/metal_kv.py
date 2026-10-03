@@ -82,6 +82,26 @@ def kv_tile_scratch_bound(tile_tokens: int, heads: int, head_dim: int = 128) -> 
     return tile_tokens * (20 * heads * head_dim + 32 * heads + 8)
 
 
+def parse_kv_allocation(value: str) -> str:
+    if value not in ("per_layer", "packed8"):
+        raise ValueError("TAOMATE_MPS_KV_ALLOCATION must be per_layer or packed8")
+    return value
+
+
+def _backing_bytes(tensors) -> int:
+    # Views share storage; count each allocation once, including unused slices.
+    storages = {}
+    for tensor in tensors:
+        storage = tensor.untyped_storage()
+        storages[(tensor.device, storage.data_ptr())] = storage.nbytes()
+    return sum(storages.values())
+
+
+def _pair_tensors(pairs):
+    for pair in pairs:
+        yield from (pair.key, pair.value, pair.key_scale, pair.value_scale)
+
+
 class QuantizedCleanAVKVCache(CleanAVKVCache):
     """Single-owner inference cache with non-reentrant mutation/attention leases.
 
@@ -91,7 +111,9 @@ class QuantizedCleanAVKVCache(CleanAVKVCache):
     no BF16 history is returned or stored. Clear cannot resurrect failed runtime.
     """
 
-    def __init__(self, contract: KVContract, *, tile_tokens: int = 128) -> None:
+    def __init__(
+        self, contract: KVContract, *, tile_tokens: int = 128, allocation: str = "per_layer"
+    ) -> None:
         if contract.dtype != torch.bfloat16 or contract.head_dim != 128:
             raise ValueError("INT8 KV requires BF16 computation and head_dim=128")
         if contract.local_heads <= 0 or contract.device_type not in ("cpu", "mps"):
@@ -105,6 +127,9 @@ class QuantizedCleanAVKVCache(CleanAVKVCache):
         scratch_bound = kv_tile_scratch_bound(tile_tokens, contract.local_heads, contract.head_dim)
         if scratch_bound > MAX_KV_TILE_SCRATCH_BYTES:
             raise ValueError("KV tile scratch estimate exceeds 256 MiB budget")
+        self.allocation = parse_kv_allocation(allocation)
+        self._packed_groups: dict[int, tuple[torch.Tensor, torch.Tensor]] = {}
+        self._packed_scales: torch.Tensor | None = None
         self.contract = contract
         self.tile_tokens = tile_tokens
         self.tile_scratch_estimated_bytes = scratch_bound
@@ -158,17 +183,10 @@ class QuantizedCleanAVKVCache(CleanAVKVCache):
             128,
         ):
             raise ValueError(f"{label}: expected NHD tensor matching contract")
-        if (
-            tensor.dtype != torch.bfloat16
-            or tensor.device.type != self.contract.device_type
-        ):
+        if tensor.dtype != torch.bfloat16 or tensor.device.type != self.contract.device_type:
             raise ValueError(f"{label}: dtype/device differs from contract")
         for start in range(0, len(tensor), self.tile_tokens):
-            if (
-                not torch.isfinite(tensor[start : start + self.tile_tokens])
-                .all()
-                .item()
-            ):
+            if not torch.isfinite(tensor[start : start + self.tile_tokens]).all().item():
                 raise ValueError(f"{label}: nonfinite values")
 
     def begin_clean_commit(self, block_index: int) -> None:
@@ -182,16 +200,44 @@ class QuantizedCleanAVKVCache(CleanAVKVCache):
             self._metadata = None
             self._tags = ()
 
-    def _quantize_selected(self, tensor: torch.Tensor, indices: torch.Tensor):
-        shape = (len(indices), self.contract.local_heads, 128)
-        quantized = torch.empty(shape, dtype=torch.int8, device=tensor.device)
-        scales = torch.empty(
-            (*shape[:-1], 1), dtype=torch.float32, device=tensor.device
+    def _packed_destination(self, layer_name, count, device):
+        layer = MAIN_LAYER_NAMES.index(layer_name)
+        group, offset = divmod(layer, 8)
+        if self._packed_scales is None:
+            self._packed_scales = torch.empty(
+                (2, len(MAIN_LAYER_NAMES), count, self.contract.local_heads, 1),
+                dtype=torch.float32,
+                device=device,
+            )
+        if group not in self._packed_groups:
+            shape = (
+                min(8, len(MAIN_LAYER_NAMES) - group * 8),
+                count,
+                self.contract.local_heads,
+                128,
+            )
+            # Retain a successfully allocated key if value allocation fails:
+            # local exception ownership is transient; published history is untouched.
+            key = torch.empty(shape, dtype=torch.int8, device=device)
+            value = torch.empty_like(key)
+            self._packed_groups[group] = (key, value)
+        key, value = self._packed_groups[group]
+        return (
+            key[offset],
+            value[offset],
+            self._packed_scales[0, layer],
+            self._packed_scales[1, layer],
         )
+
+    def _quantize_selected(self, tensor: torch.Tensor, indices: torch.Tensor, destination=None):
+        shape = (len(indices), self.contract.local_heads, 128)
+        if destination is None:
+            quantized = torch.empty(shape, dtype=torch.int8, device=tensor.device)
+            scales = torch.empty((*shape[:-1], 1), dtype=torch.float32, device=tensor.device)
+        else:
+            quantized, scales = destination
         for start in range(0, len(indices), self.tile_tokens):
-            selected = tensor.index_select(
-                0, indices[start : start + self.tile_tokens]
-            ).float()
+            selected = tensor.index_select(0, indices[start : start + self.tile_tokens]).float()
             scale = (selected.abs().amax(-1, keepdim=True) / 127).clamp_min(1e-12)
             quantized[start : start + self.tile_tokens] = (
                 (selected / scale).round().clamp(-127, 127).to(torch.int8)
@@ -223,8 +269,7 @@ class QuantizedCleanAVKVCache(CleanAVKVCache):
                 or len(token_tags) != len(key)
                 or len(commit_mask) != len(key)
                 or commit_mask.dtype != torch.bool
-                or token_tags.dtype
-                not in (torch.int8, torch.int16, torch.int32, torch.int64)
+                or token_tags.dtype not in (torch.int8, torch.int16, torch.int32, torch.int64)
                 or token_tags.device != key.device
                 or commit_mask.device != key.device
             ):
@@ -235,14 +280,18 @@ class QuantizedCleanAVKVCache(CleanAVKVCache):
             )
             tags = tuple(t for t, keep in zip(*metadata) if keep)
             if set(tags) != {VIDEO_TOKEN_TAG, AUDIO_TOKEN_TAG}:
-                raise ValueError(
-                    "clean chunk must contain exactly audio/video media tags"
-                )
+                raise ValueError("clean chunk must contain exactly audio/video media tags")
             if self._metadata is not None and metadata != self._metadata:
                 raise ValueError("packed metadata differs between layers")
+            self._metadata, self._tags = metadata, tags
             indices = torch.nonzero(commit_mask, as_tuple=False).flatten()
-            qk, sk = self._quantize_selected(key, indices)
-            qv, sv = self._quantize_selected(value, indices)
+            if self.allocation == "packed8":
+                qk, qv, sk, sv = self._packed_destination(layer_name, len(indices), key.device)
+                self._quantize_selected(key, indices, (qk, sk))
+                self._quantize_selected(value, indices, (qv, sv))
+            else:
+                qk, sk = self._quantize_selected(key, indices)
+                qv, sv = self._quantize_selected(value, indices)
             pair = _QuantizedPair(qk, qv, sk, sv)
             self._sync()
             self._staged[layer_name] = pair
@@ -250,13 +299,9 @@ class QuantizedCleanAVKVCache(CleanAVKVCache):
 
     def commit(self) -> None:
         with self._exclusive():
-            if not self.clean_commit_active or set(self._staged) != set(
-                MAIN_LAYER_NAMES
-            ):
+            if not self.clean_commit_active or set(self._staged) != set(MAIN_LAYER_NAMES):
                 raise RuntimeError("incomplete clean commit")
-            segment = _Segment(
-                dict(self._staged), self._tags, tuple(range(len(self._tags)))
-            )
+            segment = _Segment(dict(self._staged), self._tags, tuple(range(len(self._tags))))
             next_segments = self._segments + (segment,)
             self._sync()  # any asynchronous failure precedes publication
             self._segments = next_segments
@@ -264,6 +309,8 @@ class QuantizedCleanAVKVCache(CleanAVKVCache):
             self._clear_staging()
 
     def _clear_staging(self) -> None:
+        self._packed_groups = {}
+        self._packed_scales = None
         self._staged = {}
         self._staged_block = None
         self._metadata = None
@@ -300,9 +347,17 @@ class QuantizedCleanAVKVCache(CleanAVKVCache):
         per_token = self.contract.local_heads * (128 + 4) * 2
         return {
             "storage": "int8_per_token_per_head_f32_scale",
+            "allocation": self.allocation,
             "visible_history_payload_bytes": self.history_tokens * per_token * 50,
-            "physical_history_payload_bytes": sum(
-                p.bytes() for s in self._segments for p in s.layers.values()
+            "physical_history_payload_bytes": _backing_bytes(
+                _pair_tensors(p for s in self._segments for p in s.layers.values())
+            ),
+            "staged_backing_bytes": _backing_bytes(
+                [
+                    *_pair_tensors(self._staged.values()),
+                    *(t for group in self._packed_groups.values() for t in group),
+                    *([] if self._packed_scales is None else [self._packed_scales]),
+                ]
             ),
             "staged_payload_bytes": sum(p.bytes() for p in self._staged.values()),
             "dequant_tile_tokens": self.tile_tokens,
@@ -330,11 +385,7 @@ class QuantizedCleanAVKVCache(CleanAVKVCache):
                 (query_chunk_size, "query_chunk_size"),
                 (max_joined_bytes, "max_joined_bytes"),
             ):
-                if (
-                    isinstance(number, bool)
-                    or not isinstance(number, int)
-                    or number <= 0
-                ):
+                if isinstance(number, bool) or not isinstance(number, int) or number <= 0:
                     raise ValueError(f"{label} must be a positive integer")
             # Shape/dtype checks and budget precede any joined allocation.
             for label, t in (
@@ -353,10 +404,7 @@ class QuantizedCleanAVKVCache(CleanAVKVCache):
             ):
                 raise ValueError("attention pair shape differs")
             count = len(condition.key) + self.history_tokens + len(current.key)
-            if (
-                count == 0
-                or 4 * count * self.contract.local_heads * 128 > max_joined_bytes
-            ):
+            if count == 0 or 4 * count * self.contract.local_heads * 128 > max_joined_bytes:
                 raise MemoryError("joined BF16 KV exceeds explicit budget or is empty")
             joined_key = joined_value = out = restored = indices = None
             try:
@@ -385,8 +433,7 @@ class QuantizedCleanAVKVCache(CleanAVKVCache):
                                 device=query.device,
                             )
                             restored = (
-                                q.index_select(0, indices).float()
-                                * s.index_select(0, indices)
+                                q.index_select(0, indices).float() * s.index_select(0, indices)
                             ).bfloat16()
                             out[position : position + len(indices)].copy_(restored)
                             position += len(indices)

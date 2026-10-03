@@ -31,8 +31,12 @@ class MPSRuntime(H3Runtime):
             MAX_KV_TILE_SCRATCH_BYTES,
             kv_tile_scratch_bound,
             parse_kv_tile_tokens,
+            parse_kv_allocation,
         )
 
+        self._kv_allocation = parse_kv_allocation(
+            os.environ.get("TAOMATE_MPS_KV_ALLOCATION", "per_layer")
+        )
         self._kv_tile_tokens = parse_kv_tile_tokens(
             os.environ.get("TAOMATE_MPS_KV_TILE_TOKENS", "128")
         )
@@ -109,6 +113,7 @@ class MPSRuntime(H3Runtime):
                     "BF16 weights only; excludes FP32 scratch, outputs and matmul workspace"
                 ),
                 "kv_storage": self._kv_storage,
+                "kv_allocation": self._kv_allocation if self._kv_storage == "int8" else None,
                 "kv_tile_tokens": self._kv_tile_tokens if self._kv_storage == "int8" else None,
                 "kv_tile_scratch_estimated_bytes": self._kv_tile_scratch_estimated_bytes,
                 "kv_tile_scratch_budget_bytes": (
@@ -158,6 +163,7 @@ class MPSRuntime(H3Runtime):
         model._metal_release_adaln = os.environ.get("TAOMATE_MPS_RELEASE_ADALN", "0") == "1"
         model._metal_query_chunk_size = self._query_chunk_size
         model._metal_empty_cache_phase = self._empty_cache_phase
+        model._metal_kv_allocation = self._kv_allocation
         model._metal_kv_storage = self._kv_storage
         model._metal_kv_tile_tokens = self._kv_tile_tokens
         model._metal_kv_max_joined_bytes = 4 * 1024**3

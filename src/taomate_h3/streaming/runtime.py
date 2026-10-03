@@ -602,6 +602,7 @@ class H3StreamingRuntime:
                     cache = QuantizedCleanAVKVCache(
                         kv_contract_from_model(model),
                         tile_tokens=getattr(model, "_metal_kv_tile_tokens", 128),
+                        allocation=getattr(model, "_metal_kv_allocation", "per_layer"),
                     )
                 else:
                     cache = CleanAVKVCache(kv_contract_from_model(model))
