@@ -202,6 +202,11 @@ def apply_h3_lora_checkpoint(
                 update = collectives.tp_all_reduce(update, context=self.base.parallel_context)
             if tuple(update.shape) != tuple(output.shape):
                 raise H3LoRACheckpointError("H3 inference LoRA output shape differs")
+            from .metal_activations import try_inplace_lora
+
+            reused = try_inplace_lora(self.base, output, update, inputs, scale=self.scale)
+            if reused is not None:
+                return reused
             return output + update * self.scale
 
     replacements: list[tuple[str, Any, Any]] = []

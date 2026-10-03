@@ -476,6 +476,11 @@ class MiniMaxH3MLP(nn.Module):
 
         if h3_inference_fused_kernels_enabled():
             return self.fc2(fused_swiglu(projected))
+        from ..inference.metal_activations import try_inplace_swiglu
+
+        reused = try_inplace_swiglu(self.fc1, projected, value)
+        if reused is not None:
+            return self.fc2(reused)
         gate, up = projected.chunk(2, dim=-1)
         return self.fc2(F.silu(gate) * up)
 

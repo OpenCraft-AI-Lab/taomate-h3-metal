@@ -96,6 +96,7 @@ class MPSRuntime(H3Runtime):
         self._memory_optimizations = {}
         self.model_resolution = {
             "metal_workspace_options": {
+                "inplace_activations": os.environ.get("TAOMATE_MPS_INPLACE_ACTIVATIONS") == "1",
                 "attention_query_chunk_size": self._query_chunk_size,
                 "empty_cache_between_phases": self._empty_cache_phase,
                 "cpu_adaln_staging": self._cpu_adaln,
