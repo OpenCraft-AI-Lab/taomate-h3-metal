@@ -1,0 +1,15 @@
+{
+  "returncode": 1,
+  "guard_reason": null,
+  "wall_seconds": 6123.475287833251,
+  "physical_peak_gib": 97.78875871002674,
+  "swap_delta_gib": -0.0078125,
+  "completed_requests": 3,
+  "failed_request_index": 3,
+  "failed_phase_index": 2,
+  "failure": "MPS joined_value allocation refused: reserved95.85GiB plus1.16GiB request exceeds unchanged HIGH96.77GiB",
+  "failure_active_bytes": null,
+  "source_files_verified": 53,
+  "no_published_video": true,
+  "audio_reset_not_reached": true
+}

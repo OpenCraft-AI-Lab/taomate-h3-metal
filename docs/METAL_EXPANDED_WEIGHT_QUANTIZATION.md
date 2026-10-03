@@ -39,3 +39,11 @@ Strict complete decoding passed 240 H264/yuv420p frames at 1088×1920 and 24 fps
 Sampled frames 0/60/118/121/123/125/128/239 show a stable presenter, backpack and background through the request boundary, without black frames or a gross scene jump. A small bag label remains despite the no-logo prompt; neither exact prompt adherence nor quality equivalence is claimed. Full metrics, contacts and compressed logs are archived under verification/memory-experiments/native1080-expanded-fc2-10s.
 
 The next authorized run is 65 seconds / 13 requests with identical successful flags, original cached Base10 guidance and the official request-13 audio reset, under unchanged 105/6/2 GiB guards and HIGH0.9/LOW0.1. This tests longer-lived allocator state, audio-reset behavior and the large one-shot FP32 VAE output; ten-second success does not establish those outcomes.
+
+## FC2-only 65-second attempt: allocator refusal
+
+The 13-request run failed after 6123.475s (102m03.5s), in request index3 / phase2, while allocating the joined attention V buffer. Three requests had completed; request13 audio reset and the final VAE were not reached, and no video was published. PyTorch reported reserved 95.85 GiB plus a requested 1.16 GiB above the unchanged 96.77 GiB HIGH limit. Failure-point active bytes were not captured; reserved bytes are not equivalent to active tensors.
+
+Physical peak was 97.788759 GiB; swap decreased by 8 MiB. The process exited1 without a guard event, and all53 source hashes match preflight/receipt. Ten-second success therefore does not establish longer-run safety under the same policy. Logs and failure validation are archived in verification/memory-experiments/native1080-expanded-fc2-65s.
+
+The next quantization candidate adds the already-screened45 middle-block attention output matrices to FC2 (180 selected base matrices total). Net base-weight saving relative to the original90 policy is4.843168 GiB,1.614089 GiB beyond FC2-only; this is not a process-peak guarantee. The combined policy will undergo a separate480×864/10s real-generation comparison before another native memory test. BF16 LoRA, protected boundaries/heads, original teacher, KV retention and FP32 VAE remain unchanged. No allocator-purge route or increased safety limit is resumed.
