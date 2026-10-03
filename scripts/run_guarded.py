@@ -92,6 +92,7 @@ def run(command, *, repository, watcher, lock_path, log_path, memory_path, recei
         "command": list(command), "cwd": str(repository), "source_sha256": source,
         "environment": env_receipt, "limits": vars(limits),
         "watcher_sha256": hashlib.sha256(watcher.read_bytes()).hexdigest(),
+        "launcher_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
     }
     with lock_path.open("a+") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -105,13 +106,7 @@ def run(command, *, repository, watcher, lock_path, log_path, memory_path, recei
         state = {"sample": None, "last_sample_at": started, "reason": None, "samples": 0}
         peak_footprint = 0
         with log_path.open("x") as logfile, memory_path.open("x") as memoryfile:
-            child = subprocess.Popen(
-                command, cwd=repository, env=environment, stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT, text=True, bufsize=1, start_new_session=True,
-            )
-            receipt["pid"] = child.pid
-            print(f"GPU lock and memory guard active; child pid={child.pid}", flush=True)
-            monitor = None
+            child = monitor = None
             output_thread = monitor_thread = None
             previous_handlers = {}
 
@@ -145,6 +140,12 @@ def run(command, *, repository, watcher, lock_path, log_path, memory_path, recei
             try:
                 for signum in (signal.SIGTERM, signal.SIGHUP):
                     previous_handlers[signum] = signal.signal(signum, interrupted)
+                child = subprocess.Popen(
+                    command, cwd=repository, env=environment, stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT, text=True, bufsize=1, start_new_session=True,
+                )
+                receipt["pid"] = child.pid
+                print(f"GPU lock and memory guard active; child pid={child.pid}", flush=True)
                 monitor = subprocess.Popen(
                     [str(watcher), str(child.pid)], stdout=subprocess.PIPE, text=True, bufsize=1,
                 )
@@ -165,14 +166,18 @@ def run(command, *, repository, watcher, lock_path, log_path, memory_path, recei
                     time.sleep(0.1)
             except BaseException:
                 state["reason"] = "launcher interrupted"
-                stop_group(child)
+                if child is not None:
+                    stop_group(child)
                 raise
             finally:
                 # Cleanup covers failures starting the monitor or either thread,
                 # not just errors after the polling loop was entered.
                 try:
-                    stop_group(child)
-                    child.wait()
+                    for signum in previous_handlers:
+                        signal.signal(signum, signal.SIG_IGN)
+                    if child is not None:
+                        stop_group(child)
+                        child.wait()
                     if monitor is not None:
                         if monitor.poll() is None:
                             monitor.terminate()
@@ -189,7 +194,8 @@ def run(command, *, repository, watcher, lock_path, log_path, memory_path, recei
                     except Exception as error:
                         postflight = {"sample_ok": False, "error": type(error).__name__}
                     receipt.update(
-                        returncode=child.returncode, guard_reason=state["reason"],
+                        returncode=child.returncode if child is not None else 125,
+                        guard_reason=state["reason"],
                         wall_seconds=time.monotonic() - started, memory_samples=state["samples"],
                         kernel_peak_footprint_bytes=peak_footprint,
                         last_sample=state["sample"], postflight=postflight,

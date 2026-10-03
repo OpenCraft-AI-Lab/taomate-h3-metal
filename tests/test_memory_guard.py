@@ -111,3 +111,37 @@ def test_launcher_sigterm_cleans_up_session(tmp_path):
     recorded = json.loads(receipt.read_text())
     assert recorded["returncode"] < 0
     assert recorded["guard_reason"] == "launcher interrupted"
+
+
+@pytest.mark.skipif(sys.platform != "darwin", reason="native macOS watcher")
+def test_closed_stdout_after_child_spawn_cleans_up(monkeypatch, tmp_path):
+    watcher = Path("/private/tmp/taomate-memory-sample")
+    if not watcher.exists():
+        pytest.skip("compile native memory watcher")
+    original = guard.subprocess.Popen
+    children = []
+
+    def collect(*args, **kwargs):
+        result = original(*args, **kwargs)
+        children.append(result)
+        return result
+
+    calls = []
+
+    def closed_stdout(*args, **kwargs):
+        calls.append(args)
+        if len(calls) == 1:
+            raise BrokenPipeError("injected closed stdout")
+
+    monkeypatch.setattr(guard.subprocess, "Popen", collect)
+    monkeypatch.setattr(guard, "print", closed_stdout, raising=False)
+    with pytest.raises(BrokenPipeError, match="injected"):
+        guard.run(
+            [sys.executable, "-c", "import time; time.sleep(20)"],
+            repository=tmp_path, watcher=watcher,
+            lock_path=tmp_path / "lock", log_path=tmp_path / "log",
+            memory_path=tmp_path / "memory.jsonl", receipt_path=tmp_path / "receipt.json",
+        )
+    assert all(child.poll() is not None for child in children)
+    recorded = json.loads((tmp_path / "receipt.json").read_text())
+    assert recorded["returncode"] < 0
