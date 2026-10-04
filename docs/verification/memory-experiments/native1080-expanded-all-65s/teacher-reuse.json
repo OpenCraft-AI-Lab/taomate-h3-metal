@@ -1,0 +1,20 @@
+{
+  "teacher_reused": true,
+  "guidance_root": "/Users/supreme-paca/Projects/taomate-h3-metal/outputs/memory-experiments/guidance-native1080-65s",
+  "guidance_sha256": {
+    "complete.json": "39cd0b039dac5518ccc0247252edefec42b2add4f23bb009d570337070a4f208",
+    "request_00.pt": "7551e0fc941a613204862abfe5461f1435c7f223b37e04fa3871d49a94651fc1",
+    "request_01.pt": "4cbf7aa3c38ab9ca2349638bd77ce927aff9a22481677410aad02bb0b718ec8d",
+    "request_02.pt": "4463e9536df19020b9c1574de27469dde371507f4e0c0653fcba54767c71e39f",
+    "request_03.pt": "01df580eedb7e7a0a28dcb69af382229fe34b436daea96afc9b8253c7dd5afa5",
+    "request_04.pt": "0154fa07470cc20f693378b2a7bc2765e1ed41f2e07d22b228b62e6e23b80c06",
+    "request_05.pt": "271d69fe0461084195606d7f0523bd21dc5dbe55caf500c20f4e7f779687f340",
+    "request_06.pt": "b3a901c9d867a9934dd9f894fdfe1584c89d841f0376592e446ee97818ce0cc7",
+    "request_07.pt": "1dda75c92edeb1b962f4312b447eaf19095e9bc74c4f80804aaf2ea6aa517bc0",
+    "request_08.pt": "5c443da6e58adcaf5a14831cf35ae981e1e7c3f9f0f54da9ae8a832b7cbb8d6c",
+    "request_09.pt": "4aa1cd2cc156a1d4c6713f2ac780db107990f8e06e62f625f3afb5a3b3fbb745",
+    "request_10.pt": "04f6e72d36187c94c2aea2261bd611f6e7de30420ee2e5f34940d1291f36592b",
+    "request_11.pt": "0485056855bd90f0f58ab4726901ea5bb90f8ae86ac5f470afee1db98276b592",
+    "request_12.pt": "bce138a53332a79560bb7fded2db0b8c2474ffacb14231d31f1b44d3f67bb43e"
+  }
+}

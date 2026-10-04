@@ -1,0 +1,22 @@
+{
+  "status": "stopped_at_user_request",
+  "stopped_at_utc": "2026-10-04T00:42:47.467159+00:00",
+  "returncode": -15,
+  "guard_reason": "launcher interrupted",
+  "wall_seconds": 2763.50924887415,
+  "physical_peak_gib": 96.23813000321388,
+  "swap_delta_gib": -0.015625,
+  "completed_requests": 1,
+  "completed_phases": 6,
+  "last_started_phase": {
+    "event": "stage3_phase_start",
+    "request": 1,
+    "phase": 2,
+    "device": "mps:0"
+  },
+  "source_files_verified": 53,
+  "gpu_child_and_launcher_gone": true,
+  "gpu_lock_released": true,
+  "no_published_video": true,
+  "next_action": "Wait for the user to specify a different video test; no further GPU work."
+}

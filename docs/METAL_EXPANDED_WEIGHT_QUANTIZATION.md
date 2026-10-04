@@ -42,7 +42,7 @@ The next authorized run is 65 seconds / 13 requests with identical successful fl
 
 ## FC2-only 65-second attempt: allocator refusal
 
-The 13-request run failed after 6123.475s (102m03.5s), in request index3 / phase2, while allocating the joined attention V buffer. Three requests had completed; request13 audio reset and the final VAE were not reached, and no video was published. PyTorch reported reserved 95.85 GiB plus a requested 1.16 GiB above the unchanged 96.77 GiB HIGH limit. Failure-point active bytes were not captured; reserved bytes are not equivalent to active tensors.
+The 13-request run failed after 6123.475s (102m03.5s), in request index3 / phase2, while allocating the joined attention V buffer. Three requests had completed; request 13 audio reset and the final VAE were not reached, and no video was published. PyTorch reported reserved 95.85 GiB plus a requested 1.16 GiB above the unchanged 96.77 GiB HIGH limit. Failure-point active bytes were not captured; reserved bytes are not equivalent to active tensors.
 
 Physical peak was 97.788759 GiB; swap decreased by 8 MiB. The process exited1 without a guard event, and all 53 source hashes match preflight/receipt. Ten-second success therefore does not establish longer-run safety under the same policy. Logs and failure validation are archived in verification/memory-experiments/native1080-expanded-fc2-65s.
 
@@ -65,3 +65,11 @@ Strict complete decoding passed 240 frames / 24 fps / 10.000s at 1088×1920 and 
 Inspection of frames 0/60/118/121/123/125/128/239 finds recognizable, stable presenter/backpack/background and no sampled black frames or gross scene break. Poses and bag details differ, and the unwanted small bag label persists. This is a bounded visual inspection, not perfect continuity, exact prompt compliance or perceptual/CUDA equivalence. Generation success, strict media validation and this qualitative judgment are recorded separately in verification/memory-experiments/native1080-expanded-all-10s.
 
 The combined policy is now eligible for the separately guarded 65-second / 13-request attempt under the same successful flags. No long-run result is inferred from this ten-second run.
+
+## Combined 65-second attempt stopped at user request
+
+The user asked to stop the current 65-second video and test a different video later. The guarded launcher was sent SIGTERM and completed cleanup at 2026-10-04 00:42:47 UTC (2026-10-03 20:42:47 EDT). Launcher 53101 and GPU child 53160 were confirmed gone; the shared GPU lock was independently acquired nonblocking and released to verify availability. No subsequent GPU job was started.
+
+The run stopped after 2763.509s in request index1 / phase2, with one complete request and two additional clean phases (six completed phases total). Return code −15 and reason `launcher interrupted` identify explicit user cancellation, not OOM or a safety-limit failure. Physical peak was 96.238130 GiB and system swap decreased by 16 MiB. All 53 source hashes match preflight/receipt. No 65-second video was published; later requests, request 13 audio reset and final VAE remain unverified for this candidate.
+
+All original outputs remain in place; compressed logs, source inventory, stop verification and receipts are archived in verification/memory-experiments/native1080-expanded-all-65s. The active owner state is stopped, GPU released, awaiting the user's different-video requirements.
