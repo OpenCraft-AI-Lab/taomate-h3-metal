@@ -72,15 +72,57 @@ PYTORCH_ENABLE_MPS_FALLBACK=0 python -m taomate_h3 \
 必须显式传 `--backend mps`；继承的默认值仍是 `cuda`。MPS 使用一个本地进程，
 `--devices`、`--gpus` 是 CUDA 参数。最终 latent 与可播放视频是不同的交付阶段。
 
-多个提示词按五秒一个 request 提供：
+## 在 Metal 上复现官方示例
+
+先完成上面的环境安装和固定版本模型下载。仓库中的两个提示词文件与上游版本
+`6b2f9984acf681e2f387188f5d1f3b26e504315b` 完全一致，也与我们的实测输入一致。
+它们生成的是背包讲解者的中文口播示例。
+
+| 示例 | 官方提示词文件 | 五秒 request 数 | 分辨率 | 每个 request 的 seed |
+| --- | --- | ---: | --- | ---: |
+| 10 秒 | [`prompts_10s.json`](examples/prompts_10s.json) | 2 | 480×864 竖屏 | 8301 |
+| 60 秒 | [`prompts_60s.json`](examples/prompts_60s.json) | 12 | 480×864 竖屏 | 8301 |
+
+使用没有遗留 `TAOMATE_MPS_*` 实验选项的新终端，激活 `.venv`，在仓库根目录运行。
+下面使用默认 BF16/FP32 路径，内存水位参数与实测一致。
+
+**10 秒示例：**
 
 ```sh
-PYTORCH_ENABLE_MPS_FALLBACK=0 python -m taomate_h3 \
+PYTORCH_ENABLE_MPS_FALLBACK=0 \
+PYTORCH_MPS_HIGH_WATERMARK_RATIO=0.9 \
+PYTORCH_MPS_LOW_WATERMARK_RATIO=0.8 \
+python -m taomate_h3 \
   --backend mps --model-root models/MiniMax-H3 --adapter models/TaoMate-H3 \
   --prompt-json examples/prompts_10s.json \
   --duration 10 --resolution 480x864 --seed 8301 \
-  --output outputs/two-prompts-10s
+  --output outputs/official-example-10s
 ```
+
+**60 秒示例：**
+
+```sh
+PYTORCH_ENABLE_MPS_FALLBACK=0 \
+PYTORCH_MPS_HIGH_WATERMARK_RATIO=0.9 \
+PYTORCH_MPS_LOW_WATERMARK_RATIO=0.8 \
+python -m taomate_h3 \
+  --backend mps --model-root models/MiniMax-H3 --adapter models/TaoMate-H3 \
+  --prompt-json examples/prompts_60s.json \
+  --duration 60 --resolution 480x864 --seed 8301 \
+  --output outputs/official-example-60s
+```
+
+10 秒 JSON 显式指定两个 seed；60 秒 JSON 的十二个 request 均使用 `--seed 8301`。
+对照实测时保留完整提示词，包括台词及 soundscape。输出分别是
+`outputs/official-example-10s/video.mp4` 和 `outputs/official-example-60s/video.mp4`；
+重跑时换一个新的输出目录。
+
+在实测 M5 Max / 128 GiB 上，整条命令（含 teacher）生成十秒耗时约 10 分 16 秒，
+生成一分钟耗时约 55 分 26 秒，进程物理内存峰值约 98–100 GiB。
+Metal 复现已验证完整媒体解码及抽样画面的连续性，尚未验证与官方 CUDA 视频逐像素或
+逐张量一致。详见[实测记录](docs/METAL_PORT.md#completed-full-pipeline-runs)。
+
+## 自定义提示词与分辨率
 
 JSON 为 `{"prompts": ["前五秒", "后五秒"], "seeds": [8301, 8301]}`。
 时长须为正的五秒倍数，与提示词数量一致；`--prompt` 和 `--prompt-json` 互斥。

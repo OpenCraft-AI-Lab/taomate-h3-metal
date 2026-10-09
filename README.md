@@ -95,15 +95,61 @@ latent and first playable video are different events. MPS runs in one process;
 `--devices` and `--gpus` apply to CUDA. The inherited backend default is `cuda`,
 so pass `--backend mps` on a Mac.
 
-For two prompts over ten seconds:
+## Reproduce the official prompt examples on Metal
+
+Complete installation and the pinned model downloads above first. The bundled
+prompt files are unchanged from upstream revision
+`6b2f9984acf681e2f387188f5d1f3b26e504315b` and match the recorded MPS runs.
+They describe the Mandarin backpack presenter shown in the contact sheet below.
+
+| Example | Prompt file | Five-second requests | Canvas | Seed per request |
+| --- | --- | ---: | --- | ---: |
+| Official 10-second example | [`prompts_10s.json`](examples/prompts_10s.json) | 2 | 480×864 portrait | 8301 |
+| Official 60-second example | [`prompts_60s.json`](examples/prompts_60s.json) | 12 | 480×864 portrait | 8301 |
+
+Use a fresh terminal without `TAOMATE_MPS_*` options left over from experiments.
+These commands select the default BF16/FP32 path and the MPS memory watermarks
+used in validation. Activate `.venv`, then run from the repository root.
+
+**10-second example:**
 
 ```sh
-PYTORCH_ENABLE_MPS_FALLBACK=0 python -m taomate_h3 \
+PYTORCH_ENABLE_MPS_FALLBACK=0 \
+PYTORCH_MPS_HIGH_WATERMARK_RATIO=0.9 \
+PYTORCH_MPS_LOW_WATERMARK_RATIO=0.8 \
+python -m taomate_h3 \
   --backend mps --model-root models/MiniMax-H3 --adapter models/TaoMate-H3 \
   --prompt-json examples/prompts_10s.json \
   --duration 10 --resolution 480x864 --seed 8301 \
-  --output outputs/two-prompts-10s
+  --output outputs/official-example-10s
 ```
+
+**60-second example:**
+
+```sh
+PYTORCH_ENABLE_MPS_FALLBACK=0 \
+PYTORCH_MPS_HIGH_WATERMARK_RATIO=0.9 \
+PYTORCH_MPS_LOW_WATERMARK_RATIO=0.8 \
+python -m taomate_h3 \
+  --backend mps --model-root models/MiniMax-H3 --adapter models/TaoMate-H3 \
+  --prompt-json examples/prompts_60s.json \
+  --duration 60 --resolution 480x864 --seed 8301 \
+  --output outputs/official-example-60s
+```
+
+The 10-second JSON explicitly supplies two seeds; the 60-second JSON inherits
+`--seed 8301` for all twelve requests. Keep the complete prompts unchanged,
+including dialogue and soundscape, when comparing with the recorded examples.
+Output is `outputs/official-example-10s/video.mp4` or
+`outputs/official-example-60s/video.mp4`; use a new output path for each rerun.
+
+On the recorded M5 Max / 128 GiB, whole-command time was about 10 min 16 s for
+ten seconds and 55 min 26 s for one minute, with approximately 98–100 GiB process
+peak footprint. Metal reproduction has been checked through complete media
+decoding and sampled visual continuity; CUDA pixel/tensor equality remains
+unverified. See [the run records](docs/METAL_PORT.md#completed-full-pipeline-runs).
+
+## Custom prompts and canvas
 
 `--prompt-json` accepts `{"prompts": ["first five seconds", "next five seconds"],
 "seeds": [8301, 8301]}`. Each prompt describes one five-second request. Duration
