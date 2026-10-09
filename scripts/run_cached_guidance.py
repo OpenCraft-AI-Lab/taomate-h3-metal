@@ -1,3 +1,5 @@
+# Modified by OpenCraft AI Lab for the Metal/MPS port, 2026.
+# Licensed under the MiniMax H3 Community License Agreement; see LICENSE.
 """Run the official runner with a previously verified, unchanged teacher artifact.
 
 Experimental A/B harness only: receipts identify artifact reuse, so this wall

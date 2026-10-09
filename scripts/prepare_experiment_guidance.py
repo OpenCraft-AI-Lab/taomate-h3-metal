@@ -1,3 +1,5 @@
+# Modified by OpenCraft AI Lab for the Metal/MPS port, 2026.
+# Licensed under the MiniMax H3 Community License Agreement; see LICENSE.
 """Prepare unchanged official Base10 artifacts for guarded Metal A/B experiments."""
 from __future__ import annotations
 

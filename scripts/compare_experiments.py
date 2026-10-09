@@ -1,3 +1,5 @@
+# Modified by OpenCraft AI Lab for the Metal/MPS port, 2026.
+# Licensed under the MiniMax H3 Community License Agreement; see LICENSE.
 """Compare delivered frames/audio and optional decoder-input latents without GPU work."""
 from __future__ import annotations
 

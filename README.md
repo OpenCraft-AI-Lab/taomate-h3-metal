@@ -1,233 +1,189 @@
-# TaoMate-H3
+# TaoMate-H3 Metal
 
-> **Experimental Metal backend:** this checkout adapts the official TaoMate-H3 Python runtime to Apple Silicon. Real 480p runs at 5, 10 and 60 seconds pass on M5 Max 128 GiB, along with 30 CPU/MPS regression tests. Use `--backend mps`; see [setup, measurements and validation limits](docs/METAL_PORT.md). The CUDA instructions below are the upstream reference.
+[中文](README.zh-CN.md) · [Validation](docs/METAL_PORT.md) · [CUDA reference](docs/UPSTREAM_CUDA.md)
 
-[![Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-Model-yellow)](https://huggingface.co/TaoLiveAIGC/TaoMate-H3)  [![ModelScope](https://img.shields.io/badge/ModelScope-Model-white?labelColor=%23EF3D5D)](https://modelscope.ai/models/TaoLiveAIGC/TaoMate-H3)
+[![CI](https://github.com/OpenCraft-AI-Lab/taomate-h3-metal/actions/workflows/ci.yml/badge.svg)](https://github.com/OpenCraft-AI-Lab/taomate-h3-metal/actions/workflows/ci.yml)
 
-## 🎥 Demo Video
+An experimental Apple Silicon port of the official
+[TaoMate-H3](https://github.com/TaoLiveAIGC/TaoMate-H3) Python runtime, maintained by
+[OpenCraft AI Lab](https://github.com/OpenCraft-AI-Lab). Powered by MiniMax H3.
 
-<!-- Add the demo video here. -->
+Generate synchronized audio and video on one Apple GPU through PyTorch Metal/MPS.
+The port retains the trained three-step LoRA, Base10 audio teacher, Stage3 schedule,
+CPU noise streams and clean KV history. Optional memory experiments add W8A16
+base weights, INT8 KV storage and bounded workspaces. CUDA execution remains available.
 
+**Research preview:** validated on M5 Max / 128 GiB unified memory. The default
+BF16/FP32 path has completed 5-, 10- and 60-second 480p runs. It is memory intensive
+and does not generate in real time on the measured Mac. CUDA numerical parity
+and independently measured lip sync remain unverified.
 
-https://github.com/user-attachments/assets/15d276f9-02c0-49c6-b98f-98656c36164a
+## Requirements
 
+- Apple Silicon Mac with MPS support; recorded validation used macOS 26.5 and
+  M5 Max / 128 GiB. Other Macs and smaller memory capacities are unvalidated.
+- Python 3.11 for the tested Metal quickstart. The inherited CUDA runtime also
+  accepts Python 3.10; the pinned Metal constraints target Python 3.11.
+- PyTorch 2.14.1 and torchvision 0.29.1 for the tested Metal setup.
+- FFmpeg and FFprobe with `libx264` and AAC encoders.
+- Complete official MiniMax H3 FL2VA files, including bundled VAE Python sources,
+  and the TaoMate-H3 adapter. Allow about 135 GiB for the base files and 2.4 GiB
+  for the adapter, plus outputs and temporary data.
 
-<br>
+The default path measured approximately 98–100 GiB process peak physical footprint
+at 480p. Weight/KV experiments can reduce memory but change numerical results;
+see [memory measurements](docs/METAL_MEMORY_EXPERIMENTS.md).
 
-TaoMate-H3 is a low-latency streaming audio-video generation runtime built on
-[MiniMax H3](https://github.com/MiniMax-AI/MiniMax-H3) **with a 3-step LoRA**. It generates synchronized
-audio and video in small chunks and supports continuous long-form generation at
-480p/768p/1080p resolutions.
+## Install
 
-Developed by the **[Alibaba TaoLive AIGC Team](https://github.com/TaoLiveAIGC)**. Powered by [MiniMax H3](https://github.com/MiniMax-AI/MiniMax-H3).
-
-## 🔥 News
-- 🤩2026/09/08: We first migrate MiniMax H3 to [TaoMate](https://github.com/TaoLiveAIGC/TaoMate) (T2AV) for streaming. The new models of complete streaming FL2AV and Ref2AV are on the way. Please stay tuned!❤️
-
-
-## 🚀 Features
-
-- **Three-step LoRA streaming generation** — each small chunk uses three
-  Stage3 denoising intervals.
-- **Audio-video joint generation** — speech, sound, and video are generated on
-  one synchronized timeline.
-- **Low chunk latency** — each small chunk reaches its final latent state well
-  before a full MiniMax H3 request completes.
-- **Long-form continuity** — clean KV cache and integrated audio guidance preserve
-  visual identity, voice, and motion across prompt boundaries.
-- **Multiple resolutions** — portrait and landscape generation at 480p, 768p,
-  and aligned 1080p.
-- **Single-node inference** — supports 4 GPUs or 8 GPUs with TP2 and Ulysses
-  sequence parallelism.
-
-## 🧱 Model Download
-| Models                |                       Download Link                                           |    Notes                      |
-|-----------------------|-------------------------------------------------------------------------------|-------------------------------|
-| [MiniMax H3](https://github.com/MiniMax-AI/MiniMax-H3)        |      🤗 [Huggingface](https://huggingface.co/MiniMaxAI/MiniMax-H3)     | Base model
-| TaoMate-H3 T2AV  |      🤗 [Huggingface](https://huggingface.co/TaoLiveAIGC/TaoMate-H3)         | Our 3-step LoRA weights for T2AV
-| TaoMate-H3 FL2AV       |      **TBD**     |  will be released before 26/10/15
-| TaoMate-H3 Ref2AV |      **TBD**         |  **TBD**
-
-
-## 🛠️Installation
-
-### Requirements
-
-- Linux
-- Python 3.10 or 3.11
-- NVIDIA Hopper/SM90 GPUs; 8 × H20 96 GB is the validated configuration
-- CUDA 12.8 and PyTorch 2.8
-- FFmpeg with H.264 and AAC support
-
-Create the environment:
-
-```bash
-conda create -n taomate-h3 python=3.10 -y
-conda activate taomate-h3
-
-pip install torch==2.8.0 torchvision==0.23.0 \
-  --index-url https://download.pytorch.org/whl/cu128
-pip install triton==3.4.0 vllm==0.11.1
-
-git clone https://github.com/Dao-AILab/flash-attention.git
-pip install --no-build-isolation ./flash-attention/hopper
-
-git clone https://github.com/TaoLiveAIGC/TaoMate-H3.git
-cd TaoMate-H3
-pip install -e .
+```sh
+git clone https://github.com/OpenCraft-AI-Lab/taomate-h3-metal.git
+cd taomate-h3-metal
+python3.11 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -e '.[metal]' -c requirements/metal-constraints.txt
+brew install ffmpeg
+python -m taomate_h3 --help
 ```
 
-Install FFmpeg on Ubuntu or Debian:
+The constraints record the direct dependencies used in validation. The import
+remains `taomate_h3`; the distribution and optional console command are named
+`taomate-h3-metal`. MPS needs no CUDA, Triton, FlashAttention or vLLM installation.
 
-```bash
-sudo apt-get update
-sudo apt-get install -y ffmpeg
-```
+## Download the model files
 
-Download the MiniMax H3 FL2VA model:
+Review the [MiniMax H3 Community License Agreement](LICENSE) before using or
+distributing this project. It contains territorial and use restrictions, including
+excluded territories; this is not an MIT- or Apache-licensed project.
 
-```bash
+```sh
 hf download MiniMaxAI/MiniMax-H3 \
-  --include "model_index.json" "FL2VA/*" \
+  --revision 42ed227ee7df40d41602854ae760620d6eb651fe \
+  --include 'model_index.json' 'FL2VA/*' \
   --local-dir models/MiniMax-H3
-```
-
-TaoMate-H3 LoRA weights are available on
-[Hugging Face](https://huggingface.co/TaoLiveAIGC/TaoMate-H3). The current
-release is the step-3000 generator EMA adapter (rank 128, alpha 128).
-Inference downloads it automatically to `models/TaoMate-H3` on first use.
-To download it in advance:
-
-```bash
 hf download TaoLiveAIGC/TaoMate-H3 \
-  --include "config.json" "adapter_config.json" "adapter_model.safetensors" \
+  --revision 7d7a51f3e63972138882ec2f0e4d1d47728110cf \
+  --include 'config.json' 'adapter_config.json' 'adapter_model.safetensors' \
   --local-dir models/TaoMate-H3
 ```
 
-For private or gated models, run `hf auth login` with an account that has access.
-Downloads also accept the standard `HF_TOKEN` environment variable.
+These revisions match recorded validation. Existing complete downloads can be
+reused through `--model-root` and `--adapter`. Include `FL2VA/video_vae/*.py`
+and `FL2VA/audio_vae/*.py`, not just safetensors. For gated files, authenticate
+with `hf auth login` using an account with access. Omitting `--adapter` lets the
+CLI download the official adapter on first use. No weights, cached guidance or
+generated videos are bundled in Git or the wheel.
 
-The LoRA directory contains:
+## Generate a first video
 
-```text
-models/TaoMate-H3/
-├── config.json
-├── adapter_config.json
-└── adapter_model.safetensors
+Activate the environment and run from the repository root:
+
+```sh
+PYTORCH_ENABLE_MPS_FALLBACK=0 python -m taomate_h3 \
+  --backend mps \
+  --model-root models/MiniMax-H3 --adapter models/TaoMate-H3 \
+  --prompt 'A calm ocean at sunrise, gentle waves washing onto a sandy beach.' \
+  --duration 5 --resolution 864x480 --seed 1 \
+  --output outputs/ocean-5s
 ```
 
-## ⭐️ Inference
+The output directory must be new or empty. Final `video.mp4` is accompanied by
+`run_config.json`, `result.json` and `latent_streaming.json`. The command prepares
+Base10 audio guidance, runs Stage3 and decodes the joined sequence. First final
+latent and first playable video are different events. MPS runs in one process;
+`--devices` and `--gpus` apply to CUDA. The inherited backend default is `cuda`,
+so pass `--backend mps` on a Mac.
 
-TaoMate-H3 accepts either one prompt through `--prompt` or one prompt per
-five-second block through `--prompt-json`.
+For two prompts over ten seconds:
 
-Example prompt file:
-
-```json
-{
-  "prompts": [
-    "prompt for seconds 0-5",
-    "prompt for seconds 5-10"
-  ],
-  "seeds": [8301, 8301]
-}
-```
-
-Run TaoMate-H3:
-
-```bash
-python -m taomate_h3 \
-  --model-root models/MiniMax-H3 \
+```sh
+PYTORCH_ENABLE_MPS_FALLBACK=0 python -m taomate_h3 \
+  --backend mps --model-root models/MiniMax-H3 --adapter models/TaoMate-H3 \
   --prompt-json examples/prompts_10s.json \
-  --duration 10 \
-  --resolution 768x1376 \
-  --gpus 8 \
-  --devices 0,1,2,3,4,5,6,7 \
-  --seed 8301 \
-  --output outputs/demo_10s
+  --duration 10 --resolution 480x864 --seed 8301 \
+  --output outputs/two-prompts-10s
 ```
 
-The command runs the complete pipeline and writes the final video to
-`outputs/demo_10s/video.mp4`. It starts its own local distributed workers, so
-no external `torchrun` command is needed.
+`--prompt-json` accepts `{"prompts": ["first five seconds", "next five seconds"],
+"seeds": [8301, 8301]}`. Each prompt describes one five-second request. Duration
+must be a positive multiple of five and agree with the prompt count. `--prompt`
+and `--prompt-json` are mutually exclusive.
 
-To use a different local LoRA, add `--adapter /path/to/adapter`.
+Canvas geometry is `WIDTHxHEIGHT`; both edges must be divisible by 32 and the
+short edge must be 480, 768 or 1088. Common landscapes are `864x480`, `1376x768`
+and `1920x1088`; reverse them for portrait. Aligned 1088 is the native 1080p-class
+edge; crop afterward for exactly 1080 pixels. Parsing a resolution does not
+establish that it fits a particular Mac.
 
-Common resolutions:
+## What has been measured
 
-| Format | Portrait | Landscape |
-|---|---|---|
-| 480p | `480x864` | `864x480` |
-| 768p | `768x1376` | `1376x768` |
-| 1080p | `1088x1920` | `1920x1088` |
+Historical default-path measurements on M5 Max / 128 GiB:
 
-For an exact 1080-pixel delivery edge, crop the generated 1088-pixel edge after
-inference.
+| Output | Whole-command time, including teacher | Process peak physical footprint |
+| --- | ---: | ---: |
+| 864×480, 5 s | 320.114 s | 97.76 GiB |
+| 480×864, 10 s | 616.452 s | 98.20 GiB |
+| 480×864, 60 s | 3,325.502 s | 99.63 GiB |
 
-## Parameters
+All three passed full FFmpeg decoding and audio finiteness checks. Sampled minute
+frames retained a presenter, backpack and studio. These are execution and sampled
+visual checks, not CUDA parity, transcript accuracy or lip-sync scores. Measurements
+refer to recorded source revisions, not new benchmarks of every later commit.
+See [complete evidence and limitations](docs/METAL_PORT.md).
 
-| Parameter | Description | Default |
-|---|---|---|
-| `--backend` | Execution backend: `cuda` or single-process Apple `mps` | `cuda` |
-| `--model-root` | MiniMax H3 directory containing `FL2VA/` | Required |
-| `--adapter` | Local LoRA directory; omit to download and reuse the official TaoMate-H3 adapter | `models/TaoMate-H3` |
-| `--prompt` | One prompt reused for every five-second block | — |
-| `--prompt-json` | JSON file with one prompt per five-second block | — |
-| `--duration` | Total duration in seconds; must be a multiple of 5 | `5`, or inferred from JSON |
-| `--resolution` | `WIDTHxHEIGHT`; short edge 480, 768, or 1088; both edges divisible by 32 | `768x1376` |
-| `--gpus` | Local inference GPU count: `4` or `8` | `8` |
-| `--devices` | Comma-separated CUDA device IDs | `0` to `gpus-1` |
-| `--seed` | Authored request seed | `8301` |
-| `--output` | New or empty output directory | Required |
+![Sampled frames from the recorded 60-second MPS run](docs/verification/minute-60s/contact-sheet.jpg)
 
-`--prompt` and `--prompt-json` are mutually exclusive.
+Sampled frames from the recorded one-minute MPS run, using the official prompt
+example. The contact sheet is historical validation evidence.
 
-## Performance and Advantages
+Later opt-in quantization runs completed native 1088×1920 outputs at five and ten
+seconds. A 65-second FC2 run failed on an allocator limit; the combined-policy
+65-second attempt was stopped before completion. No 65-second native1080 success
+or verified request-13 full-model audio reset is claimed. See
+[expanded quantization](docs/METAL_EXPANDED_WEIGHT_QUANTIZATION.md).
 
-The following results were measured on one 8 × NVIDIA H20 96 GB node with
-TP2 × Ulysses4, a `480x864` canvas, a 10-second output, and seed `8301`.
+## Optional memory experiments
 
-| Metric | TaoMate-H3 | MiniMax H3 | Improvement |
-|---|---:|---:|---:|
-| Pure DiT time | 14.810 s | 169.572 s | **11.45× faster** |
-| First final chunk latent | 6.148 s | 170.052 s | **27.66× faster** |
-| Benchmark first playable video | 17.287 s | 183.313 s | **10.60× faster** |
-| Peak DiT memory allocated | 31.37 GiB | 32.03 GiB | - |
+Experiments are explicit environment options. The [memory guide](docs/METAL_MEMORY_EXPERIMENTS.md)
+records compatible settings, whole-process measurements and comparisons. W8A16
+keeps BF16 activations and is distinct from CUDA W8A8; quantized weights/KV are
+lossy and can alter detail, poses and composition. They have not shown a general
+speed improvement.
 
-Pure DiT time excludes model loading, text encoding, VAE decoding, and media
-encoding. First playable video includes Video VAE decoding and H.264
-publication in the matched first-chunk publication benchmark. The table covers
-the Stage3 generation path and excludes the command's internal audio preparation.
-A 10-second TaoMate-H3 run contains 24 generation forwards and eight clean-KV
-updates.
+For long experiments, compile `scripts/memory_sample.c` and use
+[`scripts/run_guarded.py`](scripts/run_guarded.py), which records physical footprint,
+memory reserve, system swap and termination reasons. Commands are in
+[contributing and verification](CONTRIBUTING.md).
 
-## License
+## Development and documentation
 
-TaoMate-H3 is released under the
-[MiniMax H3 Community License Agreement](LICENSE). Use and distribution must
-follow the terms of that license.
-
-## Citation
-If you find our work helpful, feel free to cite us.
-```bibtex
-@misc{taomate2026,
-      title={TaoMate: Anchor-Guided Memory Bridging Evolving and Reference States for Real-Time Audio-Video Digital Human Generation}, 
-      author={Qijun Gan and Chenwei Zhang and Meiguang Jin and Junfeng Ma and Qiu Shen},
-      year={2026},
-      eprint={2607.24359},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV},
-      url={https://arxiv.org/abs/2607.24359}, 
-}
+```sh
+python -m pip install -e '.[metal,test]' -c requirements/metal-constraints.txt
+ruff check src scripts tests
+python -m pytest -q
 ```
 
-## Acknowledgements
+Ordinary tests use small tensors and download no weights. MPS cases skip on hosts
+without MPS; real macOS watchdog helpers compile into pytest's temporary directory.
+Two optional publication tests require bundled upstream processor source selected
+by `TAOMATE_TEST_MODEL_ROOT`. CI checks CPU contracts, lint and packaging;
+it does not establish real Apple GPU generation support.
 
-We thank the teams and contributors behind:
+- [Metal port and baseline validation](docs/METAL_PORT.md)
+- [Memory experiments](docs/METAL_MEMORY_EXPERIMENTS.md)
+- [Expanded quantization results](docs/METAL_EXPANDED_WEIGHT_QUANTIZATION.md)
+- [Documentation index and evidence](docs/README.md)
+- [Upstream CUDA setup and benchmarks](docs/UPSTREAM_CUDA.md)
+- [Release changes](CHANGELOG.md) and [contributing](CONTRIBUTING.md)
 
-- [MiniMax H3](https://github.com/MiniMax-AI/MiniMax-H3)
-- [Qwen3-VL](https://github.com/QwenLM/Qwen3-VL)
-- [PyTorch](https://github.com/pytorch/pytorch)
-- [FlashAttention](https://github.com/Dao-AILab/flash-attention)
-- [Triton](https://github.com/triton-lang/triton)
-- [vLLM](https://github.com/vllm-project/vllm)
+## Attribution and license
+
+TaoMate-H3 was developed by the Alibaba TaoLive AIGC Team on MiniMax H3.
+OpenCraft AI Lab adds the Apple Silicon backend, memory work and validation.
+Upstream is pinned to `6b2f9984acf681e2f387188f5d1f3b26e504315b`.
+This independent port lists changes in [MODIFICATIONS.md](MODIFICATIONS.md).
+
+Distribution and use remain subject to [LICENSE](LICENSE) and [NOTICE](NOTICE).
+Model weights have their upstream terms. Retain notices in copies. See the
+[upstream guide](docs/UPSTREAM_CUDA.md#citation) for the TaoMate paper citation.

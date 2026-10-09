@@ -1,0 +1,7 @@
+include LICENSE NOTICE MODIFICATIONS.md README.md README.zh-CN.md CONTRIBUTING.md CHANGELOG.md
+recursive-include docs *.md *.json *.jsonl *.log *.txt *.py *.c *.jpg *.gz
+recursive-include examples *.json
+recursive-include requirements *.txt
+recursive-include scripts *.py *.c
+recursive-include tests *.py *.json
+global-exclude __pycache__ *.py[cod] .DS_Store

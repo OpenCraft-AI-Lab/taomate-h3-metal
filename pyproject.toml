@@ -1,15 +1,17 @@
+# Modified by OpenCraft AI Lab for the Metal/MPS port, 2026; see LICENSE and NOTICE.
 [build-system]
-requires = ["setuptools>=69", "wheel"]
+requires = ["setuptools>=77.0.3", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "taomate-h3"
+name = "taomate-h3-metal"
 version = "0.1.0"
-description = "A focused direct 480p, 768p, and aligned 1080p streaming inference runtime for MiniMax H3"
+description = "Experimental Apple Silicon Metal/MPS backend for TaoMate-H3 audio-video generation"
 readme = "README.md"
 requires-python = ">=3.10,<3.12"
-license = {file = "LICENSE"}
-authors = [{name = "TaoMate-H3 Contributors"}]
+license = "LicenseRef-MiniMax-H3-Community"
+license-files = ["LICENSE", "NOTICE", "MODIFICATIONS.md"]
+authors = [{name = "TaoMate-H3 Contributors"}, {name = "OpenCraft AI Lab"}]
 dependencies = [
   "torch>=2.4",
   "torchvision>=0.19",
@@ -35,13 +37,22 @@ classifiers = [
 ]
 
 [project.optional-dependencies]
+metal = ["torch==2.14.1", "torchvision==0.29.1"]
 test = ["pytest>=8", "ruff>=0.9"]
 
-[tool.setuptools]
-license-files = ["LICENSE", "NOTICE"]
+[project.scripts]
+taomate-h3-metal = "taomate_h3.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/OpenCraft-AI-Lab/taomate-h3-metal"
+Issues = "https://github.com/OpenCraft-AI-Lab/taomate-h3-metal/issues"
+Upstream = "https://github.com/TaoLiveAIGC/TaoMate-H3"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
 
 [tool.ruff]
 line-length = 100

@@ -2,7 +2,7 @@
 
 This checkout ports the official [TaoMate-H3](https://github.com/TaoLiveAIGC/TaoMate-H3)
 Python project to Apple Silicon. The source baseline is
-`6b2f9984acf681e2f387188f5d1f3b26e504315b` on branch `codex/metal-backend`.
+`6b2f9984acf681e2f387188f5d1f3b26e504315b`.
 The official project defines model behavior. `h3.c` is a reference for Apple GPU
 engineering, not the application runtime or the algorithm specification.
 
@@ -41,14 +41,14 @@ The earlier h3.c-based minute video belongs to a separate experiment; it is not
 validation of this port. Long-video output quality and CUDA tensor parity remain
 unverified until measured in this checkout.
 
-## Local setup and provenance
+## Recorded validation environment
 
 - Mac: M5 Max, 128 GiB unified memory.
 - Isolated environment: `.venv`, Python 3.11.15, PyTorch 2.14.1;
   upstream pins `diffusers==0.35.2`, `transformers==4.57.6`, `tokenizers==0.22.1`.
-- Existing base: `/Users/supreme-paca/Projects/h3-metal/MiniMax-H3`, revision
+- Existing base: `models/MiniMax-H3`, revision
   `42ed227ee7df40d41602854ae760620d6eb651fe`.
-- Existing adapter: `/Users/supreme-paca/Models/TaoMate-H3`, revision
+- Existing adapter: `models/TaoMate-H3`, revision
   `7d7a51f3e63972138882ec2f0e4d1d47728110cf`.
 - The 24 bundled VAE Python source files missing from the earlier C-only download
   were retrieved at the same base revision. Total 172,981 bytes; Git blob hashes
@@ -60,31 +60,30 @@ pipeline has also completed five-second, ten-second and one-minute 480p runs; se
 measured results below. These results do not establish CUDA numerical parity
 or support for higher resolutions.
 
-## Running on this Mac
+## Running on Apple Silicon
 
 Create an isolated Python 3.11 environment and install the project with its test
 extra. The verified environment versions are in `verification/environment.json`.
-For a new checkout on an Apple Silicon Mac, the environment used here can be
-created with these commands (FFmpeg must also be on `PATH`):
+For a new checkout on an Apple Silicon Mac, use the [quickstart](../README.md).
+The environment can also be created with uv (FFmpeg must be on `PATH`):
 
 ```sh
 uv venv --python 3.11 .venv
 uv pip install --python .venv/bin/python \
-  'torch==2.14.1' 'torchvision==0.29.1' -e '.[test]'
+  -e '.[metal,test]' -c requirements/metal-constraints.txt
 ```
 
 Use the complete official FL2VA download, including its bundled VAE Python
-source files, and the trained TaoMate-H3 adapter. The base directory happens
-to be under the earlier C experiment on this machine; this port reads its
-official model files and never calls the C executable.
+source files, and the trained TaoMate-H3 adapter. The paths below use the public quickstart layout. Historical receipts retain
+the original local paths and hashes for provenance; they are not setup defaults.
 
-The existing local environment is ready:
+From the repository root:
 
 ```sh
 .venv/bin/python -m taomate_h3 \
   --backend mps \
-  --model-root /Users/supreme-paca/Projects/h3-metal/MiniMax-H3 \
-  --adapter /Users/supreme-paca/Models/TaoMate-H3 \
+  --model-root models/MiniMax-H3 \
+  --adapter models/TaoMate-H3 \
   --prompt 'A calm ocean at sunrise, gentle waves washing onto a sandy beach.' \
   --duration 5 --resolution 864x480 --seed 1 \
   --output outputs/new-mps-run
@@ -97,9 +96,9 @@ MPS uses the official CPU random-number streams, not a device RNG substitute.
 ```sh
 .venv/bin/python -m pytest -q tests
 .venv/bin/python scripts/verify_mps_components.py \
-  --model-root /Users/supreme-paca/Projects/h3-metal/MiniMax-H3 \
+  --model-root models/MiniMax-H3 \
   --receipt outputs/components.json \
-  --gpu-lock /Users/supreme-paca/Projects/h3-metal/outputs/original-baseline-20261002/heavy-gpu.lock
+  --gpu-lock /tmp/taomate-h3-metal-gpu.lock
 ```
 
 The component smoke explicitly loads the real VAE weights. Ordinary pytest
@@ -224,8 +223,8 @@ PYTORCH_MPS_HIGH_WATERMARK_RATIO=0.9 \
 PYTORCH_MPS_LOW_WATERMARK_RATIO=0.8 \
 .venv/bin/python -m taomate_h3 \
   --backend mps \
-  --model-root /Users/supreme-paca/Projects/h3-metal/MiniMax-H3 \
-  --adapter /Users/supreme-paca/Models/TaoMate-H3 \
+  --model-root models/MiniMax-H3 \
+  --adapter models/TaoMate-H3 \
   --prompt-json examples/prompts_60s.json \
   --duration 60 --resolution 480x864 --seed 8301 \
   --output outputs/new-mps-minute
@@ -247,5 +246,8 @@ would be incorrect. The MPS backend preserves the original VAE tiling,
 blending and publication logic, with one process and no CUDA fusion.
 
 Remaining validation: fixed-input official CUDA intermediate tensors and
-quality comparisons; higher-resolution memory limits; longer runs beyond the
-validated minute and real model execution across the 13th-request audio reset.
+quality comparisons; longer runs beyond the validated minute and real model
+execution across the 13th-request audio reset. Later opt-in 1088×1920 five-
+and ten-second results and failed/stopped 65-second attempts are recorded in
+[expanded quantization results](METAL_EXPANDED_WEIGHT_QUANTIZATION.md); those
+results do not establish high-resolution support for the default BF16 path.

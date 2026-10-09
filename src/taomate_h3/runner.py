@@ -1,3 +1,5 @@
+# Modified by OpenCraft AI Lab for the Metal/MPS port, 2026.
+# Licensed under the MiniMax H3 Community License Agreement; see LICENSE.
 # Modified for TaoMate-H3 streaming inference, 2026.
 # Licensed under the MiniMax H3 Community License Agreement; see LICENSE.
 """Direct long-video generation and one-shot publication."""

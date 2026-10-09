@@ -1,3 +1,5 @@
+# Modified by OpenCraft AI Lab for the Metal/MPS port, 2026.
+# Licensed under the MiniMax H3 Community License Agreement; see LICENSE.
 """Tile-size invariance, unchanged full-key attention and explicit scratch bounds."""
 
 import gc

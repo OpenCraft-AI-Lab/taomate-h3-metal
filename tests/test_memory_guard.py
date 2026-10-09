@@ -1,3 +1,5 @@
+# Modified by OpenCraft AI Lab for the Metal/MPS port, 2026.
+# Licensed under the MiniMax H3 Community License Agreement; see LICENSE.
 """Watchdog decision boundaries and a real bounded CPU allocation termination."""
 import importlib.util
 import json
@@ -28,10 +30,8 @@ def test_memory_guard_limits_and_failed_telemetry():
 
 
 @pytest.mark.skipif(sys.platform != "darwin", reason="native macOS watcher")
-def test_watchdog_stops_bounded_cpu_allocation(tmp_path):
-    watcher = Path("/private/tmp/taomate-memory-sample")
-    if not watcher.exists():
-        pytest.skip("compile scripts/memory_sample.c before native watchdog test")
+def test_watchdog_stops_bounded_cpu_allocation(tmp_path, native_memory_watcher):
+    watcher = native_memory_watcher
     receipt = tmp_path / "receipt.json"
     code = ("import time; data = bytearray(96 * 1024**2); "
             "print('allocated', flush=True); time.sleep(20)")
@@ -52,10 +52,8 @@ def test_watchdog_stops_bounded_cpu_allocation(tmp_path):
 
 
 @pytest.mark.skipif(sys.platform != "darwin", reason="native macOS watcher")
-def test_monitor_start_failure_cleans_up_child(monkeypatch, tmp_path):
-    watcher = Path("/private/tmp/taomate-memory-sample")
-    if not watcher.exists():
-        pytest.skip("compile native memory watcher")
+def test_monitor_start_failure_cleans_up_child(monkeypatch, tmp_path, native_memory_watcher):
+    watcher = native_memory_watcher
     original = guard.subprocess.Popen
     calls, children = [], []
 
@@ -81,13 +79,11 @@ def test_monitor_start_failure_cleans_up_child(monkeypatch, tmp_path):
 
 
 @pytest.mark.skipif(sys.platform != "darwin", reason="native macOS watchdog")
-def test_launcher_sigterm_cleans_up_session(tmp_path):
+def test_launcher_sigterm_cleans_up_session(tmp_path, native_memory_watcher):
     import os
     import subprocess
 
-    watcher = Path("/private/tmp/taomate-memory-sample")
-    if not watcher.exists():
-        pytest.skip("compile native memory watcher")
+    watcher = native_memory_watcher
     receipt = tmp_path / "receipt.json"
     command = [sys.executable, str(SCRIPT), "--watcher", str(watcher),
                "--lock", str(tmp_path / "lock"), "--log", str(tmp_path / "log"),
@@ -115,10 +111,8 @@ def test_launcher_sigterm_cleans_up_session(tmp_path):
 
 
 @pytest.mark.skipif(sys.platform != "darwin", reason="native macOS watcher")
-def test_closed_stdout_after_child_spawn_cleans_up(monkeypatch, tmp_path):
-    watcher = Path("/private/tmp/taomate-memory-sample")
-    if not watcher.exists():
-        pytest.skip("compile native memory watcher")
+def test_closed_stdout_after_child_spawn_cleans_up(monkeypatch, tmp_path, native_memory_watcher):
+    watcher = native_memory_watcher
     original = guard.subprocess.Popen
     children = []
 

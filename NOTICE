@@ -1,3 +1,9 @@
 MiniMax H3 is licensed under the MiniMax H3 Community License Agreement, Copyright © 2026 MiniMax. All Rights Reserved.
 
 TaoMate-H3 streaming inference modifications by the Alibaba TaoLive AIGC Team, 2026.
+
+Apple Silicon Metal/MPS backend, memory experiments, tests and release
+documentation modified by OpenCraft AI Lab, 2026.
+Upstream source: https://github.com/TaoLiveAIGC/TaoMate-H3
+Pinned upstream revision: 6b2f9984acf681e2f387188f5d1f3b26e504315b
+Modified and added files are listed in MODIFICATIONS.md.

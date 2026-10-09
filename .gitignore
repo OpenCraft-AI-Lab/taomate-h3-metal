@@ -1,8 +1,14 @@
+# Modified by OpenCraft AI Lab for the Metal/MPS port, 2026; see NOTICE.
 __pycache__/
 *.py[cod]
 *.so
 .mypy_cache/
 .ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+*.dSYM/
+.local/
 
 .venv/
 venv/

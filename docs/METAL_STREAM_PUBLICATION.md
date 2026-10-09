@@ -37,7 +37,7 @@ Run with the worktree source selected explicitly:
 
 ```sh
 PYTHONPATH=/private/tmp/taomate-video-memory/src \
-  /Users/supreme-paca/Projects/taomate-h3-metal/.venv/bin/python \
+  .venv/bin/python \
   -m pytest tests/test_metal_publication.py -q
 ```
 

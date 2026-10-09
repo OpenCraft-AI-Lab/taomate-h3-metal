@@ -1,3 +1,5 @@
+# Modified by OpenCraft AI Lab for the Metal/MPS port, 2026.
+# Licensed under the MiniMax H3 Community License Agreement; see LICENSE.
 """Allocator telemetry mocks run without GPU; the tiny device case is explicit."""
 
 from types import SimpleNamespace

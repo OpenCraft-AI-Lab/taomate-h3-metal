@@ -1,3 +1,5 @@
+# Modified by OpenCraft AI Lab for the Metal/MPS port, 2026.
+# Licensed under the MiniMax H3 Community License Agreement; see LICENSE.
 """CPU pixel/FFmpeg equivalence and bounded publication ownership tests."""
 
 import importlib
@@ -23,7 +25,7 @@ def bundled_processor():
     root = (
         Path(
             os.environ.get(
-                "TAOMATE_TEST_MODEL_ROOT", "/Users/supreme-paca/Projects/h3-metal/MiniMax-H3"
+                "TAOMATE_TEST_MODEL_ROOT", "models/MiniMax-H3"
             )
         )
         / "FL2VA/video_vae"
