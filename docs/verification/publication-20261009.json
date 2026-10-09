@@ -148,5 +148,16 @@
   "history_secret_pattern_scan": {
     "blobs": 581,
     "findings": 0
+  },
+  "github_initial_ci": {
+    "url": "https://github.com/OpenCraft-AI-Lab/taomate-h3-metal/actions/runs/37996524981",
+    "code_commit": "c01a566dd6cf5d46aa9165917303b1db737af994",
+    "conclusion": "success",
+    "cpu_passed": 184,
+    "expected_skips": 74,
+    "lint": "passed",
+    "build": "passed",
+    "twine_check": "passed",
+    "cli_help": "passed"
   }
 }

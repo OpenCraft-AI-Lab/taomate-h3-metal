@@ -11,7 +11,7 @@ source hashes; historical receipts retain their recorded identities.
 - [x] Package metadata, console command, source manifest and CI workflow.
 - [x] Final lint and CPU / real-MPS regression results recorded.
 - [x] Source/wheel build, metadata check and clean installation verified.
-- [ ] Public repository and main branch pushed and checked.
+- [x] Public repository and main branch pushed and checked.
 
 Full model benchmarks were not repeated for this release. Historical measurements
 and limits are in [METAL_PORT.md](METAL_PORT.md).
@@ -34,3 +34,17 @@ and limits are in [METAL_PORT.md](METAL_PORT.md).
 
 The machine-readable [local receipt](verification/publication-20261009.json)
 records the test source identities and measurements without local machine paths.
+
+## GitHub verification
+
+The [public repository](https://github.com/OpenCraft-AI-Lab/taomate-h3-metal) is
+available with `main` as default branch. The publication code commit is
+`c01a566dd6cf5d46aa9165917303b1db737af994`.
+[Its Linux CI run](https://github.com/OpenCraft-AI-Lab/taomate-h3-metal/actions/runs/37996524981)
+passed lint, **184 CPU tests / 74 expected skips**, source/wheel builds, metadata
+validation and the installed console command. Skips cover MPS, native macOS
+watchdog and optional model-source/environment-specific cases. The source and
+installed-wheel real-MPS suites above ran all 258 cases without skips.
+
+The workflow pins official Actions commits and Ubuntu 24.04. Documentation-only
+pushes skip the code CI; code/configuration changes and pull requests run it.
