@@ -6,6 +6,8 @@ This independent Metal/MPS port modifies official TaoMate-H3 at
 Modified code carries an OpenCraft notice. Added code, tests, documentation and
 verification reports are OpenCraft modifications under the same LICENSE.
 Historical logs and hashes identify their original runs and remain evidence.
+The h3.c comparison includes a small external source patch excerpt under its
+original MIT license, with attribution and license text in the evidence directory.
 
 ## Changes to upstream files
 

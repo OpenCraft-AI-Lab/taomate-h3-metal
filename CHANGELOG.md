@@ -9,6 +9,8 @@
   and incomplete-run evidence.
 - Add English/Chinese quickstarts, dependency constraints, metadata, console
   entrypoint, source packaging and CPU CI.
+- Add official 10/60-second reproduction commands and a visual README introduction
+  with the historical paired h3.c speed/memory comparison and portable evidence.
 - Remove local setup paths and compile macOS watchdog fixtures automatically.
 
 Historical default-path 480p 5/10/60-second and native1080 short quantized runs

@@ -1,22 +1,71 @@
 # TaoMate-H3 Metal
 
-[中文](README.zh-CN.md) · [Validation](docs/METAL_PORT.md) · [CUDA reference](docs/UPSTREAM_CUDA.md)
+### Your Mac. Your prompts. A full minute of sound and motion.
+
+**Create video with speech, ambience and movement locally on Apple Silicon.**
+Powered by MiniMax H3 and the official TaoMate-H3 three-step LoRA, brought to
+Metal/MPS by [OpenCraft AI Lab](https://github.com/OpenCraft-AI-Lab).
 
 [![CI](https://github.com/OpenCraft-AI-Lab/taomate-h3-metal/actions/workflows/ci.yml/badge.svg)](https://github.com/OpenCraft-AI-Lab/taomate-h3-metal/actions/workflows/ci.yml)
+[![Apple Silicon](https://img.shields.io/badge/Apple_Silicon-Metal%2FMPS-black)](#requirements)
+[![Research preview](https://img.shields.io/badge/status-research_preview-blue)](docs/METAL_PORT.md)
 
-An experimental Apple Silicon port of the official
-[TaoMate-H3](https://github.com/TaoLiveAIGC/TaoMate-H3) Python runtime, maintained by
-[OpenCraft AI Lab](https://github.com/OpenCraft-AI-Lab). Powered by MiniMax H3.
+**[Get started](#install)** · **[Reproduce the official examples](#reproduce-the-official-prompt-examples-on-metal)** · **[Compare with h3.c](#taomate-metal-vs-h3c)** · [中文](README.zh-CN.md)
 
-Generate synchronized audio and video on one Apple GPU through PyTorch Metal/MPS.
-The port retains the trained three-step LoRA, Base10 audio teacher, Stage3 schedule,
-CPU noise streams and clean KV history. Optional memory experiments add W8A16
-base weights, INT8 KV storage and bounded workspaces. CUDA execution remains available.
+| A minute of video | Less waiting at 768p | Runs on your Apple GPU |
+| --- | --- | --- |
+| **60-second 480p run completed** with the official Mandarin presenter prompts. | **4.1–4.2× faster completion** than the pinned h3.c workflow in two recorded 20-second scene tests. | **Local audio + video generation** through PyTorch MPS, with an inspectable Python runtime. |
 
-**Research preview:** validated on M5 Max / 128 GiB unified memory. The default
-BF16/FP32 path has completed 5-, 10- and 60-second 480p runs. It is memory intensive
-and does not generate in real time on the measured Mac. CUDA numerical parity
-and independently measured lip sync remain unverified.
+![Sampled frames from the recorded 60-second MPS run](docs/verification/minute-60s/contact-sheet.jpg)
+
+*One recorded minute. The presenter, backpack and studio remain recognizable in
+these sampled frames. [Make this example on your Mac](#reproduce-the-official-prompt-examples-on-metal).*
+
+## Built for creators who like to experiment
+
+- **Describe the whole scene.** Prompts can include dialogue, action and soundscape;
+  the pipeline produces an MP4 with generated audio and video.
+- **Keep the story going.** Chain five-second requests with clean KV history;
+  the default path has completed 5-, 10- and 60-second 480p outputs.
+- **Push the canvas.** Opt-in quantization has completed native 1088×1920 outputs
+  at five and ten seconds. [See the recorded runs](docs/METAL_EXPANDED_WEIGHT_QUANTIZATION.md).
+- **Own the workflow.** Run locally, inspect configs and metrics, and experiment
+  with W8A16 weights, INT8 KV storage and bounded workspaces.
+
+This is an independent, experimental port of
+[TaoMate-H3](https://github.com/TaoLiveAIGC/TaoMate-H3). It retains the trained LoRA,
+Base10 audio teacher, Stage3 schedule and CPU noise streams; CUDA execution is
+also available. Recorded validation used **M5 Max / 128 GiB unified memory**.
+Other Macs and smaller capacities are unvalidated. Generation is not real time;
+CUDA numerical parity and independently measured lip sync remain unverified.
+
+## TaoMate Metal vs h3.c
+
+**A 20-second 768p clip in about 51–53 minutes, versus 3½–3¾ hours.**
+In two recorded scene tests, TaoMate finished in roughly one quarter of the time
+of [antirez/h3.c](https://github.com/antirez/h3.c/tree/8974cc055ea9c02fcd14cc27dfda3e1027c05153).
+
+Both engines ran serially on the same M5 Max / 128 GiB, with identical full prompt
+text per scene, seed **8304**, **1344×768** and **24 fps**. Time includes TaoMate's
+fresh Base10 teacher as well as generation, decoding and in-process media output.
+Memory is the **kernel-reported peak physical process footprint**, including the
+larger of TaoMate's serial teacher and generation phases.
+
+| 20-second scene | TaoMate total | h3.c total | h3.c / TaoMate time | TaoMate peak | h3.c peak |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Automated glass workshop | **52 min 49 s** | 3 h 41 min 42 s | **4.20×** | 64.82 GiB | **43.50 GiB** |
+| Orbital cargo docking | **50 min 53 s** | 3 h 28 min 27 s | **4.10×** | 64.87 GiB | **43.52 GiB** |
+
+**TaoMate wins on completion time here; h3.c wins on memory.** TaoMate uses about
+49% more peak process memory in these tests. Choose the tradeoff that fits your Mac.
+
+These are historical **workflow comparisons using opt-in W8A16 / INT8 KV settings**,
+not the default quickstart or equal-quality/backend benchmarks. TaoMate uses four
+five-second requests; h3.c denoises one whole sequence. The pinned h3.c snapshot
+has a documented two-line frame-limit patch for 20-second output (481 frames vs
+TaoMate's 480). One sample per engine per scene; different samplers, quantization
+and LoRA can change quality, and sampled story adherence differed. No universal
+4× speedup is claimed. [Exact metrics, settings, prompts and methodology](docs/H3C_COMPARISON.md).
 
 ## Requirements
 
@@ -100,7 +149,7 @@ so pass `--backend mps` on a Mac.
 Complete installation and the pinned model downloads above first. The bundled
 prompt files are unchanged from upstream revision
 `6b2f9984acf681e2f387188f5d1f3b26e504315b` and match the recorded MPS runs.
-They describe the Mandarin backpack presenter shown in the contact sheet below.
+They describe the Mandarin backpack presenter shown in the contact sheet above.
 
 | Example | Prompt file | Five-second requests | Canvas | Seed per request |
 | --- | --- | ---: | --- | ---: |
@@ -178,11 +227,6 @@ visual checks, not CUDA parity, transcript accuracy or lip-sync scores. Measurem
 refer to recorded source revisions, not new benchmarks of every later commit.
 See [complete evidence and limitations](docs/METAL_PORT.md).
 
-![Sampled frames from the recorded 60-second MPS run](docs/verification/minute-60s/contact-sheet.jpg)
-
-Sampled frames from the recorded one-minute MPS run, using the official prompt
-example. The contact sheet is historical validation evidence.
-
 Later opt-in quantization runs completed native 1088×1920 outputs at five and ten
 seconds. A 65-second FC2 run failed on an allocator limit; the combined-policy
 65-second attempt was stopped before completion. No 65-second native1080 success
@@ -217,6 +261,7 @@ by `TAOMATE_TEST_MODEL_ROOT`. CI checks CPU contracts, lint and packaging;
 it does not establish real Apple GPU generation support.
 
 - [Metal port and baseline validation](docs/METAL_PORT.md)
+- [h3.c speed and memory comparison](docs/H3C_COMPARISON.md)
 - [Memory experiments](docs/METAL_MEMORY_EXPERIMENTS.md)
 - [Expanded quantization results](docs/METAL_EXPANDED_WEIGHT_QUANTIZATION.md)
 - [Documentation index and evidence](docs/README.md)

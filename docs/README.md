@@ -5,6 +5,7 @@ Start with the [English quickstart](../README.md) or [中文说明](../README.zh
 | Guide | Scope |
 | --- | --- |
 | [Metal port](METAL_PORT.md) | Official-source baseline, setup, 5/10/60-second runs and limitations |
+| [h3.c comparison](H3C_COMPARISON.md) | Two paired 768p scenes, teacher-inclusive speed, physical memory peaks and reproducible settings |
 | [Memory experiments](METAL_MEMORY_EXPERIMENTS.md) | Options, guarded measurements, W8A16 / KV tradeoffs |
 | [Expanded quantization](METAL_EXPANDED_WEIGHT_QUANTIZATION.md) | Native1080 short runs and incomplete long runs |
 | [Weight tiles](METAL_WEIGHT_TILES.md) | Bounded BF16 dequantization workspace |
